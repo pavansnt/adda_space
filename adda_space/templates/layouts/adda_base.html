@@ -1,0 +1,29 @@
+{% extends "templates/base.html" %}
+
+{% set body_class = "adda-body" %}
+{% block title %}{{ title or "Adda Space — Community Gatherings" }}{% endblock %}
+
+{% block head_include %}
+  <!-- Google Fonts: Plus Jakarta Sans (Bold Civic Headings) & Inter (Clean Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Adda Space Reap Benefit-Inspired Stylesheet -->
+  <link rel="stylesheet" href="/assets/adda_space/css/adda_space.css?v={{ build_version or '2.0.1' }}&t=20261009_v3">
+{% endblock %}
+
+{% block navbar %}
+  {% include "templates/includes/navbar.html" %}
+{% endblock %}
+
+{% block content %}
+<main class="adda-main" id="main-content" role="main">
+  {% block adda_content %}{% endblock %}
+</main>
+{% endblock %}
+
+{% block footer %}
+  {% include "templates/includes/footer.html" %}
+{% endblock %}
+

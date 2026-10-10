@@ -1,0 +1,278 @@
+{% extends "templates/layouts/adda_base.html" %}
+
+{% block title %}Adda Space — Where Communities Meet, Discuss &amp; Act{% endblock %}
+
+{% block adda_content %}
+<!-- 1. Hero Section (Prominent Adda Space Green) -->
+<section class="adda-hero">
+  <div class="adda-container">
+    <div class="adda-hero-brand-row">
+      <img src="/assets/adda_space/images/adda_space_logo.png" alt="Adda Space" class="adda-hero-logo" />
+      <div class="adda-hero-intro">
+        <span class="adda-hero-badge">
+          <span class="adda-hero-badge-dot"></span>
+          <span>Community Civic Space</span>
+        </span>
+      </div>
+    </div>
+    <h1 class="adda-hero-tagline">
+      Adda Space &mdash; A community space where you can share, learn, collaborate, and work on ideas that matter to you.
+    </h1>
+    <p class="adda-hero-lead">
+      An open and voluntary neighborhood initiative opening physical community spaces for citizens, changemakers, and young solvers to collaborate on local solutions.
+    </p>
+    <div class="adda-hero-actions">
+      <a href="/events" class="adda-btn adda-btn-hero-primary adda-btn-lg">Explore Events &rarr;</a>
+      <a href="/host-an-event" class="adda-btn adda-btn-hero-outline adda-btn-lg">Host an Adda</a>
+    </div>
+  </div>
+</section>
+
+<!-- 2. Upcoming Addas Section -->
+<section class="adda-section" id="upcoming-addas-section">
+  <div class="adda-container">
+    <div class="adda-section-header">
+      <div>
+        <span class="adda-pill-badge adda-pill-teal">Community Calendar</span>
+        <h2 class="adda-section-heading">Upcoming Addas</h2>
+        <p class="adda-section-sub">Gatherings open to all neighbours in community spaces.</p>
+      </div>
+      <a href="/events" class="adda-action-link">
+        View all events &rarr;
+      </a>
+    </div>
+
+    <!-- Loading Skeleton Cards -->
+    <div class="adda-events-grid" id="home-events-loading" aria-busy="true" aria-label="Loading upcoming addas">
+      {% for i in range(3) %}
+      <article class="adda-card">
+        <div class="adda-card-media adda-skeleton adda-skeleton-media"></div>
+        <div class="adda-card-body">
+          <div class="adda-skeleton adda-skeleton-text" style="width: 35%; margin-bottom: 0.75rem;"></div>
+          <div class="adda-skeleton adda-skeleton-title" style="margin-bottom: 0.75rem;"></div>
+          <div class="adda-skeleton adda-skeleton-text" style="width: 90%; margin-bottom: 1.5rem;"></div>
+          <div class="adda-skeleton adda-skeleton-text" style="width: 50%;"></div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+    <!-- Dynamic Events Grid Container -->
+    <div class="adda-events-grid" id="home-events-grid" style="display: none;"></div>
+
+    <!-- Fallback / Curated Previews (Shown if API has no upcoming events or is loading offline) -->
+    <div class="adda-events-grid" id="home-events-fallback" style="display: none;">
+      <article class="adda-card">
+        <div class="adda-card-media">
+          <div class="adda-card-placeholder">Community Circle</div>
+        </div>
+        <div class="adda-card-body">
+          <div class="adda-card-meta">
+            <span class="adda-tag adda-tag-city">Civic Hub</span>
+            <span class="adda-tag adda-tag-free">Free Admission</span>
+          </div>
+          <h3 class="adda-card-title">
+            <a href="/events">Neighbourhood Water &amp; Climate Circle</a>
+          </h3>
+          <p class="adda-card-desc">
+            A facilitated community circle bringing together local residents, youth solvers, and climate researchers to discuss open water management solutions.
+          </p>
+          <div class="adda-card-footer">
+            <span>In-Person &bull; Open Commons</span>
+            <a href="/events" class="adda-card-action">Details &rarr;</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="adda-card">
+        <div class="adda-card-media">
+          <div class="adda-card-placeholder">Community Jam</div>
+        </div>
+        <div class="adda-card-body">
+          <div class="adda-card-meta">
+            <span class="adda-tag adda-tag-city">Civic Hub</span>
+            <span class="adda-tag adda-tag-free">Free Admission</span>
+          </div>
+          <h3 class="adda-card-title">
+            <a href="/events">Civic Tech &amp; Community Mapping Jam</a>
+          </h3>
+          <p class="adda-card-desc">
+            An open hands-on session mapping local public commons and heritage walks with open-source tools and community ground volunteers.
+          </p>
+          <div class="adda-card-footer">
+            <span>In-Person &bull; Public Library</span>
+            <a href="/events" class="adda-card-action">Details &rarr;</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="adda-card">
+        <div class="adda-card-media">
+          <div class="adda-card-placeholder">Youth Circle</div>
+        </div>
+        <div class="adda-card-body">
+          <div class="adda-card-meta">
+            <span class="adda-tag adda-tag-city">Civic Hub</span>
+            <span class="adda-tag adda-tag-free">Free Admission</span>
+          </div>
+          <h3 class="adda-card-title">
+            <a href="/events">Youth Action &amp; Changemaker Circle</a>
+          </h3>
+          <p class="adda-card-desc">
+            An evening gathering for young community problem solvers sharing grassroots experiments, citizen science data, and lessons learned.
+          </p>
+          <div class="adda-card-footer">
+            <span>In-Person &bull; Community Space</span>
+            <a href="/events" class="adda-card-action">Details &rarr;</a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Host an Adda Section -->
+<section class="adda-section" id="host-adda-section">
+  <div class="adda-container">
+    <div class="adda-host-banner">
+      <div class="adda-host-banner-content">
+        <span class="adda-pill-badge adda-pill-yellow" style="margin-bottom: 1rem;">Community Hosting</span>
+        <h2 class="adda-host-title">Want to host an Adda in your neighbourhood?</h2>
+        <p class="adda-host-desc">
+          Have an idea for a civic discussion, workshop, reading circle, or local action jam? Adda Space is open, voluntary, and free. We help you find a space and bring people together.
+        </p>
+        <div>
+          <a href="/host-an-event" class="adda-btn adda-btn-accent adda-btn-lg">Host an Adda</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block script %}
+<script>
+(function() {
+  'use strict';
+
+  var loadingEl = document.getElementById('home-events-loading');
+  var gridEl = document.getElementById('home-events-grid');
+  var fallbackEl = document.getElementById('home-events-fallback');
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function stripHtml(html) {
+    if (!html) return '';
+    var tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return (tmp.textContent || tmp.innerText || '').trim();
+  }
+
+  function formatShortDate(dateStr) {
+    if (!dateStr) return '';
+    var trimmed = String(dateStr).trim();
+    if (!trimmed) return '';
+    var normalized = trimmed.indexOf('T') !== -1 ? trimmed : trimmed.replace(' ', 'T');
+    if (!/(?:Z|[+-]\d{2}(?::?\d{2})?)$/i.test(normalized)) {
+      normalized += '+05:30';
+    }
+    var d = new Date(normalized);
+    if (isNaN(d.getTime())) return escapeHtml(dateStr);
+
+    var formattedDate = d.toLocaleDateString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    });
+
+    var formattedTime = d.toLocaleTimeString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+
+    return formattedDate + ' &bull; ' + formattedTime;
+  }
+
+  function renderCard(event) {
+    var eventIdentifier = event.unique_id || event.name;
+    var eventUrl = '/events/' + encodeURIComponent(eventIdentifier);
+    var safeTitle = escapeHtml(event.title || 'Untitled Gathering');
+    var safeCity = escapeHtml(event.city || 'Neighbourhood');
+    var dateText = formatShortDate(event.start_date_time);
+    var plainDesc = stripHtml(event.description || '');
+    var safeDesc = escapeHtml(plainDesc);
+    var safeMode = escapeHtml(event.mode || 'In-Person');
+    var venueText = event.venue_details ? ' &bull; ' + escapeHtml(event.venue_details) : '';
+    var cityClass = 'adda-tag adda-tag-city';
+
+    var mediaHtml = '';
+    if (event.cover_image) {
+      mediaHtml = '<img src="' + escapeHtml(event.cover_image) + '" alt="' + safeTitle + '" class="adda-card-img" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML=\'<div class=\\\'adda-card-placeholder\\\'>Adda &bull; ' + safeCity + '</div>\';" />';
+    } else {
+      mediaHtml = '<div class="adda-card-placeholder">Adda &bull; ' + safeCity + '</div>';
+    }
+
+    return [
+      '<article class="adda-card" data-event-id="' + escapeHtml(eventIdentifier) + '">',
+      '  <a href="' + eventUrl + '" class="adda-card-media" aria-label="' + safeTitle + '">',
+      '    ' + mediaHtml,
+      '  </a>',
+      '  <div class="adda-card-body">',
+      '    <div class="adda-card-meta">',
+      '      <span class="adda-tag ' + cityClass + '">' + safeCity + '</span>',
+      '      <span class="adda-tag adda-tag-free">Free Admission</span>',
+      '      <span style="font-size: 0.8125rem; color: var(--adda-text-muted);">' + dateText + '</span>',
+      '    </div>',
+      '    <h3 class="adda-card-title">',
+      '      <a href="' + eventUrl + '">' + safeTitle + '</a>',
+      '    </h3>',
+      '    <p class="adda-card-desc">',
+      '      ' + safeDesc,
+      '    </p>',
+      '    <div class="adda-card-footer">',
+      '      <span>' + safeMode + venueText + '</span>',
+      '      <a href="' + eventUrl + '" class="adda-card-action" aria-label="Details for ' + safeTitle + '">Details &rarr;</a>',
+      '    </div>',
+      '  </div>',
+      '</article>'
+    ].join('\n');
+  }
+
+  fetch('/api/method/adda_space.api.events.get_adda_events?time_scope=upcoming&page_length=3', {
+    headers: { 'Accept': 'application/json' }
+  })
+  .then(function(res) {
+    if (!res.ok) throw new Error('Network error');
+    return res.json();
+  })
+  .then(function(data) {
+    var events = (data && data.message && Array.isArray(data.message.events)) ? data.message.events : [];
+    if (loadingEl) loadingEl.style.display = 'none';
+
+    if (events.length > 0 && gridEl) {
+      gridEl.innerHTML = events.map(renderCard).join('\n');
+      gridEl.style.display = 'grid';
+      if (fallbackEl) fallbackEl.style.display = 'none';
+    } else {
+      // If no upcoming events in DB, display curated preview cards
+      if (fallbackEl) fallbackEl.style.display = 'grid';
+    }
+  })
+  .catch(function(err) {
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (fallbackEl) fallbackEl.style.display = 'grid';
+  });
+})();
+</script>
+{% endblock %}

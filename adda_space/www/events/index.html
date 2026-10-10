@@ -1,0 +1,403 @@
+{% extends "templates/layouts/adda_base.html" %}
+
+{% block title %}Gatherings &amp; Events — Adda Space{% endblock %}
+
+{% block adda_content %}
+<section class="adda-page-header">
+  <div class="adda-container">
+    <div style="max-width: 720px;">
+      <span class="adda-hero-badge" style="margin-bottom: 1rem;">
+        <span class="adda-hero-badge-dot"></span>
+        <span>Community Calendar</span>
+      </span>
+      <h1 style="margin-bottom: 0.75rem;">Gatherings &amp; Events</h1>
+      <p class="lead" style="margin-bottom: 0;">
+        Explore open community gatherings, workshops, dialogues, and solver jams happening across physical neighborhood spaces.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Filter & Events Listing Section -->
+<section class="adda-section adda-section-listing">
+  <div class="adda-container">
+    <!-- Filter Bar -->
+    <div class="adda-filter-bar" id="adda-filter-bar">
+      <!-- Dynamic City Filter Group (Populated from Samaaja Cities) -->
+      <div class="adda-filter-group" id="adda-city-filter-group" role="group" aria-label="Filter by City">
+        <span class="adda-filter-label">City:</span>
+        <button type="button" class="adda-pill active" data-city="">All Cities</button>
+      </div>
+
+      <!-- Scope Filter Group -->
+      <div class="adda-filter-group" role="group" aria-label="Filter by Time Scope">
+        <span class="adda-filter-label">Timeline:</span>
+        <button type="button" class="adda-pill active" data-scope="upcoming">Upcoming</button>
+        <button type="button" class="adda-pill" data-scope="past">Past Gatherings</button>
+      </div>
+    </div>
+
+    <!-- Active Filter Status Indicator -->
+    <div id="events-status-bar" style="margin-bottom: 1.5rem; font-size: 0.875rem; color: var(--adda-text-subtle); display: none;">
+      <span id="events-count-label"></span>
+    </div>
+
+    <!-- 1. Loading State (Shimmer Skeleton Cards) -->
+    <div class="adda-events-grid" id="events-loading-state" aria-busy="true" aria-label="Loading gatherings">
+      {% for i in range(3) %}
+      <article class="adda-card">
+        <div class="adda-card-media adda-skeleton adda-skeleton-media"></div>
+        <div class="adda-card-body">
+          <div class="adda-skeleton adda-skeleton-text" style="width: 35%; margin-bottom: 1rem;"></div>
+          <div class="adda-skeleton adda-skeleton-title" style="margin-bottom: 1rem;"></div>
+          <div class="adda-skeleton adda-skeleton-text" style="width: 95%;"></div>
+          <div class="adda-skeleton adda-skeleton-text" style="width: 80%; margin-bottom: 1.5rem;"></div>
+          <div class="adda-skeleton adda-skeleton-text" style="width: 50%;"></div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+
+    <!-- 2. Dynamic Results Grid -->
+    <div class="adda-events-grid" id="events-grid-container" style="display: none;"></div>
+
+    <!-- 3. Empty State -->
+    <div id="events-empty-state" class="adda-state-box" style="display: none;">
+      <div class="adda-state-icon" aria-hidden="true">&bull;</div>
+      <h3 class="adda-state-title" id="empty-state-title">No gatherings found</h3>
+      <p class="adda-state-desc" id="empty-state-desc">
+        There are currently no scheduled gatherings matching your selected city or timeline.
+      </p>
+      <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+        <button type="button" class="adda-btn adda-btn-secondary" id="reset-filters-btn">Reset Filters</button>
+        <a href="/host-an-event" class="adda-btn adda-btn-primary">Propose a Gathering</a>
+      </div>
+    </div>
+
+    <!-- 4. Error State -->
+    <div id="events-error-state" class="adda-state-box adda-state-error" style="display: none;">
+      <div class="adda-state-icon" aria-hidden="true">!</div>
+      <h3 class="adda-state-title">Unable to Load Gatherings</h3>
+      <p class="adda-state-desc" id="error-state-message">
+        We encountered an issue connecting to the events API. Please check your internet connection or try again.
+      </p>
+      <button type="button" class="adda-btn adda-btn-primary" id="retry-fetch-btn">Retry</button>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block script %}
+<script>
+(function() {
+  'use strict';
+
+  // DOM Elements
+  var filterBar = document.getElementById('adda-filter-bar');
+  var loadingState = document.getElementById('events-loading-state');
+  var gridContainer = document.getElementById('events-grid-container');
+  var emptyState = document.getElementById('events-empty-state');
+  var emptyStateTitle = document.getElementById('empty-state-title');
+  var emptyStateDesc = document.getElementById('empty-state-desc');
+  var errorState = document.getElementById('events-error-state');
+  var errorMessage = document.getElementById('error-state-message');
+  var statusBar = document.getElementById('events-status-bar');
+  var countLabel = document.getElementById('events-count-label');
+  var resetBtn = document.getElementById('reset-filters-btn');
+  var retryBtn = document.getElementById('retry-fetch-btn');
+
+  // Filter State
+  var currentCity = '';
+  var currentScope = 'upcoming';
+  var cityFilterGroup = document.getElementById('adda-city-filter-group');
+
+  function renderCityFilterButtons(cities) {
+    if (!cityFilterGroup || !Array.isArray(cities)) return;
+    var existingButtons = Array.from(cityFilterGroup.querySelectorAll('button[data-city]'));
+    var existingValues = existingButtons.map(function(b) { return (b.getAttribute('data-city') || '').toLowerCase(); });
+
+    cities.forEach(function(cityName) {
+      if (cityName && existingValues.indexOf(cityName.toLowerCase()) === -1) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'adda-pill';
+        btn.setAttribute('data-city', cityName);
+        btn.textContent = cityName;
+        if (currentCity && currentCity.toLowerCase() === cityName.toLowerCase()) {
+          btn.classList.add('active');
+        }
+        cityFilterGroup.appendChild(btn);
+        existingValues.push(cityName.toLowerCase());
+      }
+    });
+    updateFilterUI();
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function stripHtml(html) {
+    if (!html) return '';
+    var tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return (tmp.textContent || tmp.innerText || '').trim();
+  }
+
+  function formatShortDate(dateStr) {
+    if (!dateStr) return '';
+    var trimmed = String(dateStr).trim();
+    if (!trimmed) return '';
+    var normalized = trimmed.indexOf('T') !== -1 ? trimmed : trimmed.replace(' ', 'T');
+    if (!/(?:Z|[+-]\d{2}(?::?\d{2})?)$/i.test(normalized)) {
+      normalized += '+05:30';
+    }
+    var d = new Date(normalized);
+    if (isNaN(d.getTime())) return escapeHtml(dateStr);
+
+    var formattedDate = d.toLocaleDateString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    });
+
+    var formattedTime = d.toLocaleTimeString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+
+    return formattedDate + ' &bull; ' + formattedTime;
+  }
+
+  function setUIState(state, message) {
+    loadingState.style.display = (state === 'loading') ? 'grid' : 'none';
+    gridContainer.style.display = (state === 'results') ? 'grid' : 'none';
+    emptyState.style.display = (state === 'empty') ? 'block' : 'none';
+    errorState.style.display = (state === 'error') ? 'block' : 'none';
+    statusBar.style.display = (state === 'results') ? 'block' : 'none';
+
+    if (state === 'error' && message) {
+      errorMessage.textContent = message;
+    }
+  }
+
+  function updateFilterUI() {
+    var cityButtons = cityFilterGroup ? cityFilterGroup.querySelectorAll('button[data-city]') : [];
+    cityButtons.forEach(function(btn) {
+      var btnCity = btn.getAttribute('data-city') || '';
+      if (btnCity.toLowerCase() === (currentCity || '').toLowerCase()) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    var scopeButtons = filterBar.querySelectorAll('button[data-scope]');
+    scopeButtons.forEach(function(btn) {
+      if (btn.getAttribute('data-scope') === currentScope) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  function syncUrlParams() {
+    var url = new URL(window.location.href);
+    if (currentCity) {
+      url.searchParams.set('city', currentCity);
+    } else {
+      url.searchParams.delete('city');
+    }
+
+    if (currentScope && currentScope !== 'upcoming') {
+      url.searchParams.set('scope', currentScope);
+    } else {
+      url.searchParams.delete('scope');
+    }
+
+    window.history.replaceState({}, '', url.toString());
+  }
+
+  function renderCard(event) {
+    var eventIdentifier = event.unique_id || event.name;
+    var eventUrl = '/events/' + encodeURIComponent(eventIdentifier);
+    var safeTitle = escapeHtml(event.title || 'Untitled Gathering');
+    var safeCity = escapeHtml(event.city || 'Neighbourhood');
+    var dateText = formatShortDate(event.start_date_time);
+    var plainDesc = stripHtml(event.description || '');
+    var safeDesc = escapeHtml(plainDesc);
+    var safeMode = escapeHtml(event.mode || 'In-Person');
+    var venueText = event.venue_details ? ' &bull; ' + escapeHtml(event.venue_details) : '';
+    var cityClass = 'adda-tag adda-tag-city';
+
+    var mediaHtml = '';
+    if (event.cover_image) {
+      mediaHtml = '<img src="' + escapeHtml(event.cover_image) + '" alt="' + safeTitle + '" class="adda-card-img" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML=\'<div class=\\\'adda-card-placeholder\\\'>Adda &bull; ' + safeCity + '</div>\';" />';
+    } else {
+      mediaHtml = '<div class="adda-card-placeholder">Adda &bull; ' + safeCity + '</div>';
+    }
+
+    return [
+      '<article class="adda-card" data-event-id="' + escapeHtml(eventIdentifier) + '">',
+      '  <a href="' + eventUrl + '" class="adda-card-media" aria-label="' + safeTitle + '">',
+      '    ' + mediaHtml,
+      '  </a>',
+      '  <div class="adda-card-body">',
+      '    <div class="adda-card-meta">',
+      '      <span class="adda-tag ' + cityClass + '">' + safeCity + '</span>',
+      '      <span class="adda-tag adda-tag-free">Free Admission</span>',
+      '      <span style="font-size: 0.8125rem; color: var(--adda-text-muted);">' + dateText + '</span>',
+      '    </div>',
+      '    <h2 class="adda-card-title">',
+      '      <a href="' + eventUrl + '">' + safeTitle + '</a>',
+      '    </h2>',
+      '    <p class="adda-card-desc">',
+      '      ' + safeDesc,
+      '    </p>',
+      '    <div class="adda-card-footer">',
+      '      <span>' + safeMode + venueText + '</span>',
+      '      <a href="' + eventUrl + '" class="adda-card-action" aria-label="Details for ' + safeTitle + '">Details &rarr;</a>',
+      '    </div>',
+      '  </div>',
+      '</article>'
+    ].join('\n');
+  }
+
+  function fetchEvents() {
+    setUIState('loading');
+
+    var apiUrl = new URL('/api/method/adda_space.api.events.get_adda_events', window.location.origin);
+    apiUrl.searchParams.set('time_scope', currentScope);
+    if (currentCity) {
+      apiUrl.searchParams.set('city', currentCity);
+    }
+    apiUrl.searchParams.set('start', '0');
+    apiUrl.searchParams.set('page_length', '50');
+
+    fetch(apiUrl.toString(), {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(function(res) {
+      if (!res.ok) {
+        return res.json().then(function(errData) {
+          var msg = (errData.message && errData.message.error) ||
+                    (errData.exc_type ? errData.exc_type + ': ' + errData._server_messages : 'Server returned status ' + res.status);
+          throw new Error(msg);
+        }).catch(function(e) {
+          throw new Error(e.message || ('Server returned status ' + res.status));
+        });
+      }
+      return res.json();
+    })
+    .then(function(data) {
+      var payload = data.message || data;
+      if (payload.success === false) {
+        throw new Error(payload.error || 'Failed to fetch gatherings.');
+      }
+
+      if (payload.filters && Array.isArray(payload.filters.supported_cities)) {
+        renderCityFilterButtons(payload.filters.supported_cities);
+      }
+
+      var events = payload.events || [];
+      if (events.length === 0) {
+        var cityContext = currentCity ? (' in ' + currentCity) : '';
+        var scopeContext = currentScope === 'past' ? 'past' : 'upcoming';
+        emptyStateTitle.textContent = 'No ' + scopeContext + ' gatherings' + cityContext;
+        emptyStateDesc.textContent = 'There are currently no ' + scopeContext + ' Adda gatherings scheduled' + (currentCity ? (' for ' + currentCity) : '') + '. Explore another city or propose a community gathering.';
+        setUIState('empty');
+      } else {
+        var cardsHtml = events.map(renderCard).join('\n');
+        gridContainer.innerHTML = cardsHtml;
+        var cityLabel = currentCity || 'all cities';
+        var scopeLabel = currentScope === 'past' ? 'past' : 'upcoming';
+        countLabel.textContent = 'Showing ' + events.length + ' ' + scopeLabel + ' gathering' + (events.length === 1 ? '' : 's') + ' across ' + cityLabel + '.';
+        setUIState('results');
+      }
+    })
+    .catch(function(err) {
+      setUIState('error', err.message || 'Unable to connect to Adda Space events service.');
+    });
+  }
+
+  // Event Listeners for Filters
+  filterBar.addEventListener('click', function(e) {
+    var target = e.target;
+    if (target.matches('button[data-city]')) {
+      var city = target.getAttribute('data-city');
+      if (city !== currentCity) {
+        currentCity = city;
+        updateFilterUI();
+        syncUrlParams();
+        fetchEvents();
+      }
+    } else if (target.matches('button[data-scope]')) {
+      var scope = target.getAttribute('data-scope');
+      if (scope !== currentScope) {
+        currentScope = scope;
+        updateFilterUI();
+        syncUrlParams();
+        fetchEvents();
+      }
+    }
+  });
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', function() {
+      currentCity = '';
+      currentScope = 'upcoming';
+      updateFilterUI();
+      syncUrlParams();
+      fetchEvents();
+    });
+  }
+
+  if (retryBtn) {
+    retryBtn.addEventListener('click', function() {
+      fetchEvents();
+    });
+  }
+
+  // Initialize from URL search parameters
+  var urlParams = new URLSearchParams(window.location.search);
+  var initialCity = urlParams.get('city');
+  if (initialCity && initialCity.trim()) {
+    currentCity = initialCity.trim();
+  }
+  var initialScope = urlParams.get('scope');
+  if (initialScope && (initialScope.toLowerCase() === 'upcoming' || initialScope.toLowerCase() === 'past')) {
+    currentScope = initialScope.toLowerCase();
+  }
+
+  // Pre-fetch supported cities from database master
+  fetch('/api/method/adda_space.api.events.get_supported_cities')
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      var cities = (data && data.message && Array.isArray(data.message.cities)) ? data.message.cities : [];
+      if (cities.length > 0) {
+        renderCityFilterButtons(cities);
+      }
+    })
+    .catch(function() {});
+
+  updateFilterUI();
+  fetchEvents();
+})();
+</script>
+{% endblock %}
+
+

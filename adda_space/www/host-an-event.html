@@ -1,0 +1,95 @@
+{% extends "templates/layouts/adda_base.html" %}
+
+{% block title %}Host a Gathering — Adda Space{% endblock %}
+
+{% block adda_content %}
+<section class="adda-page-header">
+  <div class="adda-container-narrow">
+    <span class="adda-hero-badge" style="margin-bottom: 1rem;">
+      <span class="adda-hero-badge-dot"></span>
+      <span>Community Hosting</span>
+    </span>
+    <h1 style="margin-bottom: 1rem;">Host a gathering at Adda Space.</h1>
+    <p class="lead" style="margin-bottom: 0;">
+      Have an idea for a discussion, civic workshop, storytelling session, or hands-on jam? We help community members activate neighbourhood spaces in their cities.
+    </p>
+  </div>
+</section>
+
+<article class="adda-section" style="padding-top: 3rem;">
+  <div class="adda-container-narrow">
+
+    <div style="font-size: 1.05rem; line-height: 1.75; color: var(--adda-text-muted);">
+      <h2 style="font-size: 1.75rem; margin-top: 2rem; margin-bottom: 1rem; color: var(--adda-text);">
+        What Gatherings Fit Adda Space?
+      </h2>
+      <p>
+        Adda Space is designed for participatory, community-led formats rather than conventional lectures. We encourage sessions that foster real interaction:
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
+        <div style="background-color: var(--adda-surface); padding: 1.5rem; border: 1px solid var(--adda-border); border-radius: var(--radius-md);">
+          <strong style="color: var(--adda-text); display: block; margin-bottom: 0.5rem;">Civic &amp; Neighbourhood Jams</strong>
+          <span style="font-size: 0.9375rem;">Community mapping, waste audits, local public space audits, and neighbourhood improvement discussions.</span>
+        </div>
+
+        <div style="background-color: var(--adda-surface); padding: 1.5rem; border: 1px solid var(--adda-border); border-radius: var(--radius-md);">
+          <strong style="color: var(--adda-text); display: block; margin-bottom: 0.5rem;">Ecology &amp; Climate Circles</strong>
+          <span style="font-size: 0.9375rem;">Conversations on urban trees, water harvesting, local biodiversity, and citizen science observation.</span>
+        </div>
+
+        <div style="background-color: var(--adda-surface); padding: 1.5rem; border: 1px solid var(--adda-border); border-radius: var(--radius-md);">
+          <strong style="color: var(--adda-text); display: block; margin-bottom: 0.5rem;">Learning &amp; Skill Shares</strong>
+          <span style="font-size: 0.9375rem;">Hands-on workshops on open-source tools, data literacy, composting, repair cafes, and zine making.</span>
+        </div>
+
+        <div style="background-color: var(--adda-surface); padding: 1.5rem; border: 1px solid var(--adda-border); border-radius: var(--radius-md);">
+          <strong style="color: var(--adda-text); display: block; margin-bottom: 0.5rem;">Arts, Books &amp; Dialogue</strong>
+          <span style="font-size: 0.9375rem;">Reading circles, poetry exchanges, film screenings with reflection, and intergenerational oral history sessions.</span>
+        </div>
+      </div>
+
+      <h2 style="font-size: 1.75rem; margin-top: 3rem; margin-bottom: 1rem; color: var(--adda-text);">
+        Hosting Guidelines
+      </h2>
+      <ul style="padding-left: 1.25rem; margin-bottom: 2rem;">
+        <li style="margin-bottom: 0.75rem;">
+          <strong>Free Admission:</strong> Events must remain completely free and accessible. No cover charges, registration fees, or mandatory product purchases.
+        </li>
+        <li style="margin-bottom: 0.75rem;">
+          <strong>Non-Commercial:</strong> Adda Space cannot be used for direct commercial marketing, brand promotions, or sales pitches.
+        </li>
+        <li style="margin-bottom: 0.75rem;">
+          <strong>Inclusive &amp; Respectful:</strong> Sessions must be welcoming to diverse participants regardless of age, background, identity, or prior expertise.
+        </li>
+        <li style="margin-bottom: 0.75rem;">
+          <strong>Caring for the Commons:</strong> Hosts are responsible for leaving community spaces clean and respecting neighbourhood quiet hours.
+        </li>
+      </ul>
+
+      <h2 style="font-size: 1.75rem; margin-top: 3rem; margin-bottom: 1rem; color: var(--adda-text);">
+        How to Propose a Gathering
+      </h2>
+      <p>
+        The team reviews event proposals on a rolling basis. Once submitted, our volunteer coordinators will connect with you to confirm venue availability in your city and list the approved gathering on this public calendar.
+      </p>
+
+      <div style="background-color: var(--adda-bg-alt); border: 1px solid var(--adda-border); border-radius: var(--radius-md); padding: 2rem; margin-top: 2rem;">
+        <h3 style="font-size: 1.35rem; color: var(--adda-text); margin-bottom: 0.5rem;">Ready to propose an idea?</h3>
+        <p style="margin-bottom: 1.5rem;">
+          Reach out to our volunteer coordination team with your proposed topic, preferred city, and format:
+        </p>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+          <a href="mailto:pavans@reapbenefit.org?subject=Adda%20Space%20Gathering%20Proposal" class="adda-btn adda-btn-primary">
+            Email Event Proposal
+          </a>
+          <a href="/events" class="adda-btn adda-btn-secondary">
+            Explore Existing Gatherings
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+{% endblock %}
+

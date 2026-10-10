@@ -64,6 +64,12 @@ app_license = "mit"
 # 	"Role": "home_page"
 # }
 
+# Website Route Rules
+# --------------------
+website_route_rules = [
+	{"from_route": "/events/<event_id>", "to_route": "events/detail"},
+]
+
 # Generators
 # ----------
 

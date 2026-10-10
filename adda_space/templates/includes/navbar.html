@@ -1,0 +1,43 @@
+<header class="adda-header" role="banner">
+  <div class="adda-container adda-header-inner">
+    <div class="adda-brand">
+      <a href="/adda" class="adda-brand-title" aria-label="Adda Space Home">
+        <img src="/assets/adda_space/images/adda_space_logo.png" 
+             alt="Adda Space Logo" 
+             class="adda-logo-img"
+             id="adda-brand-logo-img" />
+        <span id="adda-brand-text-mark" class="adda-brand-text-mark adda-brand-text-fallback" style="display: none;">
+          <span class="adda-brand-pill">Adda</span>
+          <span class="adda-brand-word">Space</span>
+        </span>
+      </a>
+      <span class="adda-brand-tagline">Civic &amp; Community Spaces</span>
+    </div>
+
+    <button class="adda-menu-toggle" id="adda-menu-toggle" aria-expanded="false" aria-controls="adda-nav" aria-label="Toggle navigation menu">
+      <span class="adda-menu-icon" aria-hidden="true">&#9776;</span>
+      <span>Menu</span>
+    </button>
+
+    <nav class="adda-nav" id="adda-nav" role="navigation" aria-label="Main navigation">
+      <a href="/adda" class="adda-nav-link {% if path == 'adda' %}active{% endif %}">Home</a>
+      <a href="/events" class="adda-nav-link {% if path and path.startswith('events') %}active{% endif %}">Events</a>
+      <a href="/about" class="adda-nav-link {% if path == 'about' %}active{% endif %}">About</a>
+      <a href="/host-an-event" class="adda-nav-link {% if path == 'host-an-event' %}active{% endif %}">Host an Adda</a>
+      <a href="/events" class="adda-nav-btn">Explore Events</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  (function() {
+    var toggle = document.getElementById('adda-menu-toggle');
+    var nav = document.getElementById('adda-nav');
+    if (toggle && nav) {
+      toggle.addEventListener('click', function() {
+        var isOpen = nav.classList.toggle('is-open');
+        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+    }
+  })();
+</script>

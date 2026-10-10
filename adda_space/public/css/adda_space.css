@@ -1,0 +1,1347 @@
+/* ==========================================================================
+   Adda Space — Brand Design System & Stylesheet
+   Rooted in the official Adda Space Green & Dark Navy palette,
+   youth problem-solving energy, and BIC-inspired editorial layout.
+   ========================================================================== */
+
+:root {
+  /* ------------------------------------------------------------------------
+     1. Color Palette: Official Adda Space Green & Dark Navy
+     ------------------------------------------------------------------------ */
+  /* Primary Brand Colors */
+  --adda-green: #1B8A5A;           /* Official Adda Space Green (primary action & selected) */
+  --adda-green-hover: #146C46;     /* Deepened action green */
+  --adda-green-light: #E8F5EE;     /* Soft green tint for badges and selected pills */
+  --adda-green-border: rgba(27, 138, 90, 0.25);
+
+  --adda-navy: #132533;            /* Official Dark Navy (headings, navbar, strong contrast) */
+  --adda-navy-dark: #0D1A24;       /* Deepest navy (footer, dark callout surfaces) */
+  --adda-navy-surface: #1E374B;    /* Elevated navy container */
+  --adda-navy-light: #E8EEF3;      /* Soft navy tint */
+  --adda-navy-border: rgba(19, 37, 51, 0.2);
+
+  /* Accents */
+  --adda-teal: #0D7E75;            /* Secondary civic teal */
+  --adda-teal-light: #E6F5F3;
+  --adda-amber: #D97706;           /* Subtle highlight amber */
+  --adda-amber-light: #FEF3C7;
+
+  /* Surfaces & Backgrounds: Restrained warm neutrals, not plain corporate white */
+  --adda-bg: #FAF7F0;              /* Warm cream base background */
+  --adda-bg-alt: #F3EFE6;          /* Warm stone alternating band */
+  --adda-surface: #FFFFFF;         /* Crisp card and modal surface */
+  --adda-surface-warm: #FFFDF9;    /* Warm card surface */
+  --adda-surface-subtle: #EFE9DD;  /* Inactive pill / tag background */
+
+  /* Typography Colors */
+  --adda-text: #132533;            /* Primary high-contrast dark navy body text */
+  --adda-text-muted: #52606D;      /* Secondary editorial slate text */
+  --adda-text-subtle: #798897;     /* Uppercase labels & metadata */
+  --adda-text-on-dark: #FAF7F0;    /* Warm white text for dark surfaces */
+  --adda-text-muted-on-dark: #B9C7D4; /* Soft slate text for dark surfaces */
+
+  /* Primary Action Alias */
+  --adda-accent: var(--adda-green);
+  --adda-accent-hover: var(--adda-green-hover);
+  --adda-accent-subtle: var(--adda-green-light);
+
+  /* Hairlines & Borders */
+  --adda-border: #E5DFD3;          /* Warm hairline border */
+  --adda-border-light: #EFE9DD;    /* Soft divider */
+  --adda-border-dark: #223749;     /* Dark navy divider */
+
+  /* Keyboard Focus */
+  --adda-focus: #1B8A5A;
+
+  /* ------------------------------------------------------------------------
+     2. Typography
+     ------------------------------------------------------------------------ */
+  --font-headings: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: var(--font-headings);
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* ------------------------------------------------------------------------
+     3. Layout & Elevation
+     ------------------------------------------------------------------------ */
+  --max-w-content: 1160px;
+  --max-w-narrow: 800px;
+  --container-px: clamp(1.25rem, 4vw, 2.5rem);
+  --section-py: clamp(2.25rem, 4.5vw, 3.5rem);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
+  --shadow-card: 0 2px 8px rgba(19, 37, 51, 0.05), 0 1px 2px rgba(19, 37, 51, 0.04);
+  --shadow-hover: 0 10px 24px rgba(19, 37, 51, 0.10), 0 2px 6px rgba(19, 37, 51, 0.05);
+}
+
+/* --------------------------------------------------------------------------
+   Reset & Base Styles
+   -------------------------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: auto !important;
+  min-height: 100% !important;
+}
+
+body,
+body.adda-body {
+  margin: 0;
+  padding: 0;
+  height: auto !important;
+  min-height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background-color: var(--adda-bg) !important;
+  color: var(--adda-text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+.adda-main {
+  flex: 1 0 auto !important;
+  display: block !important;
+  width: 100% !important;
+  min-height: auto !important;
+  background-color: var(--adda-bg) !important;
+  position: relative !important;
+  clear: both !important;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+a:hover {
+  color: var(--adda-green);
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--adda-focus);
+  outline-offset: 3px;
+}
+
+/* Headings: Dark Navy, bold, youth-friendly, high contrast */
+h1, h2, h3, h4 {
+  font-family: var(--font-headings);
+  color: var(--adda-navy);
+  line-height: 1.2;
+  margin-top: 0;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+h1 { font-size: clamp(2.25rem, 5vw, 3.5rem); font-weight: 800; line-height: 1.15; }
+h2 { font-size: clamp(1.75rem, 3.5vw, 2.5rem); font-weight: 800; line-height: 1.2; }
+h3 { font-size: clamp(1.25rem, 2.5vw, 1.75rem); font-weight: 700; line-height: 1.3; }
+h4 { font-size: clamp(1.05rem, 2vw, 1.35rem); font-weight: 700; }
+
+p {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+}
+
+p.lead {
+  font-size: clamp(1.125rem, 2vw, 1.35rem);
+  line-height: 1.6;
+  color: var(--adda-text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Containers
+   -------------------------------------------------------------------------- */
+.adda-container {
+  width: 100%;
+  max-width: var(--max-w-content);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--container-px);
+  padding-right: var(--container-px);
+}
+
+.adda-container-narrow {
+  width: 100%;
+  max-width: var(--max-w-narrow);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--container-px);
+  padding-right: var(--container-px);
+}
+
+.adda-section {
+  display: block;
+  width: 100%;
+  position: relative;
+  clear: both;
+  box-sizing: border-box;
+  padding-top: var(--section-py);
+  padding-bottom: var(--section-py);
+  background-color: var(--adda-bg);
+}
+
+#upcoming-addas-section {
+  display: block;
+  width: 100%;
+  position: relative;
+  clear: both;
+  box-sizing: border-box;
+  padding-top: clamp(2.25rem, 4.5vw, 3.5rem);
+  padding-bottom: clamp(2.25rem, 4.5vw, 3.5rem);
+  background-color: var(--adda-bg);
+}
+
+.adda-section-listing {
+  display: block;
+  width: 100%;
+  position: relative;
+  clear: both;
+  box-sizing: border-box;
+  padding-top: clamp(2rem, 3.5vw, 3rem);
+  padding-bottom: var(--section-py);
+  background-color: var(--adda-bg);
+}
+
+.adda-section-alt {
+  background-color: var(--adda-bg-alt);
+  border-top: 1px solid var(--adda-border);
+  border-bottom: 1px solid var(--adda-border);
+}
+
+.adda-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2.25rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.adda-section-heading {
+  margin-bottom: 0.35rem;
+  color: var(--adda-navy);
+}
+
+.adda-section-sub {
+  color: var(--adda-text-muted);
+  font-size: 1.05rem;
+  margin-bottom: 0;
+}
+
+/* --------------------------------------------------------------------------
+/* --------------------------------------------------------------------------
+   Navigation Bar (Crisp White Header, Green Accent Border, Visible Logo)
+   -------------------------------------------------------------------------- */
+.adda-header {
+  background-color: #FFFFFF !important;
+  border-bottom: 3px solid var(--adda-green) !important;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  color: var(--adda-navy) !important;
+  box-shadow: 0 2px 10px rgba(19, 37, 51, 0.08);
+}
+
+.adda-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+}
+
+.adda-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.adda-brand-title {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--adda-navy) !important;
+}
+
+/* Preserved Logo Image Styling: Never distorted, cropped, or recolored */
+.adda-logo-img {
+  height: 48px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+  display: block !important;
+}
+
+/* Fallback Brand Mark: Hidden when logo is present */
+.adda-brand-text-mark {
+  display: none;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-headings);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.adda-brand-pill {
+  background-color: var(--adda-green);
+  color: #FFFFFF;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-sm);
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+.adda-brand-word {
+  color: var(--adda-navy);
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+.adda-brand-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: var(--adda-green);
+  border-radius: var(--radius-pill);
+}
+
+.adda-brand-tagline {
+  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--adda-text-muted);
+  border-left: 1px solid var(--adda-border);
+  padding-left: 0.75rem;
+  display: none;
+}
+
+@media (min-width: 680px) {
+  .adda-brand-tagline { display: inline-block; }
+}
+
+.adda-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.adda-nav-link {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--adda-navy) !important;
+  position: relative;
+  padding: 0.35rem 0;
+  transition: color 0.15s ease;
+}
+
+.adda-nav-link:hover {
+  color: var(--adda-green) !important;
+}
+
+.adda-nav-link.active {
+  color: var(--adda-green) !important;
+  font-weight: 700;
+}
+
+.adda-nav-link.active::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: var(--adda-green);
+  border-radius: var(--radius-pill);
+}
+
+.adda-nav-btn {
+  font-family: var(--font-headings);
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 0.55rem 1.25rem;
+  background-color: var(--adda-green);
+  color: #FFFFFF !important;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 2px 6px rgba(27, 138, 90, 0.3);
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.adda-nav-btn:hover {
+  background-color: var(--adda-green-hover);
+  color: #FFFFFF !important;
+  transform: translateY(-1px);
+}
+
+/* Mobile Navigation Drawer */
+.adda-menu-toggle {
+  display: none;
+  background: var(--adda-navy-surface);
+  border: 1px solid var(--adda-border-dark);
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #FFFFFF;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+@media (max-width: 768px) {
+  .adda-nav {
+    display: none;
+    position: absolute;
+    top: 76px;
+    left: 0;
+    right: 0;
+    background-color: var(--adda-navy-dark);
+    border-bottom: 1px solid var(--adda-border-dark);
+    flex-direction: column;
+    padding: 1.5rem var(--container-px);
+    gap: 1.25rem;
+    align-items: flex-start;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+  }
+  .adda-nav.is-open { display: flex; }
+  .adda-menu-toggle { display: inline-flex; }
+  .adda-nav-btn { width: 100%; text-align: center; }
+}
+
+/* --------------------------------------------------------------------------
+   Hero Section (Dominant Adda Space Green with High-Contrast Dark Navy Action)
+   -------------------------------------------------------------------------- */
+.adda-hero {
+  display: block !important;
+  width: 100% !important;
+  position: relative !important;
+  overflow: visible !important;
+  box-sizing: border-box !important;
+  background: #1B8A5A !important;
+  background: linear-gradient(135deg, #146C46 0%, #1B8A5A 50%, #177D52 100%) !important;
+  color: #FFFFFF !important;
+  padding-top: clamp(2.5rem, 4vw, 3.75rem) !important;
+  padding-bottom: clamp(2.5rem, 4vw, 3.75rem) !important;
+  border-bottom: 4px solid var(--adda-navy) !important;
+  clear: both !important;
+}
+
+.adda-hero-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.adda-hero-logo {
+  height: 52px;
+  width: auto;
+  max-width: 160px;
+  background: #FFFFFF;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  object-fit: contain;
+}
+
+.adda-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #FFFFFF !important;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-pill);
+}
+
+.adda-hero-badge-dot {
+  width: 7px;
+  height: 7px;
+  background-color: #A7F3D0 !important;
+  border-radius: var(--radius-pill);
+}
+
+.adda-hero-title {
+  color: #FFFFFF;
+  max-width: 920px;
+  margin-bottom: 1rem;
+}
+
+.adda-hero-tagline {
+  font-family: var(--font-headings);
+  font-size: clamp(1.85rem, 3.5vw, 2.75rem) !important;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  color: #FFFFFF !important;
+  max-width: 960px;
+  margin-top: 0;
+  margin-bottom: 1.25rem !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.adda-hero-lead {
+  max-width: 720px;
+  font-size: clamp(1.05rem, 1.8vw, 1.25rem) !important;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.94) !important;
+  margin-bottom: 2rem !important;
+}
+
+.adda-hero-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* --------------------------------------------------------------------------
+   Page Header (Interior Pages: Events, About, Host an Event)
+   Dominant Adda Space Green background with high-contrast text
+   -------------------------------------------------------------------------- */
+.adda-page-header {
+  display: block !important;
+  width: 100% !important;
+  position: relative !important;
+  overflow: visible !important;
+  box-sizing: border-box !important;
+  background: #1B8A5A !important;
+  background: linear-gradient(135deg, #146C46 0%, #1B8A5A 50%, #177D52 100%) !important;
+  color: #FFFFFF !important;
+  padding-top: clamp(2.5rem, 4vw, 3.5rem) !important;
+  padding-bottom: clamp(2.5rem, 4vw, 3.5rem) !important;
+  border-bottom: 4px solid var(--adda-navy) !important;
+  clear: both !important;
+}
+
+.adda-page-header h1,
+.adda-page-header .adda-page-title {
+  color: #FFFFFF !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.adda-page-header p.lead,
+.adda-page-header .adda-page-lead {
+  color: rgba(255, 255, 255, 0.94) !important;
+  font-size: clamp(1.05rem, 1.8vw, 1.25rem) !important;
+  line-height: 1.55;
+}
+
+.adda-page-header .adda-hero-badge {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  color: #FFFFFF !important;
+}
+
+.adda-page-header .adda-hero-badge-dot {
+  background-color: #A7F3D0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons & Links
+   -------------------------------------------------------------------------- */
+.adda-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-headings);
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1.5px solid transparent;
+  line-height: 1.25;
+}
+
+.adda-btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.adda-btn-lg {
+  padding: 0.9rem 1.85rem;
+  font-size: 1.05rem;
+  border-radius: var(--radius-md);
+}
+
+/* Green Primary Button */
+.adda-btn-primary {
+  background-color: var(--adda-green);
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 6px rgba(27, 138, 90, 0.25);
+}
+
+.adda-btn-primary:hover {
+  background-color: var(--adda-green-hover);
+  color: #FFFFFF !important;
+  transform: translateY(-1px);
+}
+
+.adda-btn-accent {
+  background-color: var(--adda-green);
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 6px rgba(27, 138, 90, 0.25);
+}
+
+.adda-btn-accent:hover {
+  background-color: var(--adda-green-hover);
+  color: #FFFFFF !important;
+  transform: translateY(-1px);
+}
+
+.adda-btn-secondary {
+  background-color: var(--adda-surface);
+  color: var(--adda-text);
+  border-color: var(--adda-border);
+}
+
+.adda-btn-secondary:hover {
+  background-color: var(--adda-bg-alt);
+  border-color: var(--adda-navy);
+}
+
+.adda-btn-outline-hero {
+  background-color: transparent;
+  color: #FFFFFF !important;
+  border-color: rgba(250, 247, 240, 0.4);
+}
+
+.adda-btn-outline-hero:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: #FFFFFF;
+}
+
+/* High-Contrast Hero Action Buttons on Dominant Green Background */
+.adda-btn-hero-primary {
+  background-color: var(--adda-navy);
+  color: #FFFFFF !important;
+  border: 2px solid var(--adda-navy);
+  box-shadow: 0 4px 14px rgba(19, 37, 51, 0.35);
+  font-weight: 800;
+  padding: 0.9rem 2rem;
+  border-radius: var(--radius-md);
+}
+
+.adda-btn-hero-primary:hover {
+  background-color: var(--adda-navy-dark);
+  border-color: var(--adda-navy-dark);
+  color: #FFFFFF !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(19, 37, 51, 0.45);
+}
+
+.adda-btn-hero-outline {
+  background-color: transparent;
+  color: #FFFFFF !important;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  font-weight: 700;
+  padding: 0.9rem 1.85rem;
+  border-radius: var(--radius-md);
+}
+
+.adda-btn-hero-outline:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: #FFFFFF;
+  color: #FFFFFF !important;
+  transform: translateY(-2px);
+}
+
+.adda-action-link {
+  font-family: var(--font-headings);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--adda-green);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.adda-action-link:hover {
+  color: var(--adda-green-hover);
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   Badges, Pills, and Tags (City & Status)
+   -------------------------------------------------------------------------- */
+.adda-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--adda-surface-subtle);
+  color: var(--adda-text-muted);
+  border: 1px solid var(--adda-border);
+}
+
+.adda-tag-accent {
+  background-color: var(--adda-green-light);
+  color: var(--adda-green);
+  border-color: var(--adda-green-border);
+}
+
+/* Dynamic City Tag: Reusable across ANY city without hardcoded CSS */
+.adda-tag-city {
+  background-color: var(--adda-green-light);
+  color: var(--adda-green);
+  border-color: var(--adda-green-border);
+}
+
+.adda-tag-free {
+  background-color: var(--adda-navy-light);
+  color: var(--adda-navy);
+  border-color: var(--adda-navy-border);
+}
+
+.adda-pill-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-pill);
+  margin-bottom: 0.75rem;
+}
+
+.adda-pill-green {
+  background-color: var(--adda-green-light);
+  color: var(--adda-green);
+  border: 1px solid var(--adda-green-border);
+}
+
+.adda-pill-teal {
+  background-color: var(--adda-green-light);
+  color: var(--adda-green);
+  border: 1px solid var(--adda-green-border);
+}
+
+/* --------------------------------------------------------------------------
+   BIC-Inspired Responsive Event Cards Grid
+   -------------------------------------------------------------------------- */
+.adda-events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  align-items: stretch;
+  width: 100%;
+  margin-top: 0;
+  margin-bottom: 0;
+  position: relative;
+}
+
+@media (max-width: 640px) {
+  .adda-events-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.adda-card {
+  background-color: var(--adda-surface);
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  top: 0;
+  margin-top: 0;
+  height: 100%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: var(--shadow-card);
+}
+
+.adda-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+  border-color: #D3CABA;
+}
+
+.adda-card-media {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: var(--adda-bg-alt);
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.adda-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.adda-card:hover .adda-card-img {
+  transform: scale(1.03);
+}
+
+.adda-card-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #E8F5EE 0%, #E8EEF3 100%);
+  color: var(--adda-navy);
+  font-family: var(--font-headings);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.adda-card-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+}
+
+.adda-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.85rem;
+}
+
+.adda-card-title {
+  font-family: var(--font-headings);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.35;
+  margin-bottom: 0.65rem;
+  color: var(--adda-navy);
+}
+
+.adda-card-title a {
+  color: var(--adda-navy);
+}
+
+.adda-card-title a:hover {
+  color: var(--adda-green);
+}
+
+.adda-card-desc {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--adda-text-muted);
+  margin-bottom: 1.25rem;
+  flex: 1 1 auto;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.adda-card-footer {
+  padding-top: 1rem;
+  border-top: 1px solid var(--adda-border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--adda-text-muted);
+  margin-top: auto;
+}
+
+.adda-card-action {
+  font-family: var(--font-headings);
+  font-weight: 700;
+  color: var(--adda-green);
+}
+
+.adda-card-action:hover {
+  color: var(--adda-green-hover);
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   Dynamic Filter Bar Component
+   -------------------------------------------------------------------------- */
+.adda-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  background-color: var(--adda-surface);
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  margin-bottom: 2rem;
+}
+
+.adda-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.adda-filter-label {
+  font-family: var(--font-headings);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--adda-text-subtle);
+  margin-right: 0.25rem;
+}
+
+.adda-pill {
+  font-family: var(--font-headings);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-pill);
+  background-color: var(--adda-bg);
+  border: 1.5px solid var(--adda-border);
+  color: var(--adda-text);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.adda-pill:hover {
+  background-color: var(--adda-bg-alt);
+  border-color: var(--adda-text-muted);
+}
+
+.adda-pill.active {
+  background-color: var(--adda-green);
+  color: #FFFFFF;
+  border-color: var(--adda-green);
+  box-shadow: 0 2px 6px rgba(27, 138, 90, 0.25);
+}
+
+/* --------------------------------------------------------------------------
+   Host an Adda Banner (Homepage Callout)
+   -------------------------------------------------------------------------- */
+.adda-host-banner {
+  background: linear-gradient(135deg, #132533 0%, #1A3448 100%);
+  color: var(--adda-text-on-dark);
+  border-radius: var(--radius-lg);
+  padding: clamp(2.5rem, 5vw, 4.5rem);
+  text-align: center;
+  box-shadow: var(--shadow-hover);
+  border: 1px solid var(--adda-border-dark);
+}
+
+.adda-host-banner-content {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.adda-host-title {
+  color: #FFFFFF;
+  margin-bottom: 1.15rem;
+}
+
+.adda-host-desc {
+  font-size: 1.15rem;
+  line-height: 1.65;
+  color: var(--adda-text-muted-on-dark);
+  margin-bottom: 2rem;
+}
+
+/* --------------------------------------------------------------------------
+   Event Detail Page Components
+   -------------------------------------------------------------------------- */
+.adda-back-link {
+  font-family: var(--font-headings);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--adda-green);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.adda-back-link:hover {
+  color: var(--adda-green-hover);
+  text-decoration: underline;
+}
+
+.adda-detail-header {
+  margin-bottom: 2.5rem;
+}
+
+.adda-detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.adda-detail-hero-media {
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background-color: var(--adda-bg-alt);
+  border: 1px solid var(--adda-border);
+  margin-bottom: 3rem;
+}
+
+@media (max-width: 768px) {
+  .adda-detail-hero-media {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+.adda-detail-layout {
+  display: grid;
+  grid-template-columns: 2fr 1.25fr;
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .adda-detail-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.adda-detail-main {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--adda-text);
+}
+
+.adda-sidebar-card {
+  background-color: var(--adda-surface);
+  border: 1.5px solid var(--adda-border);
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  box-shadow: var(--shadow-card);
+  position: sticky;
+  top: 96px;
+}
+
+.adda-sidebar-row {
+  padding-bottom: 1.15rem;
+  margin-bottom: 1.15rem;
+  border-bottom: 1px solid var(--adda-border-light);
+}
+
+.adda-sidebar-label {
+  font-family: var(--font-headings);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--adda-text-subtle);
+  margin-bottom: 0.35rem;
+}
+
+.adda-sidebar-val {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--adda-navy);
+}
+
+/* --------------------------------------------------------------------------
+   Registration Form Components
+   -------------------------------------------------------------------------- */
+.adda-form-label {
+  display: block;
+  font-family: var(--font-headings);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--adda-navy);
+  margin-bottom: 0.35rem;
+}
+
+.adda-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  font-family: var(--font-sans);
+  background-color: var(--adda-bg);
+  border: 1.5px solid var(--adda-border);
+  border-radius: var(--radius-sm);
+  color: var(--adda-text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.adda-input:focus {
+  outline: none;
+  border-color: var(--adda-green);
+  box-shadow: 0 0 0 3px rgba(27, 138, 90, 0.15);
+  background-color: #FFFFFF;
+}
+
+.adda-input-group {
+  display: flex;
+  align-items: stretch;
+}
+
+.adda-input-prefix {
+  display: flex;
+  align-items: center;
+  padding: 0 0.85rem;
+  background-color: var(--adda-surface-subtle);
+  border: 1.5px solid var(--adda-border);
+  border-right: none;
+  border-top-left-radius: var(--radius-sm);
+  border-bottom-left-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--adda-text-muted);
+}
+
+.adda-input-group .adda-input {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.adda-field-error {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #DC2626;
+  margin-top: 0.35rem;
+}
+
+.adda-alert-error {
+  background-color: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  color: #991B1B;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+
+.adda-reg-result {
+  border-radius: var(--radius-md);
+  padding: 1.75rem;
+  text-align: center;
+}
+
+.adda-reg-success {
+  background-color: #F0FDF4;
+  border: 1.5px solid #86EFAC;
+  color: #14532D;
+}
+
+.adda-reg-duplicate {
+  background-color: #FEFCE8;
+  border: 1.5px solid #FDE047;
+  color: #713F12;
+}
+
+/* --------------------------------------------------------------------------
+   State Containers (Empty, Error, Skeletons)
+   -------------------------------------------------------------------------- */
+.adda-state-box {
+  background-color: var(--adda-surface);
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-md);
+  padding: clamp(3rem, 6vw, 5rem) 2rem;
+  text-align: center;
+  box-shadow: var(--shadow-card);
+}
+
+.adda-state-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  color: var(--adda-green);
+  margin-bottom: 1rem;
+}
+
+.adda-state-error .adda-state-icon {
+  color: #DC2626;
+}
+
+.adda-state-title {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--adda-navy);
+}
+
+.adda-state-desc {
+  max-width: 520px;
+  margin: 0 auto 1.75rem;
+  color: var(--adda-text-muted);
+}
+
+/* Shimmer Loading Skeleton */
+.adda-skeleton {
+  background: linear-gradient(90deg, #EFE9DD 25%, #FAF7F0 50%, #EFE9DD 75%);
+  background-size: 200% 100%;
+  animation: adda-shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes adda-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.adda-skeleton-text { height: 1rem; margin-bottom: 0.5rem; }
+.adda-skeleton-title { height: 1.75rem; margin-bottom: 0.75rem; }
+.adda-skeleton-media { height: 100%; width: 100%; }
+
+/* --------------------------------------------------------------------------
+   Footer (Dark Navy with Community Problem Solving Recognition)
+   -------------------------------------------------------------------------- */
+.adda-footer {
+  flex-shrink: 0 !important;
+  margin-top: auto !important;
+  display: block !important;
+  width: 100% !important;
+  position: relative !important;
+  clear: both !important;
+  background-color: var(--adda-navy-dark) !important;
+  color: var(--adda-text-muted-on-dark);
+  padding-top: clamp(3.5rem, 5vw, 5.5rem);
+  padding-bottom: 3rem;
+  border-top: 1px solid var(--adda-border-dark);
+}
+
+.adda-footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.5fr;
+  gap: clamp(2rem, 5vw, 4rem);
+  margin-bottom: 3.5rem;
+}
+
+@media (max-width: 860px) {
+  .adda-footer-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+.adda-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.adda-footer-title {
+  font-family: var(--font-headings);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.adda-footer-desc {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--adda-text-muted-on-dark);
+  max-width: 440px;
+}
+
+.adda-footer-pill {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  margin-right: 0.5rem;
+}
+
+.adda-footer-heading {
+  font-family: var(--font-headings);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #FFFFFF;
+  margin-bottom: 1rem;
+}
+
+.adda-footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.adda-footer-links a {
+  color: var(--adda-text-muted-on-dark);
+  font-size: 0.9375rem;
+}
+
+.adda-footer-links a:hover {
+  color: #FFFFFF;
+}
+
+.adda-footer-cities {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.adda-city-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.15s ease;
+}
+
+.adda-city-badge:hover {
+  background-color: var(--adda-green);
+  color: #FFFFFF;
+  border-color: var(--adda-green);
+}
+
+.adda-footer-bottom {
+  padding-top: 2rem;
+  border-top: 1px solid var(--adda-border-dark);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.8125rem;
+  color: #798C9E;
+}
