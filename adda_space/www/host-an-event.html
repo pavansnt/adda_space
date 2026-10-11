@@ -1,5 +1,8 @@
 {% extends "templates/layouts/adda_base.html" %}
 
+{% set user_is_logged_in = frappe.session.user and frappe.session.user != 'Guest' %}
+{% set user_email = frappe.session.user if user_is_logged_in else '' %}
+
 {% block title %}Host a Gathering — Adda Space{% endblock %}
 
 {% block adda_content %}
@@ -11,85 +14,876 @@
     </span>
     <h1 style="margin-bottom: 1rem;">Host a gathering at Adda Space.</h1>
     <p class="lead" style="margin-bottom: 0;">
-      Have an idea for a discussion, civic workshop, storytelling session, or hands-on jam? We help community members activate neighbourhood spaces in their cities.
+      Activate a physical neighbourhood space for civic dialogue, youth problem-solving, climate jams, or hands-on skill sharing.
     </p>
   </div>
 </section>
 
-<article class="adda-section" style="padding-top: 3rem;">
+<section class="adda-section" style="padding-top: 2.5rem;">
   <div class="adda-container-narrow">
 
-    <div style="font-size: 1.05rem; line-height: 1.75; color: var(--adda-text-muted);">
-      <h2 style="font-size: 1.75rem; margin-top: 2rem; margin-bottom: 1rem; color: var(--adda-text);">
-        What Gatherings Fit Adda Space?
-      </h2>
-      <p>
-        Adda Space is designed for participatory, community-led formats rather than conventional lectures. We encourage sessions that foster real interaction:
-      </p>
+    <!-- Multi-Step Hosting Wizard Card -->
+    <div class="adda-wizard-container" id="host-wizard-app" data-logged-in="{{ 'true' if user_is_logged_in else 'false' }}" data-user="{{ user_email }}">
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
-        <div style="background-color: var(--adda-surface); padding: 1.5rem; border: 1px solid var(--adda-border); border-radius: var(--radius-md);">
-          <strong style="color: var(--adda-text); display: block; margin-bottom: 0.5rem;">Civic &amp; Neighbourhood Jams</strong>
-          <span style="font-size: 0.9375rem;">Community mapping, waste audits, local public space audits, and neighbourhood improvement discussions.</span>
+      <!-- Stepper Navigation Header -->
+      <nav class="adda-wizard-nav" aria-label="Proposal Steps">
+        <div class="adda-wizard-step active" id="nav-step-1" data-step="1">
+          <span class="adda-step-num">1</span>
+          <span>City &amp; Format</span>
+        </div>
+        <div class="adda-wizard-step" id="nav-step-2" data-step="2">
+          <span class="adda-step-num">2</span>
+          <span>Date &amp; Space</span>
+        </div>
+        <div class="adda-wizard-step" id="nav-step-3" data-step="3">
+          <span class="adda-step-num">3</span>
+          <span>Event Details</span>
+        </div>
+        <div class="adda-wizard-step" id="nav-step-4" data-step="4">
+          <span class="adda-step-num">4</span>
+          <span>Review &amp; Submit</span>
+        </div>
+      </nav>
+
+      <!-- Wizard Content Body -->
+      <div class="adda-wizard-body">
+
+        <!-- ================================================================
+             STEP 1: CITY & GUIDELINES
+             ================================================================ -->
+        <div class="adda-step-panel active" id="panel-step-1">
+          <div class="adda-step-header">
+            <h2 class="adda-step-title">Where would you like to host?</h2>
+            <p class="adda-step-desc">
+              Select your city and review our community hosting ethos before selecting a space.
+            </p>
+          </div>
+
+          <div class="adda-form-group">
+            <label for="step-city-select" class="adda-form-label">
+              City <span class="req">*</span>
+            </label>
+            <select id="step-city-select" class="adda-select" required>
+              <option value="" disabled selected>Loading supported cities...</option>
+            </select>
+            <p class="adda-form-hint">Physical Adda Spaces are active across participating neighbourhood circles.</p>
+          </div>
+
+          <!-- Guidelines Box -->
+          <div style="background-color: var(--adda-surface-warm); border: 1px solid var(--adda-border); border-radius: var(--radius-md); padding: 1.5rem; margin-top: 2rem;">
+            <h3 style="font-size: 1.15rem; color: var(--adda-navy); margin-bottom: 0.75rem;">
+              Adda Community Ethos
+            </h3>
+            <ul style="padding-left: 1.25rem; margin: 0; font-size: 0.9375rem; color: var(--adda-text-muted); line-height: 1.6;">
+              <li style="margin-bottom: 0.5rem;">
+                <strong>Free &amp; Open:</strong> Every gathering must be completely free. No cover charges or sales pitches.
+              </li>
+              <li style="margin-bottom: 0.5rem;">
+                <strong>Civic &amp; Problem-Solving:</strong> Prioritize dialogues, citizen science, workshops, or neighbourhood jams.
+              </li>
+              <li style="margin-bottom: 0.5rem;">
+                <strong>Inclusive &amp; Respectful:</strong> Welcoming to all community members regardless of background.
+              </li>
+              <li>
+                <strong>Volunteer Coordination:</strong> Local volunteer coordinators are assigned by community circles upon proposal review to support room access and setup.
+              </li>
+            </ul>
+          </div>
+
+          <div id="step-1-error" class="adda-avail-box adda-avail-alert" style="display: none; margin-top: 1.5rem;">
+            <span>Please select a city to continue.</span>
+          </div>
+
+          <div class="adda-wizard-actions">
+            <div></div>
+            <button type="button" class="adda-btn adda-btn-primary" id="step-1-next-btn">
+              Next: Choose Date &amp; Space &rarr;
+            </button>
+          </div>
         </div>
 
-        <div style="background-color: var(--adda-surface); padding: 1.5rem; border: 1px solid var(--adda-border); border-radius: var(--radius-md);">
-          <strong style="color: var(--adda-text); display: block; margin-bottom: 0.5rem;">Ecology &amp; Climate Circles</strong>
-          <span style="font-size: 0.9375rem;">Conversations on urban trees, water harvesting, local biodiversity, and citizen science observation.</span>
+        <!-- ================================================================
+             STEP 2: DATE, TIME & ROOM AVAILABILITY
+             ================================================================ -->
+        <div class="adda-step-panel" id="panel-step-2">
+          <div class="adda-step-header">
+            <h2 class="adda-step-title">Select Date, Time &amp; Room</h2>
+            <p class="adda-step-desc">
+              Choose your proposed date and time slot. We verify real-time room availability to prevent scheduling conflicts.
+            </p>
+          </div>
+
+          <div class="adda-form-row">
+            <div class="adda-form-group">
+              <label for="step-event-date" class="adda-form-label">
+                Date <span class="req">*</span>
+              </label>
+              <input type="date" id="step-event-date" class="adda-input" required />
+            </div>
+
+            <div class="adda-form-group">
+              <label for="step-start-time" class="adda-form-label">
+                Start Time <span class="req">*</span>
+              </label>
+              <input type="time" id="step-start-time" class="adda-input" value="10:00" required />
+            </div>
+
+            <div class="adda-form-group">
+              <label for="step-end-time" class="adda-form-label">
+                End Time <span class="req">*</span>
+              </label>
+              <input type="time" id="step-end-time" class="adda-input" value="12:00" required />
+            </div>
+          </div>
+
+          <div class="adda-form-group">
+            <label class="adda-form-label">
+              Select Adda Room <span class="req">*</span>
+            </label>
+            <div id="step-rooms-loading" style="font-size: 0.875rem; color: var(--adda-text-muted);">
+              Loading spaces for selected city...
+            </div>
+            <div class="adda-room-grid" id="step-rooms-grid" style="display: none;"></div>
+            <input type="hidden" id="step-selected-room" />
+          </div>
+
+          <!-- Real-time Availability Alert Box -->
+          <div id="step-avail-banner" class="adda-avail-box adda-avail-info" style="display: none;">
+            <div id="step-avail-message"></div>
+          </div>
+
+          <div class="adda-wizard-actions">
+            <button type="button" class="adda-btn adda-btn-secondary" id="step-2-back-btn">
+              &larr; Back
+            </button>
+            <button type="button" class="adda-btn adda-btn-primary" id="step-2-next-btn">
+              Next: Event Details &rarr;
+            </button>
+          </div>
         </div>
 
-        <div style="background-color: var(--adda-surface); padding: 1.5rem; border: 1px solid var(--adda-border); border-radius: var(--radius-md);">
-          <strong style="color: var(--adda-text); display: block; margin-bottom: 0.5rem;">Learning &amp; Skill Shares</strong>
-          <span style="font-size: 0.9375rem;">Hands-on workshops on open-source tools, data literacy, composting, repair cafes, and zine making.</span>
+        <!-- ================================================================
+             STEP 3: EVENT DETAILS & POSTER
+             ================================================================ -->
+        <div class="adda-step-panel" id="panel-step-3">
+          <div class="adda-step-header">
+            <h2 class="adda-step-title">Describe Your Gathering</h2>
+            <p class="adda-step-desc">
+              Share details about your gathering topic, format, expected attendance, and optional poster image.
+            </p>
+          </div>
+
+          <div class="adda-form-group">
+            <label for="step-title-input" class="adda-form-label">
+              Gathering Title <span class="req">*</span>
+            </label>
+            <input type="text" id="step-title-input" class="adda-input" placeholder="e.g. Neighbourhood Composting Circle &amp; Waste Audit" maxlength="140" required />
+          </div>
+
+          <div class="adda-form-group">
+            <label for="step-desc-input" class="adda-form-label">
+              Description &amp; Agenda <span class="req">*</span>
+            </label>
+            <textarea id="step-desc-input" class="adda-textarea" placeholder="Explain what participants will do, who should join, and what materials or tools (if any) to bring..." required></textarea>
+          </div>
+
+          <div class="adda-form-row">
+            <div class="adda-form-group">
+              <label for="step-people-input" class="adda-form-label">
+                Expected Participants <span class="req">*</span>
+              </label>
+              <input type="number" id="step-people-input" class="adda-input" min="1" max="500" value="20" required />
+              <p class="adda-form-hint">Estimated attendee count to arrange appropriate seating.</p>
+            </div>
+
+            <div class="adda-form-group">
+              <label for="step-mode-select" class="adda-form-label">
+                Format / Mode
+              </label>
+              <select id="step-mode-select" class="adda-select">
+                <option value="Offline" selected>In-Person (Physical Adda Space)</option>
+                <option value="Hybrid">Hybrid</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="adda-form-group">
+            <label for="step-venue-notes" class="adda-form-label">
+              Specific Venue / Equipment Notes (Optional)
+            </label>
+            <input type="text" id="step-venue-notes" class="adda-input" placeholder="e.g. Projector required, circle seating, whiteboard" />
+          </div>
+
+          <div class="adda-form-group">
+            <label for="step-wa-group" class="adda-form-label">
+              WhatsApp Group Link (Optional)
+            </label>
+            <input type="url" id="step-wa-group" class="adda-input" placeholder="https://chat.whatsapp.com/..." />
+            <p class="adda-form-hint">Optional group link shared with confirmed attendees.</p>
+          </div>
+
+          <div class="adda-form-group">
+            <label for="step-poster-file" class="adda-form-label">
+              Event Poster / Cover Image (Optional)
+            </label>
+            <input type="file" id="step-poster-file" class="adda-input" accept="image/png, image/jpeg, image/webp" />
+            <p class="adda-form-hint">Supported formats: JPG, PNG, WebP (Max 5MB). Dimensions recommended: 1200 &times; 630px.</p>
+            <div id="step-poster-preview-box" class="adda-poster-preview" style="display: none;">
+              <img id="step-poster-img" src="" alt="Poster preview" />
+            </div>
+          </div>
+
+          <div id="step-3-error" class="adda-avail-box adda-avail-alert" style="display: none;">
+            <span id="step-3-error-text">Please fill in all mandatory fields.</span>
+          </div>
+
+          <div class="adda-wizard-actions">
+            <button type="button" class="adda-btn adda-btn-secondary" id="step-3-back-btn">
+              &larr; Back
+            </button>
+            <button type="button" class="adda-btn adda-btn-primary" id="step-3-next-btn">
+              Next: Review &amp; Submit &rarr;
+            </button>
+          </div>
         </div>
 
-        <div style="background-color: var(--adda-surface); padding: 1.5rem; border: 1px solid var(--adda-border); border-radius: var(--radius-md);">
-          <strong style="color: var(--adda-text); display: block; margin-bottom: 0.5rem;">Arts, Books &amp; Dialogue</strong>
-          <span style="font-size: 0.9375rem;">Reading circles, poetry exchanges, film screenings with reflection, and intergenerational oral history sessions.</span>
+        <!-- ================================================================
+             STEP 4: REVIEW & SUBMIT (WITH AUTH GUARD)
+             ================================================================ -->
+        <div class="adda-step-panel" id="panel-step-4">
+          <div class="adda-step-header">
+            <h2 class="adda-step-title">Review Proposal</h2>
+            <p class="adda-step-desc">
+              Verify your gathering details before submitting for community coordination review.
+            </p>
+          </div>
+
+          <!-- Review Summary Card -->
+          <div class="adda-review-card">
+            <div class="adda-review-row">
+              <span class="adda-review-label">Title:</span>
+              <span class="adda-review-val" id="rev-title"></span>
+            </div>
+            <div class="adda-review-row">
+              <span class="adda-review-label">City:</span>
+              <span class="adda-review-val" id="rev-city"></span>
+            </div>
+            <div class="adda-review-row">
+              <span class="adda-review-label">Space / Room:</span>
+              <span class="adda-review-val" id="rev-room"></span>
+            </div>
+            <div class="adda-review-row">
+              <span class="adda-review-label">Date &amp; Time:</span>
+              <span class="adda-review-val" id="rev-datetime"></span>
+            </div>
+            <div class="adda-review-row">
+              <span class="adda-review-label">Expected Attendance:</span>
+              <span class="adda-review-val" id="rev-people"></span>
+            </div>
+            <div class="adda-review-row">
+              <span class="adda-review-label">Mode:</span>
+              <span class="adda-review-val" id="rev-mode"></span>
+            </div>
+            <div class="adda-review-row">
+              <span class="adda-review-label">Initial Status:</span>
+              <span class="adda-review-val">
+                <span class="adda-tag" style="background-color: #FEF3C7; color: #92400E; border: 1px solid #FCD34D;">
+                  Pending Review
+                </span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Auth Check Callout -->
+          <div id="auth-guest-callout" style="display: none; background-color: #EFF6FF; border: 1px solid #BFDBFE; border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 2rem;">
+            <h4 style="color: #1E40AF; font-size: 1.1rem; margin-bottom: 0.5rem;">
+              Account Sign-In Required
+            </h4>
+            <p style="font-size: 0.9375rem; color: #1E3A8A; margin-bottom: 1rem;">
+              You must be logged in to submit a gathering proposal. Your proposal draft is automatically saved and will remain intact when you return.
+            </p>
+            <a href="/login?redirect-to=/host-an-event" class="adda-btn adda-btn-primary" id="save-and-login-btn">
+              Log In to Submit Proposal
+            </a>
+          </div>
+
+          <div id="auth-logged-in-callout" style="display: none; background-color: #ECFDF5; border: 1px solid #A7F3D0; border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 2rem;">
+            <span style="font-size: 0.9375rem; color: #065F46;">
+              Submitting as: <strong id="logged-in-user-display"></strong>
+            </span>
+          </div>
+
+          <!-- Submission Error Alert -->
+          <div id="submit-error-box" class="adda-avail-box adda-avail-alert" style="display: none;">
+            <span id="submit-error-text"></span>
+          </div>
+
+          <div class="adda-wizard-actions">
+            <button type="button" class="adda-btn adda-btn-secondary" id="step-4-back-btn">
+              &larr; Back
+            </button>
+            <button type="button" class="adda-btn adda-btn-primary" id="step-submit-btn" style="display: none;">
+              Submit Gathering Proposal
+            </button>
+          </div>
         </div>
-      </div>
 
-      <h2 style="font-size: 1.75rem; margin-top: 3rem; margin-bottom: 1rem; color: var(--adda-text);">
-        Hosting Guidelines
-      </h2>
-      <ul style="padding-left: 1.25rem; margin-bottom: 2rem;">
-        <li style="margin-bottom: 0.75rem;">
-          <strong>Free Admission:</strong> Events must remain completely free and accessible. No cover charges, registration fees, or mandatory product purchases.
-        </li>
-        <li style="margin-bottom: 0.75rem;">
-          <strong>Non-Commercial:</strong> Adda Space cannot be used for direct commercial marketing, brand promotions, or sales pitches.
-        </li>
-        <li style="margin-bottom: 0.75rem;">
-          <strong>Inclusive &amp; Respectful:</strong> Sessions must be welcoming to diverse participants regardless of age, background, identity, or prior expertise.
-        </li>
-        <li style="margin-bottom: 0.75rem;">
-          <strong>Caring for the Commons:</strong> Hosts are responsible for leaving community spaces clean and respecting neighbourhood quiet hours.
-        </li>
-      </ul>
+        <!-- ================================================================
+             STEP 5: SUBMISSION CONFIRMATION
+             ================================================================ -->
+        <div class="adda-step-panel" id="panel-step-5">
+          <div class="adda-confirmation-card">
+            <div class="adda-confirmation-icon">&check;</div>
+            <h2 style="font-size: 1.85rem; color: var(--adda-navy); margin-bottom: 0.75rem;">
+              Proposal Submitted!
+            </h2>
+            <p style="font-size: 1.05rem; color: var(--adda-text-muted); max-width: 540px; margin: 0 auto 1.5rem; line-height: 1.6;">
+              Thank you for proposing a gathering at Adda Space. Your proposal has been recorded and is currently in review.
+            </p>
 
-      <h2 style="font-size: 1.75rem; margin-top: 3rem; margin-bottom: 1rem; color: var(--adda-text);">
-        How to Propose a Gathering
-      </h2>
-      <p>
-        The team reviews event proposals on a rolling basis. Once submitted, our volunteer coordinators will connect with you to confirm venue availability in your city and list the approved gathering on this public calendar.
-      </p>
+            <div style="display: inline-block; background-color: var(--adda-bg-alt); border: 1px solid var(--adda-border); border-radius: var(--radius-md); padding: 1rem 1.75rem; margin-bottom: 2rem; text-align: left;">
+              <div style="font-size: 0.8125rem; color: var(--adda-text-subtle); margin-bottom: 0.25rem;">Reference Document ID</div>
+              <code id="conf-ref-name" style="font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700; color: var(--adda-navy);"></code>
+              <div style="margin-top: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span class="adda-tag" style="background-color: #FEF3C7; color: #92400E; border: 1px solid #FCD34D;">
+                  Status: Pending Review
+                </span>
+              </div>
+            </div>
 
-      <div style="background-color: var(--adda-bg-alt); border: 1px solid var(--adda-border); border-radius: var(--radius-md); padding: 2rem; margin-top: 2rem;">
-        <h3 style="font-size: 1.35rem; color: var(--adda-text); margin-bottom: 0.5rem;">Ready to propose an idea?</h3>
-        <p style="margin-bottom: 1.5rem;">
-          Reach out to our volunteer coordination team with your proposed topic, preferred city, and format:
-        </p>
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
-          <a href="mailto:pavans@reapbenefit.org?subject=Adda%20Space%20Gathering%20Proposal" class="adda-btn adda-btn-primary">
-            Email Event Proposal
-          </a>
-          <a href="/events" class="adda-btn adda-btn-secondary">
-            Explore Existing Gatherings
-          </a>
+            <p style="font-size: 0.875rem; color: var(--adda-text-subtle); max-width: 500px; margin: 0 auto 2rem;">
+              Our volunteer coordinators review proposals to ensure alignment with community guidelines and coordinate space access.
+            </p>
+
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+              <a href="/events" class="adda-btn adda-btn-primary">View Gatherings Calendar</a>
+              <a href="/adda" class="adda-btn adda-btn-secondary">Adda Space Home</a>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
+
   </div>
-</article>
+</section>
 {% endblock %}
 
+{% block script %}
+<script>
+(function() {
+  'use strict';
+
+  var appContainer = document.getElementById('host-wizard-app');
+  var isLoggedIn = appContainer.getAttribute('data-logged-in') === 'true';
+  var userEmail = appContainer.getAttribute('data-user') || '';
+
+  var currentStep = 1;
+  var availableRooms = [];
+  var isSubmitting = false;
+
+  // Step 1 Elements
+  var citySelect = document.getElementById('step-city-select');
+  var step1NextBtn = document.getElementById('step-1-next-btn');
+  var step1Error = document.getElementById('step-1-error');
+
+  // Step 2 Elements
+  var eventDateInput = document.getElementById('step-event-date');
+  var startTimeInput = document.getElementById('step-start-time');
+  var endTimeInput = document.getElementById('step-end-time');
+  var roomsLoading = document.getElementById('step-rooms-loading');
+  var roomsGrid = document.getElementById('step-rooms-grid');
+  var selectedRoomInput = document.getElementById('step-selected-room');
+  var availBanner = document.getElementById('step-avail-banner');
+  var availMessage = document.getElementById('step-avail-message');
+  var step2BackBtn = document.getElementById('step-2-back-btn');
+  var step2NextBtn = document.getElementById('step-2-next-btn');
+
+  // Step 3 Elements
+  var titleInput = document.getElementById('step-title-input');
+  var descInput = document.getElementById('step-desc-input');
+  var peopleInput = document.getElementById('step-people-input');
+  var modeSelect = document.getElementById('step-mode-select');
+  var venueNotesInput = document.getElementById('step-venue-notes');
+  var waGroupInput = document.getElementById('step-wa-group');
+  var posterFileInput = document.getElementById('step-poster-file');
+  var posterPreviewBox = document.getElementById('step-poster-preview-box');
+  var posterImg = document.getElementById('step-poster-img');
+  var step3Error = document.getElementById('step-3-error');
+  var step3ErrorText = document.getElementById('step-3-error-text');
+  var step3BackBtn = document.getElementById('step-3-back-btn');
+  var step3NextBtn = document.getElementById('step-3-next-btn');
+
+  // Step 4 Elements
+  var revTitle = document.getElementById('rev-title');
+  var revCity = document.getElementById('rev-city');
+  var revRoom = document.getElementById('rev-room');
+  var revDateTime = document.getElementById('rev-datetime');
+  var revPeople = document.getElementById('rev-people');
+  var revMode = document.getElementById('rev-mode');
+  var authGuestCallout = document.getElementById('auth-guest-callout');
+  var authLoggedInCallout = document.getElementById('auth-logged-in-callout');
+  var loggedInUserDisplay = document.getElementById('logged-in-user-display');
+  var saveAndLoginBtn = document.getElementById('save-and-login-btn');
+  var step4BackBtn = document.getElementById('step-4-back-btn');
+  var stepSubmitBtn = document.getElementById('step-submit-btn');
+  var submitErrorBox = document.getElementById('submit-error-box');
+  var submitErrorText = document.getElementById('submit-error-text');
+
+  // Step 5 Elements
+  var confRefName = document.getElementById('conf-ref-name');
+
+  // Set min date to today in IST
+  var todayIst = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+  if (eventDateInput) {
+    eventDateInput.min = todayIst;
+    if (!eventDateInput.value) eventDateInput.value = todayIst;
+  }
+
+  function getCsrfToken() {
+    return (window.frappe && window.frappe.csrf_token) || window.csrf_token || '';
+  }
+
+  function saveFormStateToStorage() {
+    var state = {
+      city: citySelect.value || '',
+      date: eventDateInput.value || '',
+      start_time: startTimeInput.value || '',
+      end_time: endTimeInput.value || '',
+      room_name: selectedRoomInput.value || '',
+      title: titleInput.value || '',
+      description: descInput.value || '',
+      people_expected: peopleInput.value || '',
+      mode: modeSelect.value || 'Offline',
+      venue_details: venueNotesInput.value || '',
+      wa_group_link: waGroupInput.value || ''
+    };
+    try {
+      sessionStorage.setItem('adda_host_form_data', JSON.stringify(state));
+    } catch(e) {}
+  }
+
+  function restoreFormStateFromStorage() {
+    try {
+      var raw = sessionStorage.getItem('adda_host_form_data');
+      if (!raw) return false;
+      var state = JSON.parse(raw);
+      if (!state) return false;
+
+      if (state.city) citySelect.value = state.city;
+      if (state.date) eventDateInput.value = state.date;
+      if (state.start_time) startTimeInput.value = state.start_time;
+      if (state.end_time) endTimeInput.value = state.end_time;
+      if (state.room_name) selectedRoomInput.value = state.room_name;
+      if (state.title) titleInput.value = state.title;
+      if (state.description) descInput.value = state.description;
+      if (state.people_expected) peopleInput.value = state.people_expected;
+      if (state.mode) modeSelect.value = state.mode;
+      if (state.venue_details) venueNotesInput.value = state.venue_details;
+      if (state.wa_group_link) waGroupInput.value = state.wa_group_link;
+
+      return true;
+    } catch(e) {
+      return false;
+    }
+  }
+
+  function goToStep(step) {
+    currentStep = step;
+    saveFormStateToStorage();
+
+    // Update nav indicators
+    for (var i = 1; i <= 4; i++) {
+      var navEl = document.getElementById('nav-step-' + i);
+      var panelEl = document.getElementById('panel-step-' + i);
+      if (navEl) {
+        navEl.classList.remove('active', 'completed');
+        if (i === currentStep) {
+          navEl.classList.add('active');
+        } else if (i < currentStep) {
+          navEl.classList.add('completed');
+        }
+      }
+      if (panelEl) {
+        panelEl.classList.remove('active');
+        if (i === currentStep) {
+          panelEl.classList.add('active');
+        }
+      }
+    }
+
+    var panel5 = document.getElementById('panel-step-5');
+    if (panel5) {
+      panel5.classList.remove('active');
+      if (currentStep === 5) panel5.classList.add('active');
+    }
+
+    window.scrollTo({ top: appContainer.offsetTop - 40, behavior: 'smooth' });
+  }
+
+  // Fetch Cities
+  fetch('/api/method/adda_space.api.events.get_supported_cities')
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      var cities = (data && data.message && data.message.cities) || ['Bengaluru', 'Mysuru'];
+      citySelect.innerHTML = '<option value="" disabled selected>Select a city</option>';
+      cities.forEach(function(c) {
+        var opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        citySelect.appendChild(opt);
+      });
+
+      var restored = restoreFormStateFromStorage();
+      if (restored && citySelect.value) {
+        loadRoomsForCity(citySelect.value, function() {
+          if (isLoggedIn) {
+            populateReviewCard();
+            goToStep(4);
+          }
+        });
+      }
+    })
+    .catch(function() {
+      citySelect.innerHTML = '<option value="Bengaluru">Bengaluru</option><option value="Mysuru">Mysuru</option>';
+    });
+
+  // Step 1 -> Step 2
+  step1NextBtn.addEventListener('click', function() {
+    var city = citySelect.value;
+    if (!city) {
+      step1Error.style.display = 'flex';
+      return;
+    }
+    step1Error.style.display = 'none';
+    loadRoomsForCity(city, function() {
+      goToStep(2);
+      checkRoomAvailability();
+    });
+  });
+
+  function loadRoomsForCity(city, callback) {
+    roomsLoading.style.display = 'block';
+    roomsGrid.style.display = 'none';
+
+    fetch('/api/method/solve_ninja.api.v1.solve_event.get_adda_rooms', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-Frappe-CSRF-Token': getCsrfToken()
+      },
+      body: JSON.stringify({ city: city })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      roomsLoading.style.display = 'none';
+      var payload = data.message || data;
+      availableRooms = (payload && Array.isArray(payload.rooms)) ? payload.rooms : [];
+
+      roomsGrid.innerHTML = '';
+      if (availableRooms.length === 0) {
+        // Fallback option if room master has no records
+        availableRooms = [{ name: 'Main Community Space', room_name: 'Main Community Space', capacity: 30 }];
+      }
+
+      availableRooms.forEach(function(r, idx) {
+        var card = document.createElement('div');
+        card.className = 'adda-room-card';
+        card.setAttribute('data-room-name', r.room_name || r.name);
+        if (selectedRoomInput.value === (r.room_name || r.name) || (!selectedRoomInput.value && idx === 0)) {
+          card.classList.add('selected');
+          selectedRoomInput.value = r.room_name || r.name;
+        }
+
+        card.innerHTML = [
+          '<div class="adda-room-name">' + (r.room_name || r.name) + '</div>',
+          '<div class="adda-room-cap">Capacity: ~' + (r.capacity || 'Flexible') + ' people</div>'
+        ].join('\n');
+
+        card.addEventListener('click', function() {
+          roomsGrid.querySelectorAll('.adda-room-card').forEach(function(c) { c.classList.remove('selected'); });
+          card.classList.add('selected');
+          selectedRoomInput.value = r.room_name || r.name;
+          checkRoomAvailability();
+        });
+
+        roomsGrid.appendChild(card);
+      });
+
+      roomsGrid.style.display = 'grid';
+      if (callback) callback();
+    })
+    .catch(function(err) {
+      roomsLoading.style.display = 'none';
+      availableRooms = [{ name: 'Community Hall', room_name: 'Community Hall', capacity: 25 }];
+      selectedRoomInput.value = 'Community Hall';
+      if (callback) callback();
+    });
+  }
+
+  // Real-time Availability Checking
+  function checkRoomAvailability() {
+    var date = eventDateInput.value;
+    var city = citySelect.value;
+    var room = selectedRoomInput.value;
+    var startTime = startTimeInput.value;
+    var endTime = endTimeInput.value;
+
+    if (!date || !room) return;
+
+    fetch('/api/method/solve_ninja.api.v1.solve_event.get_adda_room_availability', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-Frappe-CSRF-Token': getCsrfToken()
+      },
+      body: JSON.stringify({ date: date, city: city, room_name: room })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      var payload = data.message || data;
+      var bookings = (payload && Array.isArray(payload.bookings)) ? payload.bookings : [];
+
+      // Check collision
+      var collision = null;
+      if (startTime && endTime) {
+        var sReq = startTime + ':00';
+        var eReq = endTime + ':00';
+        for (var i = 0; i < bookings.length; i++) {
+          var b = bookings[i];
+          if (b.start_time < eReq && b.end_time > sReq) {
+            collision = b;
+            break;
+          }
+        }
+      }
+
+      availBanner.style.display = 'flex';
+      if (collision) {
+        availBanner.className = 'adda-avail-box adda-avail-alert';
+        availMessage.innerHTML = '<strong>Room Unavailable:</strong> ' + room + ' is already booked for "' +
+          (collision.title || 'Another Event') + '" (' + collision.start_time.slice(0, 5) + ' &ndash; ' +
+          collision.end_time.slice(0, 5) + '). Please choose another time or space.';
+        step2NextBtn.disabled = true;
+      } else {
+        availBanner.className = 'adda-avail-box adda-avail-success';
+        availMessage.innerHTML = '<strong>Available:</strong> ' + room + ' is free for your selected slot (' +
+          startTime + ' &ndash; ' + endTime + ').';
+        step2NextBtn.disabled = false;
+      }
+    })
+    .catch(function() {
+      availBanner.style.display = 'none';
+      step2NextBtn.disabled = false;
+    });
+  }
+
+  eventDateInput.addEventListener('change', checkRoomAvailability);
+  startTimeInput.addEventListener('change', checkRoomAvailability);
+  endTimeInput.addEventListener('change', checkRoomAvailability);
+
+  // Step 2 Navigation
+  step2BackBtn.addEventListener('click', function() { goToStep(1); });
+  step2NextBtn.addEventListener('click', function() {
+    if (!eventDateInput.value) {
+      alert('Please select a date.');
+      return;
+    }
+    if (!startTimeInput.value || !endTimeInput.value) {
+      alert('Please select both start and end time.');
+      return;
+    }
+    if (startTimeInput.value >= endTimeInput.value) {
+      alert('End time must be after start time.');
+      return;
+    }
+    goToStep(3);
+  });
+
+  // Poster Image Preview
+  posterFileInput.addEventListener('change', function() {
+    var file = this.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Poster file must be less than 5MB.');
+        this.value = '';
+        posterPreviewBox.style.display = 'none';
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        posterImg.src = e.target.result;
+        posterPreviewBox.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      posterPreviewBox.style.display = 'none';
+    }
+  });
+
+  // Step 3 Navigation
+  step3BackBtn.addEventListener('click', function() { goToStep(2); });
+  step3NextBtn.addEventListener('click', function() {
+    var title = titleInput.value.trim();
+    var desc = descInput.value.trim();
+    var people = parseInt(peopleInput.value, 10);
+
+    if (!title || !desc || isNaN(people) || people < 1) {
+      step3Error.style.display = 'flex';
+      step3ErrorText.textContent = 'Please fill in all mandatory fields (Title, Description, and Attendees >= 1).';
+      return;
+    }
+    step3Error.style.display = 'none';
+    populateReviewCard();
+    goToStep(4);
+  });
+
+  function populateReviewCard() {
+    revTitle.textContent = titleInput.value.trim() || 'Untitled Gathering';
+    revCity.textContent = citySelect.value || 'Not selected';
+    revRoom.textContent = selectedRoomInput.value || 'Not selected';
+    revDateTime.textContent = (eventDateInput.value || '') + ' (' + (startTimeInput.value || '') + ' - ' + (endTimeInput.value || '') + ')';
+    revPeople.textContent = (peopleInput.value || '20') + ' people';
+    revMode.textContent = modeSelect.value || 'Offline';
+
+    if (isLoggedIn) {
+      authGuestCallout.style.display = 'none';
+      authLoggedInCallout.style.display = 'block';
+      loggedInUserDisplay.textContent = userEmail;
+      stepSubmitBtn.style.display = 'inline-block';
+    } else {
+      authGuestCallout.style.display = 'block';
+      authLoggedInCallout.style.display = 'none';
+      stepSubmitBtn.style.display = 'none';
+    }
+  }
+
+  saveAndLoginBtn.addEventListener('click', function() {
+    saveFormStateToStorage();
+  });
+
+  // Step 4 Navigation
+  step4BackBtn.addEventListener('click', function() { goToStep(3); });
+
+  // Submission Handler
+  stepSubmitBtn.addEventListener('click', function() {
+    if (isSubmitting) return;
+    isSubmitting = true;
+    submitErrorBox.style.display = 'none';
+    stepSubmitBtn.disabled = true;
+    stepSubmitBtn.textContent = 'Submitting proposal...';
+
+    // 1. Upload Poster Image if provided
+    var file = posterFileInput.files[0];
+    if (file) {
+      var formData = new FormData();
+      formData.append('file', file);
+      formData.append('is_private', '0');
+      formData.append('folder', 'Home');
+
+      fetch('/api/method/upload_file', {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-Frappe-CSRF-Token': getCsrfToken()
+        },
+        body: formData
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(uploadData) {
+        var fileUrl = (uploadData.message && uploadData.message.file_url) || '';
+        submitEventPayload(fileUrl);
+      })
+      .catch(function(err) {
+        // If upload fails, proceed without image rather than blocking submission
+        submitEventPayload('');
+      });
+    } else {
+      submitEventPayload('');
+    }
+  });
+
+  function submitEventPayload(coverImageUrl) {
+    var sDate = eventDateInput.value;
+    var sTime = startTimeInput.value;
+    var eTime = endTimeInput.value;
+
+    var payload = {
+      title: titleInput.value.trim(),
+      type: 'Adda',
+      description: descInput.value.trim(),
+      start_date_time: sDate + ' ' + sTime + ':00',
+      end_date_time: sDate + ' ' + eTime + ':00',
+      start: sDate + ' ' + sTime + ':00',
+      end: sDate + ' ' + eTime + ':00',
+      city: citySelect.value.trim(),
+      room_name: selectedRoomInput.value.trim(),
+      people_expected: parseInt(peopleInput.value, 10) || 20,
+      approval_status: 'Pending Review',
+      mode: modeSelect.value || 'Offline',
+      venue_details: venueNotesInput.value.trim() || undefined,
+      wa_group_link: waGroupInput.value.trim() || undefined,
+      image: coverImageUrl || undefined,
+      cover_image: coverImageUrl || undefined
+    };
+
+    fetch('/api/method/solve_ninja.api.v1.solve_event.create_solve_event', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-Frappe-CSRF-Token': getCsrfToken()
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) {
+      return res.json().then(function(data) {
+        if (!res.ok) {
+          var msg = (data.message && data.message.error) || (data._server_messages ? parseServerMessage(data._server_messages) : ('Submission failed (' + res.status + ')'));
+          throw new Error(msg);
+        }
+        return data;
+      });
+    })
+    .then(function(data) {
+      isSubmitting = false;
+      try {
+        sessionStorage.removeItem('adda_host_form_data');
+      } catch(e) {}
+
+      var doc = data.message || data;
+      confRefName.textContent = doc.name || doc.title || 'Created';
+      goToStep(5);
+    })
+    .catch(function(err) {
+      isSubmitting = false;
+      stepSubmitBtn.disabled = false;
+      stepSubmitBtn.textContent = 'Submit Gathering Proposal';
+      submitErrorBox.style.display = 'flex';
+      submitErrorText.textContent = err.message || 'Unable to submit gathering proposal. Please verify your connection or try again.';
+    });
+  }
+
+  function parseServerMessage(raw) {
+    try {
+      var arr = JSON.parse(raw);
+      if (Array.isArray(arr) && arr.length > 0) {
+        var obj = typeof arr[0] === 'string' ? JSON.parse(arr[0]) : arr[0];
+        if (obj && obj.message) {
+          var div = document.createElement('div');
+          div.innerHTML = obj.message;
+          return (div.textContent || div.innerText || '').trim();
+        }
+      }
+    } catch(e) {}
+    return 'Server validation failed';
+  }
+
+})();
+</script>
+{% endblock %}

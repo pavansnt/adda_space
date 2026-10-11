@@ -1345,3 +1345,675 @@ p.lead {
   font-size: 0.8125rem;
   color: #798C9E;
 }
+
+/* ==========================================================================
+   Calendar UI & View Switcher Styles
+   ========================================================================== */
+
+/* View Switcher */
+.adda-view-switcher {
+  display: inline-flex;
+  background-color: var(--adda-surface-subtle);
+  padding: 0.25rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--adda-border);
+  gap: 0.25rem;
+}
+
+.adda-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1.15rem;
+  font-family: var(--font-headings);
+  font-size: 0.875rem;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: transparent;
+  color: var(--adda-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1.2;
+}
+
+.adda-view-btn:hover {
+  color: var(--adda-navy);
+}
+
+.adda-view-btn.active {
+  background-color: var(--adda-green);
+  color: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(27, 138, 90, 0.3);
+}
+
+/* Calendar Toolbar */
+.adda-cal-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  background-color: var(--adda-surface);
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.adda-cal-title-group {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.adda-cal-month-title {
+  font-family: var(--font-headings);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--adda-navy);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.adda-cal-year-badge {
+  font-family: var(--font-headings);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--adda-green);
+  background-color: var(--adda-green-light);
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-pill);
+}
+
+.adda-cal-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.adda-cal-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: var(--font-headings);
+  color: var(--adda-text);
+  background-color: var(--adda-bg-alt);
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.adda-cal-nav-btn:hover {
+  background-color: var(--adda-surface);
+  border-color: var(--adda-green);
+  color: var(--adda-green);
+}
+
+.adda-cal-nav-btn.today-btn {
+  background-color: var(--adda-green-light);
+  color: var(--adda-green);
+  border-color: var(--adda-green-border);
+  font-weight: 700;
+}
+
+.adda-cal-nav-btn.today-btn:hover {
+  background-color: var(--adda-green);
+  color: #FFFFFF;
+}
+
+/* Calendar Grid Wrapper */
+.adda-calendar-wrapper {
+  background-color: var(--adda-surface);
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  margin-bottom: 2rem;
+}
+
+/* Weekday Header */
+.adda-cal-header-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background-color: var(--adda-bg-alt);
+  border-bottom: 1px solid var(--adda-border);
+}
+
+.adda-cal-header-cell {
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+  font-family: var(--font-headings);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--adda-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Calendar Days Grid */
+.adda-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background-color: var(--adda-border-light);
+  gap: 1px;
+}
+
+.adda-cal-cell {
+  background-color: var(--adda-surface);
+  min-height: 120px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+}
+
+.adda-cal-cell:hover {
+  background-color: #FAF9F5;
+}
+
+.adda-cal-cell.is-other-month {
+  background-color: #FBF9F5;
+  opacity: 0.55;
+  cursor: default;
+}
+
+.adda-cal-cell.is-today {
+  background-color: #F2FAF5;
+}
+
+.adda-cal-cell.is-today .adda-cal-day-num {
+  background-color: var(--adda-green);
+  color: #FFFFFF;
+  border-radius: var(--radius-pill);
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.adda-cal-cell.is-selected {
+  outline: 2px solid var(--adda-green);
+  outline-offset: -2px;
+  background-color: #EBF7F0;
+  z-index: 2;
+}
+
+.adda-cal-cell-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.35rem;
+}
+
+.adda-cal-day-num {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--adda-text);
+  font-family: var(--font-headings);
+}
+
+.adda-cal-badge-count {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  background-color: var(--adda-green-light);
+  color: var(--adda-green);
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-pill);
+}
+
+.adda-cal-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  overflow: hidden;
+  flex: 1;
+}
+
+.adda-cal-event-pill {
+  display: block;
+  padding: 0.25rem 0.45rem;
+  background-color: var(--adda-green-light);
+  border-left: 3px solid var(--adda-green);
+  border-radius: var(--radius-sm);
+  color: var(--adda-navy);
+  font-size: 0.75rem;
+  line-height: 1.25;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.adda-cal-event-pill:hover {
+  background-color: var(--adda-green);
+  color: #FFFFFF;
+  border-left-color: var(--adda-navy);
+  transform: translateY(-1px);
+}
+
+.adda-cal-event-time {
+  font-size: 0.6875rem;
+  color: var(--adda-green-hover);
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.1rem;
+}
+
+.adda-cal-event-pill:hover .adda-cal-event-time {
+  color: #E8F5EE;
+}
+
+.adda-cal-more-pill {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--adda-text-muted);
+  padding: 0.15rem 0.35rem;
+  background-color: var(--adda-bg-alt);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  cursor: pointer;
+}
+
+.adda-cal-more-pill:hover {
+  color: var(--adda-green);
+  background-color: var(--adda-green-light);
+}
+
+/* Day Detail Drawer (Selected Day / Mobile) */
+.adda-cal-drawer {
+  background-color: var(--adda-surface);
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  box-shadow: var(--shadow-card);
+}
+
+.adda-cal-drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--adda-border-light);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.adda-cal-drawer-title {
+  font-family: var(--font-headings);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--adda-navy);
+  margin: 0;
+}
+
+.adda-cal-drawer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.adda-cal-drawer-card {
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  background-color: var(--adda-surface-warm);
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.adda-cal-drawer-card:hover {
+  border-color: var(--adda-green);
+  box-shadow: var(--shadow-card);
+  transform: translateY(-2px);
+}
+
+/* Responsive adjustments for Calendar */
+@media (max-width: 768px) {
+  .adda-cal-cell {
+    min-height: 70px;
+    padding: 0.25rem;
+  }
+  .adda-cal-event-pill {
+    padding: 0.15rem 0.25rem;
+    font-size: 0.6875rem;
+  }
+  .adda-cal-event-time {
+    display: none;
+  }
+  .adda-cal-header-cell {
+    font-size: 0.7rem;
+    padding: 0.5rem 0.2rem;
+  }
+}
+
+/* ==========================================================================
+   Host at Adda Space — Wizard & Multi-Step Registration Styles
+   ========================================================================== */
+
+.adda-wizard-container {
+  background-color: var(--adda-surface);
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  margin-bottom: 3rem;
+}
+
+/* Wizard Stepper Progress */
+.adda-wizard-nav {
+  display: flex;
+  background-color: var(--adda-bg-alt);
+  border-bottom: 1px solid var(--adda-border);
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  gap: 0.5rem;
+}
+
+.adda-wizard-step {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-headings);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--adda-text-muted);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  flex: 1 1 auto;
+  justify-content: center;
+}
+
+.adda-wizard-step.active {
+  background-color: var(--adda-surface);
+  color: var(--adda-navy);
+  border: 1px solid var(--adda-border);
+  box-shadow: 0 1px 3px rgba(19, 37, 51, 0.06);
+}
+
+.adda-wizard-step.completed {
+  color: var(--adda-green);
+}
+
+.adda-step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--adda-border);
+  color: var(--adda-text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.adda-wizard-step.active .adda-step-num {
+  background-color: var(--adda-green);
+  color: #FFFFFF;
+}
+
+.adda-wizard-step.completed .adda-step-num {
+  background-color: var(--adda-green-light);
+  color: var(--adda-green);
+}
+
+/* Wizard Body */
+.adda-wizard-body {
+  padding: clamp(1.5rem, 4vw, 2.75rem);
+}
+
+.adda-step-panel {
+  display: none;
+}
+
+.adda-step-panel.active {
+  display: block;
+}
+
+.adda-step-header {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--adda-border-light);
+  padding-bottom: 1.25rem;
+}
+
+.adda-step-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--adda-navy);
+  margin-bottom: 0.5rem;
+}
+
+.adda-step-desc {
+  font-size: 0.95rem;
+  color: var(--adda-text-muted);
+  margin: 0;
+}
+
+/* Form Controls */
+.adda-form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.adda-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.adda-form-label {
+  display: block;
+  font-family: var(--font-headings);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--adda-navy);
+  margin-bottom: 0.45rem;
+}
+
+.adda-form-label .req {
+  color: #DC2626;
+  margin-left: 0.2rem;
+}
+
+.adda-form-hint {
+  font-size: 0.8125rem;
+  color: var(--adda-text-subtle);
+  margin-top: 0.35rem;
+}
+
+.adda-select,
+.adda-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  color: var(--adda-text);
+  background-color: var(--adda-surface-warm);
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.adda-select:focus,
+.adda-textarea:focus {
+  outline: none;
+  border-color: var(--adda-green);
+  box-shadow: 0 0 0 3px var(--adda-green-light);
+  background-color: var(--adda-surface);
+}
+
+.adda-textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+/* Room Cards Grid */
+.adda-room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.adda-room-card {
+  border: 1.5px solid var(--adda-border);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  background-color: var(--adda-surface-warm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.adda-room-card:hover {
+  border-color: var(--adda-green);
+  background-color: #FAFDFB;
+  transform: translateY(-1px);
+}
+
+.adda-room-card.selected {
+  border-color: var(--adda-green);
+  background-color: var(--adda-green-light);
+  box-shadow: 0 0 0 2px var(--adda-green);
+}
+
+.adda-room-name {
+  font-family: var(--font-headings);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--adda-navy);
+  margin-bottom: 0.35rem;
+}
+
+.adda-room-cap {
+  font-size: 0.8125rem;
+  color: var(--adda-text-muted);
+}
+
+/* Availability Status Callouts */
+.adda-avail-box {
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.adda-avail-success {
+  background-color: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  color: #065F46;
+}
+
+.adda-avail-alert {
+  background-color: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: #991B1B;
+}
+
+.adda-avail-info {
+  background-color: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  color: #1E40AF;
+}
+
+/* Wizard Button Actions */
+.adda-wizard-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--adda-border-light);
+  padding-top: 1.5rem;
+  margin-top: 2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Review Summary Card */
+.adda-review-card {
+  background-color: var(--adda-bg-alt);
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.adda-review-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--adda-border-light);
+  font-size: 0.9375rem;
+}
+
+.adda-review-row:last-child {
+  border-bottom: none;
+}
+
+.adda-review-label {
+  font-weight: 700;
+  color: var(--adda-text-muted);
+  font-family: var(--font-headings);
+  width: 35%;
+}
+
+.adda-review-val {
+  color: var(--adda-navy);
+  font-weight: 600;
+  width: 65%;
+  text-align: right;
+}
+
+/* Poster Preview */
+.adda-poster-preview {
+  margin-top: 1rem;
+  max-width: 220px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--adda-border);
+  overflow: hidden;
+  background-color: var(--adda-bg-alt);
+}
+
+.adda-poster-preview img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Confirmation Box */
+.adda-confirmation-card {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+}
+
+.adda-confirmation-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: var(--adda-green-light);
+  color: var(--adda-green);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-bottom: 1.25rem;
+}
+

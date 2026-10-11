@@ -92,17 +92,22 @@ def get_supported_cities() -> Dict[str, Any]:
 def get_adda_events(
 	city: Optional[str] = None,
 	time_scope: str = "upcoming",
+	start_date: Optional[str] = None,
+	end_date: Optional[str] = None,
 	start: Union[int, str] = 0,
 	page_length: Union[int, str] = 20,
 ) -> Dict[str, Any]:
 	"""
 	Retrieve approved Adda events across all supported cities or for a specified city,
-	with pagination and time scope grouping.
+	with pagination and time scope grouping or custom date range (for calendar view).
 
 	Args:
 		city: Optional city name (case-insensitive, matched against Samaaja Cities).
 		      If omitted or empty, events across all supported cities are returned.
 		time_scope: "upcoming" (start_date_time >= now) or "past" (start_date_time < now).
+		            Only used when start_date and end_date are omitted.
+		start_date: Optional start date string (YYYY-MM-DD) for range queries.
+		end_date: Optional end date string (YYYY-MM-DD) for range queries.
 		start: Offset index for pagination (0-indexed integer >= 0).
 		page_length: Number of events per page (integer between 1 and 100).
 
@@ -243,14 +248,74 @@ def get_adda_events(
 		if supported_cities:
 			filters["city"] = ["in", supported_cities]
 
-	# Time scope grouping based strictly on event start date time
-	now = now_datetime()
-	if time_scope_clean == "past":
-		filters["start_date_time"] = ["<", now]
-		order_by = "start_date_time desc"
-	else:
-		filters["start_date_time"] = [">=", now]
+	# 5. Date range handling (takes precedence over time_scope when either is specified)
+	clean_start_date = None
+	clean_end_date = None
+	if start_date is not None and str(start_date).strip():
+		s_str = str(start_date).strip()
+		try:
+			from datetime import datetime
+			datetime.strptime(s_str, "%Y-%m-%d")
+			clean_start_date = s_str
+		except (ValueError, TypeError):
+			if hasattr(frappe, "response"):
+				frappe.response["http_status_code"] = 400
+			return {
+				"success": False,
+				"error": _("Invalid 'start_date' parameter '{0}'. Expected format YYYY-MM-DD.").format(start_date),
+				"events": [],
+				"pagination": None,
+				"filters": None,
+			}
+
+	if end_date is not None and str(end_date).strip():
+		e_str = str(end_date).strip()
+		try:
+			from datetime import datetime
+			datetime.strptime(e_str, "%Y-%m-%d")
+			clean_end_date = e_str
+		except (ValueError, TypeError):
+			if hasattr(frappe, "response"):
+				frappe.response["http_status_code"] = 400
+			return {
+				"success": False,
+				"error": _("Invalid 'end_date' parameter '{0}'. Expected format YYYY-MM-DD.").format(end_date),
+				"events": [],
+				"pagination": None,
+				"filters": None,
+			}
+
+	if clean_start_date and clean_end_date and clean_start_date > clean_end_date:
+		if hasattr(frappe, "response"):
+			frappe.response["http_status_code"] = 400
+		return {
+			"success": False,
+			"error": _("Invalid date range: start_date '{0}' cannot be after end_date '{1}'.").format(
+				clean_start_date, clean_end_date
+			),
+			"events": [],
+			"pagination": None,
+			"filters": None,
+		}
+
+	if clean_start_date and clean_end_date:
+		filters["start_date_time"] = ["between", [f"{clean_start_date} 00:00:00", f"{clean_end_date} 23:59:59"]]
 		order_by = "start_date_time asc"
+	elif clean_start_date:
+		filters["start_date_time"] = [">=", f"{clean_start_date} 00:00:00"]
+		order_by = "start_date_time asc"
+	elif clean_end_date:
+		filters["start_date_time"] = ["<=", f"{clean_end_date} 23:59:59"]
+		order_by = "start_date_time asc"
+	else:
+		# Time scope grouping based strictly on event start date time
+		now = now_datetime()
+		if time_scope_clean == "past":
+			filters["start_date_time"] = ["<", now]
+			order_by = "start_date_time desc"
+		else:
+			filters["start_date_time"] = [">=", now]
+			order_by = "start_date_time asc"
 
 	# Get total matching count
 	total_count = frappe.db.count("Solve Event", filters=filters)
@@ -279,7 +344,9 @@ def get_adda_events(
 		},
 		"filters": {
 			"city": city_clean,
-			"time_scope": time_scope_clean,
+			"time_scope": time_scope_clean if not (clean_start_date or clean_end_date) else None,
+			"start_date": clean_start_date,
+			"end_date": clean_end_date,
 			"supported_cities": supported_cities,
 		},
 	}
