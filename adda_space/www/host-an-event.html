@@ -223,13 +223,23 @@
           </div>
 
           <div class="adda-form-group">
-            <label for="step-poster-file" class="adda-form-label">
-              Event Poster / Cover Image (Optional)
+            <label for="step-poster-file" class="adda-form-label" style="display: flex; align-items: center; justify-content: space-between;">
+              <span>Event poster <span style="font-size: 0.85rem; font-weight: 600; color: #DC2626;">(required)</span></span>
+              <span class="req" style="color: #EF4444;" aria-hidden="true">*</span>
             </label>
-            <input type="file" id="step-poster-file" class="adda-input" accept="image/png, image/jpeg, image/webp" />
-            <p class="adda-form-hint">Supported formats: JPG, PNG, WebP (Max 5MB). Dimensions recommended: 1200 &times; 630px.</p>
-            <div id="step-poster-preview-box" class="adda-poster-preview" style="display: none;">
-              <img id="step-poster-img" src="" alt="Poster preview" />
+            <input type="file" id="step-poster-file" class="adda-input" accept="image/png, image/jpeg, image/webp" required aria-required="true" />
+            <p class="adda-form-hint">Supported formats: PNG, JPG, WebP (Max 5MB). Dimensions recommended: 1200 &times; 630px.</p>
+            <div id="step-poster-preview-box" class="adda-poster-preview" style="display: none; margin-top: 0.65rem; padding: 0.75rem; background: var(--adda-surface-warm, #F9FAFB); border: 1px solid var(--adda-border, #E5E7EB); border-radius: var(--radius-md, 8px);">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <img id="step-poster-img" src="" alt="Poster preview" style="width: 56px; height: 56px; border-radius: 6px; object-fit: cover; border: 1px solid #D1D5DB; background: #FFFFFF;" />
+                <div style="flex: 1; min-width: 0;">
+                  <div id="step-poster-filename" style="font-size: 0.8125rem; font-weight: 600; color: #111827; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
+                  <div id="step-poster-filesize" style="font-size: 0.75rem; color: #6B7280;"></div>
+                </div>
+                <button type="button" id="step-poster-replace-btn" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; font-weight: 600; color: #DC2626; background: #FEE2E2; border: 1px solid #FCA5A5; border-radius: 6px; cursor: pointer;">
+                  Replace
+                </button>
+              </div>
             </div>
           </div>
 
@@ -409,6 +419,12 @@
   var posterFileInput = document.getElementById('step-poster-file');
   var posterPreviewBox = document.getElementById('step-poster-preview-box');
   var posterImg = document.getElementById('step-poster-img');
+  var posterFilename = document.getElementById('step-poster-filename');
+  var posterFilesize = document.getElementById('step-poster-filesize');
+  var posterReplaceBtn = document.getElementById('step-poster-replace-btn');
+  var selectedPosterFile = null;
+  var selectedPosterDataUrl = '';
+  var uploadedPosterUrl = '';
   var step3Error = document.getElementById('step-3-error');
   var step3ErrorText = document.getElementById('step-3-error-text');
   var step3BackBtn = document.getElementById('step-3-back-btn');
@@ -456,7 +472,9 @@
       people_expected: peopleInput.value || '',
       mode: modeSelect.value || 'Offline',
       venue_details: venueNotesInput.value || '',
-      wa_group_link: waGroupInput.value || ''
+      wa_group_link: waGroupInput.value || '',
+      poster_filename: posterFilename ? posterFilename.textContent : '',
+      poster_url: uploadedPosterUrl || ''
     };
     try {
       sessionStorage.setItem('adda_host_form_data', JSON.stringify(state));
@@ -481,6 +499,13 @@
       if (state.mode) modeSelect.value = state.mode;
       if (state.venue_details) venueNotesInput.value = state.venue_details;
       if (state.wa_group_link) waGroupInput.value = state.wa_group_link;
+      if (state.poster_url) {
+        uploadedPosterUrl = state.poster_url;
+        if (posterImg) posterImg.src = uploadedPosterUrl;
+        if (posterFilename) posterFilename.textContent = state.poster_filename || 'Uploaded poster';
+        if (posterFilesize) posterFilesize.textContent = 'Uploaded';
+        if (posterPreviewBox) posterPreviewBox.style.display = 'block';
+      }
 
       return true;
     } catch(e) {
@@ -556,8 +581,8 @@
       return;
     }
     step1Error.style.display = 'none';
+    goToStep(2);
     loadRoomsForCity(city, function() {
-      goToStep(2);
       checkRoomAvailability();
     });
   });
@@ -584,8 +609,12 @@
 
       roomsGrid.innerHTML = '';
       if (availableRooms.length === 0) {
-        // Fallback option if room master has no records
-        availableRooms = [{ name: 'Main Community Space', room_name: 'Main Community Space', capacity: 30 }];
+        selectedRoomInput.value = '';
+        roomsGrid.innerHTML = '<div class="adda-room-empty" style="grid-column: 1 / -1; padding: 1.5rem; text-align: center; color: var(--adda-text-muted); background: var(--adda-surface-warm); border-radius: var(--radius-sm); border: 1px dashed var(--adda-border);"><p style="margin: 0;">No active spaces or rooms found for this city.</p></div>';
+        roomsGrid.style.display = 'block';
+        step2NextBtn.disabled = true;
+        if (callback) callback();
+        return;
       }
 
       availableRooms.forEach(function(r, idx) {
@@ -613,12 +642,16 @@
       });
 
       roomsGrid.style.display = 'grid';
+      step2NextBtn.disabled = false;
       if (callback) callback();
     })
     .catch(function(err) {
       roomsLoading.style.display = 'none';
-      availableRooms = [{ name: 'Community Hall', room_name: 'Community Hall', capacity: 25 }];
-      selectedRoomInput.value = 'Community Hall';
+      availableRooms = [];
+      selectedRoomInput.value = '';
+      roomsGrid.innerHTML = '<div class="adda-room-empty" style="grid-column: 1 / -1; padding: 1.5rem; text-align: center; color: #DC2626; background: #FEF2F2; border-radius: var(--radius-sm); border: 1px solid #FCA5A5;"><p style="margin: 0;">Unable to load spaces for this city. Please try again.</p></div>';
+      roomsGrid.style.display = 'block';
+      step2NextBtn.disabled = true;
       if (callback) callback();
     });
   }
@@ -704,26 +737,59 @@
     goToStep(3);
   });
 
-  // Poster Image Preview
-  posterFileInput.addEventListener('change', function() {
-    var file = this.files[0];
-    if (file) {
+  // Poster Image Preview & Replace
+  if (posterFileInput) {
+    posterFileInput.addEventListener('change', function() {
+      var file = this.files[0];
+      if (!file) return;
+
+      var validExts = ['image/png', 'image/jpeg', 'image/webp'];
+      if (file.type && validExts.indexOf(file.type) === -1) {
+        alert('Please choose a valid PNG, JPG, or WebP image.');
+        this.value = '';
+        selectedPosterFile = null;
+        if (posterPreviewBox) posterPreviewBox.style.display = 'none';
+        return;
+      }
+
       if (file.size > 5 * 1024 * 1024) {
         alert('Poster file must be less than 5MB.');
         this.value = '';
-        posterPreviewBox.style.display = 'none';
+        selectedPosterFile = null;
+        if (posterPreviewBox) posterPreviewBox.style.display = 'none';
         return;
       }
+
+      if (step3Error) step3Error.style.display = 'none';
+      selectedPosterFile = file;
+
       var reader = new FileReader();
       reader.onload = function(e) {
-        posterImg.src = e.target.result;
-        posterPreviewBox.style.display = 'block';
+        selectedPosterDataUrl = e.target.result;
+        if (posterImg) posterImg.src = selectedPosterDataUrl;
+        if (posterFilename) posterFilename.textContent = file.name;
+        if (posterFilesize) posterFilesize.textContent = (file.size / 1024).toFixed(1) + ' KB';
+        if (posterPreviewBox) posterPreviewBox.style.display = 'block';
+        saveFormStateToStorage();
       };
       reader.readAsDataURL(file);
-    } else {
-      posterPreviewBox.style.display = 'none';
-    }
-  });
+    });
+  }
+
+  if (posterReplaceBtn) {
+    posterReplaceBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      selectedPosterFile = null;
+      selectedPosterDataUrl = '';
+      uploadedPosterUrl = '';
+      if (posterFileInput) {
+        posterFileInput.value = '';
+        posterFileInput.click();
+      }
+      if (posterPreviewBox) posterPreviewBox.style.display = 'none';
+      saveFormStateToStorage();
+    });
+  }
 
   // Step 3 Navigation
   step3BackBtn.addEventListener('click', function() { goToStep(2); });
@@ -731,12 +797,20 @@
     var title = titleInput.value.trim();
     var desc = descInput.value.trim();
     var people = parseInt(peopleInput.value, 10);
+    var file = (posterFileInput && posterFileInput.files[0]) || selectedPosterFile;
 
     if (!title || !desc || isNaN(people) || people < 1) {
       step3Error.style.display = 'flex';
       step3ErrorText.textContent = 'Please fill in all mandatory fields (Title, Description, and Attendees >= 1).';
       return;
     }
+
+    if (!file && !uploadedPosterUrl) {
+      step3Error.style.display = 'flex';
+      step3ErrorText.textContent = 'Event poster is required. Please upload an event poster.';
+      return;
+    }
+
     step3Error.style.display = 'none';
     populateReviewCard();
     goToStep(4);
@@ -771,43 +845,97 @@
 
   // Submission Handler
   stepSubmitBtn.addEventListener('click', function() {
+    var title = titleInput.value.trim();
+    var desc = descInput.value.trim();
+    var file = (posterFileInput && posterFileInput.files[0]) || selectedPosterFile;
+
+    if (!title || !desc) {
+      goToStep(3);
+      if (step3Error) {
+        step3Error.style.display = 'flex';
+        if (step3ErrorText) step3ErrorText.textContent = 'Please fill in all mandatory fields.';
+      }
+      return;
+    }
+
+    if (!file && !uploadedPosterUrl) {
+      goToStep(3);
+      if (step3Error) {
+        step3Error.style.display = 'flex';
+        if (step3ErrorText) step3ErrorText.textContent = 'Event poster is required. Please upload an event poster.';
+      }
+      return;
+    }
+
     if (isSubmitting) return;
     isSubmitting = true;
     submitErrorBox.style.display = 'none';
-    stepSubmitBtn.disabled = true;
-    stepSubmitBtn.textContent = 'Submitting proposal...';
 
-    // 1. Upload Poster Image if provided
-    var file = posterFileInput.files[0];
-    if (file) {
-      var formData = new FormData();
-      formData.append('file', file);
-      formData.append('is_private', '0');
-      formData.append('folder', 'Home');
-
-      fetch('/api/method/upload_file', {
-        method: 'POST',
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          'X-Frappe-CSRF-Token': getCsrfToken()
-        },
-        body: formData
-      })
-      .then(function(res) { return res.json(); })
-      .then(function(uploadData) {
-        var fileUrl = (uploadData.message && uploadData.message.file_url) || '';
-        submitEventPayload(fileUrl);
-      })
-      .catch(function(err) {
-        // If upload fails, proceed without image rather than blocking submission
-        submitEventPayload('');
-      });
-    } else {
-      submitEventPayload('');
+    // If poster was already uploaded and no new file selected, proceed directly
+    if (uploadedPosterUrl && !file) {
+      stepSubmitBtn.disabled = true;
+      stepSubmitBtn.textContent = 'Submitting proposal...';
+      submitEventPayload(uploadedPosterUrl);
+      return;
     }
+
+    stepSubmitBtn.disabled = true;
+    stepSubmitBtn.textContent = 'Uploading poster...';
+
+    // Upload Poster Image
+    var formData = new FormData();
+    formData.append('file', file);
+    formData.append('is_private', '0');
+    formData.append('folder', 'Home');
+
+    fetch('/api/method/upload_file', {
+      method: 'POST',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-Frappe-CSRF-Token': getCsrfToken()
+      },
+      body: formData
+    })
+    .then(function(res) {
+      return res.json().then(function(data) {
+        if (!res.ok) {
+          var errText = (data && data._server_messages) ? parseServerMessage(data._server_messages) : ((data && data.message && (data.message.error || data.message.message)) || 'Failed to upload event poster');
+          throw new Error(errText);
+        }
+        return data;
+      });
+    })
+    .then(function(uploadData) {
+      var fileUrl = (uploadData.message && uploadData.message.file_url) || (uploadData.message && uploadData.message.name);
+      if (!fileUrl) {
+        throw new Error('Poster upload did not return a valid file URL. Please retry.');
+      }
+      uploadedPosterUrl = fileUrl;
+      stepSubmitBtn.textContent = 'Submitting proposal...';
+      submitEventPayload(fileUrl);
+    })
+    .catch(function(uploadErr) {
+      isSubmitting = false;
+      stepSubmitBtn.disabled = false;
+      stepSubmitBtn.textContent = 'Submit Gathering Proposal';
+      submitErrorBox.style.display = 'flex';
+      submitErrorText.textContent = 'Poster upload failed: ' + (uploadErr.message || 'Please check your file and try again.');
+    });
   });
 
   function submitEventPayload(coverImageUrl) {
+    if (!coverImageUrl) {
+      isSubmitting = false;
+      stepSubmitBtn.disabled = false;
+      stepSubmitBtn.textContent = 'Submit Gathering Proposal';
+      goToStep(3);
+      if (step3Error) {
+        step3Error.style.display = 'flex';
+        if (step3ErrorText) step3ErrorText.textContent = 'Event poster is required. Please upload an event poster.';
+      }
+      return;
+    }
+
     var sDate = eventDateInput.value;
     var sTime = startTimeInput.value;
     var eTime = endTimeInput.value;
@@ -827,11 +955,11 @@
       mode: modeSelect.value || 'Offline',
       venue_details: venueNotesInput.value.trim() || undefined,
       wa_group_link: waGroupInput.value.trim() || undefined,
-      image: coverImageUrl || undefined,
-      cover_image: coverImageUrl || undefined
+      image: coverImageUrl,
+      cover_image: coverImageUrl
     };
 
-    fetch('/api/method/solve_ninja.api.v1.solve_event.create_solve_event', {
+    fetch('/api/method/adda_space.api.events.create_adda_event', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -844,7 +972,7 @@
     .then(function(res) {
       return res.json().then(function(data) {
         if (!res.ok) {
-          var msg = (data.message && data.message.error) || (data._server_messages ? parseServerMessage(data._server_messages) : ('Submission failed (' + res.status + ')'));
+          var msg = (data && data._server_messages) ? parseServerMessage(data._server_messages) : ((data && data.message && (data.message.error || data.message.message)) || ('Submission failed (' + res.status + ')'));
           throw new Error(msg);
         }
         return data;

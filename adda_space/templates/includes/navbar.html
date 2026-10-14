@@ -24,8 +24,37 @@
       <a href="/events" class="adda-nav-link {% if path and path.startswith('events') %}active{% endif %}">Events</a>
       <a href="/about" class="adda-nav-link {% if path == 'about' %}active{% endif %}">About</a>
       <a href="/host-an-event" class="adda-nav-link {% if path == 'host-an-event' %}active{% endif %}">Host an Adda</a>
-      <a href="/events" class="adda-nav-btn">Explore Events</a>
+
+      <!-- Mobile Auth inside Drawer -->
+      <div class="adda-nav-auth-mobile">
+        {% if not frappe.session.user or frappe.session.user == 'Guest' %}
+        <div class="adda-nav-auth">
+          <a href="/login" class="adda-nav-btn adda-nav-btn-login">Login</a>
+          <a href="/login#signup" class="adda-nav-btn adda-nav-btn-signup">Sign Up</a>
+        </div>
+        {% else %}
+        <div class="adda-nav-auth adda-nav-user">
+          <span class="adda-user-badge" title="{{ frappe.session.user }}">{{ frappe.session.user.split('@')[0] if '@' in frappe.session.user else frappe.session.user }}</span>
+          <a href="/?cmd=web_logout" class="adda-nav-link adda-nav-logout" title="Log Out">Log Out</a>
+        </div>
+        {% endif %}
+      </div>
     </nav>
+
+    <!-- Desktop Auth aligned to Top Right -->
+    <div class="adda-header-auth">
+      {% if not frappe.session.user or frappe.session.user == 'Guest' %}
+      <div class="adda-nav-auth">
+        <a href="/login" class="adda-nav-btn adda-nav-btn-login">Login</a>
+        <a href="/login#signup" class="adda-nav-btn adda-nav-btn-signup">Sign Up</a>
+      </div>
+      {% else %}
+      <div class="adda-nav-auth adda-nav-user">
+        <span class="adda-user-badge" title="{{ frappe.session.user }}">{{ frappe.session.user.split('@')[0] if '@' in frappe.session.user else frappe.session.user }}</span>
+        <a href="/?cmd=web_logout" class="adda-nav-link adda-nav-logout" title="Log Out">Log Out</a>
+      </div>
+      {% endif %}
+    </div>
   </div>
 </header>
 

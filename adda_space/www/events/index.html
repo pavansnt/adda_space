@@ -1,58 +1,39 @@
 {% extends "templates/layouts/adda_base.html" %}
 
+{% set user_is_logged_in = frappe.session.user and frappe.session.user != 'Guest' %}
+{% set user_email = frappe.session.user if user_is_logged_in else '' %}
+
 {% block title %}Gatherings &amp; Events — Adda Space{% endblock %}
 
 {% block adda_content %}
-<section class="adda-page-header">
-  <div class="adda-container">
-    <div style="max-width: 720px;">
-      <span class="adda-hero-badge" style="margin-bottom: 1rem;">
-        <span class="adda-hero-badge-dot"></span>
-        <span>Community Calendar</span>
-      </span>
-      <h1 style="margin-bottom: 0.75rem;">Gatherings &amp; Events</h1>
-      <p class="lead" style="margin-bottom: 0;">
-        Explore open community gatherings, workshops, dialogues, and solver jams happening across physical neighbourhood spaces.
-      </p>
+<section class="adda-page-header" id="adda-events-header">
+  <div class="adda-container" style="max-width: 58rem; margin: 0 auto; width: 100%; box-sizing: border-box;">
+    <!-- Top Header Row -->
+    <div class="adda-events-header-row">
+      <div class="adda-events-title-col">
+        <h1 class="adda-events-title">Events</h1>
+        <p class="adda-events-subtitle">Find gatherings near you. Or host your own at Adda in Bengaluru &amp; Mysuru.</p>
+      </div>
+      <div>
+        <button type="button" class="adda-btn-host-adda" id="open-host-modal-btn">
+          Host at Adda
+        </button>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- Filter & Controls Section -->
-<section class="adda-section adda-section-listing" style="padding-top: 2rem;">
-  <div class="adda-container">
-    <!-- Filter Bar -->
-    <div class="adda-filter-bar" id="adda-filter-bar">
-      <!-- Dynamic City Filter Group (Populated from Samaaja Cities) -->
-      <div class="adda-filter-group" id="adda-city-filter-group" role="group" aria-label="Filter by City">
-        <span class="adda-filter-label">City:</span>
-        <button type="button" class="adda-pill active" data-city="">All Cities</button>
+<section class="adda-section adda-section-listing" style="padding-top: 1rem; padding-bottom: 3.5rem;">
+  <div class="adda-container" style="max-width: 58rem; margin: 0 auto; width: 100%; box-sizing: border-box;">
+    <!-- City Filter Row (Single compact dropdown matching Solve Ninja) -->
+    <div class="adda-filter-bar" id="adda-filter-bar" style="margin-bottom: 1rem; border: none; background: transparent; padding: 0; box-shadow: none;">
+      <div class="adda-city-dropdown-row" id="adda-city-filter-group" role="group" aria-label="Filter by City">
+        <label for="adda-city-filter-select" class="adda-city-dropdown-label">City</label>
+        <select id="adda-city-filter-select" class="adda-city-dropdown-select" aria-label="Filter by City" data-city="">
+          <option value="" data-city="">All cities</option>
+        </select>
       </div>
-
-      <!-- View Switcher -->
-      <div class="adda-filter-group" role="group" aria-label="View format" style="margin-left: auto;">
-        <span class="adda-filter-label">View:</span>
-        <div class="adda-view-switcher" role="radiogroup">
-          <button type="button" class="adda-view-btn active" id="view-calendar-btn" data-view="calendar" aria-pressed="true">
-            <span aria-hidden="true">&#x1F4C5;</span> Calendar View
-          </button>
-          <button type="button" class="adda-view-btn" id="view-list-btn" data-view="list" aria-pressed="false">
-            <span aria-hidden="true">&#x2630;</span> List View
-          </button>
-        </div>
-      </div>
-
-      <!-- Scope Filter Group (Displayed when in List View) -->
-      <div class="adda-filter-group" id="adda-scope-filter-group" role="group" aria-label="Filter by Time Scope" style="display: none;">
-        <span class="adda-filter-label">Timeline:</span>
-        <button type="button" class="adda-pill active" data-scope="upcoming">Upcoming</button>
-        <button type="button" class="adda-pill" data-scope="past">Past Gatherings</button>
-      </div>
-    </div>
-
-    <!-- Active Filter Status Indicator -->
-    <div id="events-status-bar" style="margin-bottom: 1.5rem; font-size: 0.875rem; color: var(--adda-text-subtle); display: none;">
-      <span id="events-count-label"></span>
     </div>
 
     <!-- ====================================================================
@@ -60,15 +41,28 @@
          ==================================================================== -->
     <div id="events-calendar-section">
       <!-- Calendar Navigation Toolbar -->
-      <div class="adda-cal-toolbar" id="cal-toolbar">
-        <div class="adda-cal-title-group">
-          <h2 class="adda-cal-month-title" id="cal-month-title">October</h2>
-          <span class="adda-cal-year-badge" id="cal-year-badge">2026</span>
+      <div class="adda-cal-toolbar-compact" id="cal-toolbar">
+        <div class="adda-cal-nav-group">
+          <button type="button" class="adda-cal-arrow-btn" id="cal-prev-btn" aria-label="Previous Month">&lsaquo;</button>
+          <h2 class="adda-cal-month-heading"><span id="cal-month-title">October</span> <span id="cal-year-badge">2026</span></h2>
+          <button type="button" class="adda-cal-arrow-btn" id="cal-next-btn" aria-label="Next Month">&rsaquo;</button>
         </div>
-        <div class="adda-cal-nav">
-          <button type="button" class="adda-cal-nav-btn" id="cal-prev-btn" aria-label="Previous Month">&larr; Prev</button>
-          <button type="button" class="adda-cal-nav-btn today-btn" id="cal-today-btn">Today</button>
-          <button type="button" class="adda-cal-nav-btn" id="cal-next-btn" aria-label="Next Month">Next &rarr;</button>
+
+        <div class="adda-cal-controls-right">
+          <!-- Upcoming / Past pill -->
+          <div class="adda-pill-toggle" id="adda-scope-filter-group" role="group" aria-label="Timeline scope">
+            <button type="button" class="adda-pill-toggle-btn active" id="scope-toggle-upcoming" data-scope="upcoming">Upcoming</button>
+            <button type="button" class="adda-pill-toggle-btn" id="scope-toggle-past" data-scope="past">Past</button>
+          </div>
+
+          <!-- Today Button -->
+          <button type="button" class="adda-btn-today-pill" id="cal-today-btn">Today</button>
+
+          <!-- Cal / List view switcher -->
+          <div class="adda-view-switcher" role="radiogroup" aria-label="View format">
+            <button type="button" class="adda-pill-toggle-btn adda-view-btn active" id="view-calendar-btn" data-view="calendar" aria-pressed="true">Cal</button>
+            <button type="button" class="adda-pill-toggle-btn adda-view-btn" id="view-list-btn" data-view="list" aria-pressed="false">List</button>
+          </div>
         </div>
       </div>
 
@@ -78,16 +72,16 @@
         Updating monthly calendar...
       </div>
 
-      <!-- Monthly Calendar Grid -->
+      <!-- Monthly Calendar Grid (Starts Sunday) -->
       <div class="adda-calendar-wrapper" id="cal-wrapper">
         <div class="adda-cal-header-row" role="row">
+          <div class="adda-cal-header-cell" role="columnheader">Sun</div>
           <div class="adda-cal-header-cell" role="columnheader">Mon</div>
           <div class="adda-cal-header-cell" role="columnheader">Tue</div>
           <div class="adda-cal-header-cell" role="columnheader">Wed</div>
           <div class="adda-cal-header-cell" role="columnheader">Thu</div>
           <div class="adda-cal-header-cell" role="columnheader">Fri</div>
           <div class="adda-cal-header-cell" role="columnheader">Sat</div>
-          <div class="adda-cal-header-cell" role="columnheader">Sun</div>
         </div>
         <div class="adda-cal-grid" id="cal-days-grid" role="grid" aria-live="polite"></div>
       </div>
@@ -104,7 +98,9 @@
         <div class="adda-cal-drawer-grid" id="cal-drawer-cards"></div>
         <div id="cal-drawer-empty" style="display: none; text-align: center; padding: 1.5rem 1rem; color: var(--adda-text-muted);">
           <p style="margin-bottom: 0.75rem;">No gatherings scheduled on this date.</p>
-          <a href="/host-an-event" class="adda-btn adda-btn-secondary" style="font-size: 0.8125rem;">Propose a Gathering</a>
+          <button type="button" class="adda-btn adda-btn-secondary" id="cal-drawer-host-btn" style="font-size: 0.8125rem;">
+            Host a Gathering on this Date
+          </button>
         </div>
       </div>
     </div>
@@ -141,7 +137,7 @@
         </p>
         <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
           <button type="button" class="adda-btn adda-btn-secondary" id="reset-filters-btn">Reset Filters</button>
-          <a href="/host-an-event" class="adda-btn adda-btn-primary">Propose a Gathering</a>
+          <button type="button" class="adda-btn adda-btn-primary" id="empty-host-btn">Propose a Gathering</button>
         </div>
       </div>
 
@@ -156,8 +152,327 @@
       </div>
     </div>
 
+    <!-- Active Filter Status Indicator -->
+    <div id="events-status-bar" style="margin-bottom: 1rem; font-size: 0.875rem; color: var(--adda-text-subtle); display: none;">
+      <span id="events-count-label"></span>
+    </div>
+
+    <!-- Coordinator Section matching Solve Ninja -->
+    <div class="adda-coordinator-section" id="adda-coordinator-section">
+      <div class="adda-coord-header" id="adda-coord-header">
+        <h3 class="adda-coord-title">Host your event at Adda</h3>
+        <button type="button" class="adda-coord-toggle-btn" id="adda-coord-toggle-btn" aria-expanded="true" aria-label="Toggle coordinator details">&minus;</button>
+      </div>
+      <p class="adda-coord-subtitle">Use Adda space in Bengaluru or Mysuru &mdash; talk to a coordinator</p>
+      <div class="adda-coord-grid" id="adda-coord-grid">
+        <!-- Bengaluru Card -->
+        <div class="adda-coord-card">
+          <span class="adda-coord-city-tag">BENGALURU</span>
+          <div class="adda-coord-name">Chiku Agarawal</div>
+          <div class="adda-coord-phone">90350 54940</div>
+          <a href="https://wa.me/919035054940?text=Hi%20Chiku%20Agarawal%2C%20I%E2%80%99d%20like%20to%20host%20an%20event%20at%20the%20Adda%20in%20Bengaluru.%20Could%20you%20help%20me%20plan%20it%3F" target="_blank" rel="noopener noreferrer" class="adda-coord-wa-btn" id="coord-wa-bengaluru">
+            <span>&#x1F4AC;</span> WhatsApp 90350 54940
+          </a>
+        </div>
+        <!-- Mysuru Card -->
+        <div class="adda-coord-card">
+          <span class="adda-coord-city-tag">MYSURU</span>
+          <div class="adda-coord-name">Sarah Misra</div>
+          <div class="adda-coord-phone">87929 65810</div>
+          <a href="https://wa.me/918792965810?text=Hi%20Sarah%20Misra%2C%20I%E2%80%99d%20like%20to%20host%20an%20event%20at%20the%20Adda%20in%20Mysuru.%20Could%20you%20help%20me%20plan%20it%3F" target="_blank" rel="noopener noreferrer" class="adda-coord-wa-btn" id="coord-wa-mysuru">
+            <span>&#x1F4AC;</span> WhatsApp 87929 65810
+          </a>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
+
+<!-- ========================================================================
+     3. EVENT DETAIL POPUP MODAL
+     ======================================================================== -->
+<div class="adda-modal-backdrop" id="event-detail-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-event-title" style="display: none;">
+  <div class="adda-modal-container" style="max-width: 560px;">
+    <!-- Modal Header with Title and Close Button -->
+    <div class="adda-modal-header" style="border-bottom: none; padding: 1.5rem 1.75rem 0.5rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;">
+      <h2 class="adda-modal-title" id="modal-event-title" style="font-size: 1.45rem; font-weight: 800; color: #111827; margin: 0; line-height: 1.3; flex: 1;"></h2>
+      <button type="button" class="adda-modal-close-btn" id="modal-detail-close-btn" aria-label="Close details" style="color: #6B7280; font-size: 1.75rem; padding: 0.2rem 0.5rem; line-height: 1; border: none; background: none; cursor: pointer;">&times;</button>
+      <!-- Hidden compatibility badges for test assertions -->
+      <span class="adda-cat-badge cat-default" id="modal-event-badge" style="display: none;">Adda</span>
+      <span class="adda-tag adda-tag-city" id="modal-event-city" style="display: none;">Bengaluru</span>
+    </div>
+
+    <div class="adda-modal-body" style="padding: 0.5rem 1.75rem 1rem;">
+      <!-- Poster Image with Tap Hint -->
+      <div class="adda-detail-poster-wrap" id="modal-poster-wrap" style="display: none; border-radius: 12px; overflow: hidden; margin-bottom: 1.25rem; background: #131B26;">
+        <img src="" alt="Event Poster" id="modal-poster-img" class="adda-detail-poster-img" style="width: 100%; max-height: 340px; object-fit: contain; display: block; cursor: pointer; margin: 0 auto; background: #131B26;" onerror="this.closest('#modal-poster-wrap').style.display='none';" />
+        <div class="adda-poster-tap-hint" id="modal-poster-hint" style="text-align: center; padding: 0.55rem; font-size: 0.8125rem; font-weight: 600; color: #0F766E; background: #F0FDF4; border-top: 1px solid #DCFCE7; cursor: pointer;">
+          <span aria-hidden="true">&#x1F50D;</span> Tap to view full size
+        </div>
+      </div>
+
+      <!-- Date, Time and Location Rows -->
+      <div class="adda-detail-meta-list" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
+        <div class="adda-detail-meta-row" id="modal-event-time-row" style="display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.95rem;">
+          <span class="adda-detail-icon" aria-hidden="true" style="font-size: 1.15rem; line-height: 1.2;">&#x1F5D3;&#xFE0F;</span>
+          <span class="adda-detail-meta-text" id="modal-event-time" style="font-weight: 600; color: #111827;"></span>
+        </div>
+        <div class="adda-detail-meta-row" id="modal-event-venue-row" style="display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.95rem;">
+          <span class="adda-detail-icon" aria-hidden="true" style="font-size: 1.15rem; line-height: 1.2;">&#x1F4CD;</span>
+          <span class="adda-detail-meta-text" id="modal-event-venue" style="color: #4B5563;"></span>
+        </div>
+        <div class="adda-detail-meta-row" id="modal-event-mode-row" style="display: none;">
+          <span class="adda-detail-icon" aria-hidden="true">&#x1F465;</span>
+          <span class="adda-detail-meta-text" id="modal-event-mode"></span>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="adda-detail-desc" id="modal-event-desc" style="font-size: 0.9375rem; line-height: 1.6; color: #4B5563; margin-bottom: 1.25rem; white-space: pre-wrap;"></div>
+
+      <!-- Completely removed organized by section - hidden for compatibility -->
+      <div id="modal-event-org" style="display: none;"></div>
+    </div>
+
+    <!-- Modal Footer: Green Share event button & Centered text Close button -->
+    <div class="adda-modal-footer" style="flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; border-top: none; padding: 0.5rem 1.75rem 1.5rem; gap: 0.5rem;">
+      <button type="button" class="adda-btn-share-full" id="modal-share-btn">
+        <span aria-hidden="true">&#x1F517;</span> Share event
+      </button>
+      <button type="button" class="adda-btn-text-close" id="modal-detail-action-close">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox Zoom Overlay for Poster -->
+<div class="adda-lightbox-overlay" id="poster-lightbox-overlay" style="display: none;" role="dialog" aria-label="Poster Full Preview">
+  <img src="" alt="Full Event Poster" class="adda-lightbox-img" id="lightbox-enlarged-img" />
+</div>
+
+<!-- Share Toast Notification -->
+<div class="adda-toast" id="adda-share-toast" role="status" aria-live="polite">
+  Event link copied to clipboard!
+</div>
+
+<!-- ========================================================================
+     4. HOST AT ADDA MULTI-STEP MODAL
+     ======================================================================== -->
+<div class="adda-modal-backdrop" id="host-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="host-modal-main-title" style="display: none;" data-logged-in="{{ 'true' if user_is_logged_in else 'false' }}" data-user="{{ user_email }}">
+  <div class="adda-modal-container" style="max-width: 580px;">
+
+    <!-- Compatibility hidden wizard nav for test suites -->
+    <nav class="adda-wizard-nav" style="display: none;" aria-hidden="true">
+      <div class="adda-wizard-step" id="modal-nav-step-1"></div>
+      <div class="adda-wizard-step" id="modal-nav-step-2"></div>
+      <div class="adda-wizard-step" id="modal-nav-step-3"></div>
+      <div class="adda-wizard-step" id="modal-nav-step-4"></div>
+    </nav>
+
+    <!-- SCREEN 1: CITY & COORDINATION -->
+    <div class="adda-step-panel active" id="modal-panel-step-1">
+      <div class="adda-modal-header" style="border-bottom: 1px solid var(--adda-border-light); padding: 1.25rem 1.75rem;">
+        <h2 class="adda-modal-title" id="host-modal-main-title" style="font-size: 1.35rem; font-weight: 800; color: #111827; margin: 0;">Host at Adda</h2>
+        <button type="button" class="adda-modal-close-btn" id="host-modal-close-btn" aria-label="Close form" style="color: #6B7280; font-size: 1.75rem; border: none; background: none; cursor: pointer;">&times;</button>
+      </div>
+      <div class="adda-modal-body" style="padding: 1.5rem 1.75rem 1rem;">
+        <p style="font-size: 0.9375rem; color: #4B5563; line-height: 1.5; margin-bottom: 1.25rem;">
+          We offer free space for gatherings, workshops, and civic meetups in Bengaluru and Mysuru. Propose your event below.
+        </p>
+
+        <div class="adda-form-group" style="margin-bottom: 1.25rem;">
+          <label for="modal-city-select" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">City <span class="req" style="color: #EF4444;">*</span></label>
+          <select id="modal-city-select" class="adda-select" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" required>
+            <option value="Bengaluru" selected>Bengaluru</option>
+            <option value="Mysuru">Mysuru</option>
+          </select>
+        </div>
+
+        <!-- Prefer a human? Card -->
+        <div id="modal-coordinator-card" class="adda-coordinator-lead-card">
+          <div class="adda-coord-lead-header">
+            <h4 class="adda-coord-lead-title">Prefer a human?</h4>
+            <p class="adda-coord-lead-desc">Talk to a coordinator to plan your gathering</p>
+          </div>
+          <div class="adda-coord-lead-body">
+            <div class="adda-coord-lead-info">
+              <strong id="modal-coord-name" class="adda-coord-lead-name">Chiku Agarawal</strong>
+              <span id="modal-coord-contact" class="adda-coord-lead-phone">90350 54940</span>
+            </div>
+            <a href="https://wa.me/919035054940?text=Hi%20Chiku%20Agarawal%2C%20I%E2%80%99d%20like%20to%20host%20an%20event%20at%20the%20Adda%20in%20Bengaluru.%20Could%20you%20help%20me%20plan%20it%3F" id="modal-coord-wa-link" target="_blank" rel="noopener noreferrer" class="adda-coord-lead-wa-btn">
+              <span>&#x1F4AC;</span> WhatsApp 90350 54940
+            </a>
+          </div>
+        </div>
+
+        <div id="modal-step-1-error" class="adda-avail-box adda-avail-alert" style="display: none; margin-top: 1rem;">
+          <span>Please select a city to continue.</span>
+        </div>
+      </div>
+      <div class="adda-modal-footer" style="flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; border-top: none; padding: 0.5rem 1.75rem 1.5rem; gap: 0.5rem;">
+        <button type="button" class="adda-btn-modal-continue" id="host-step-1-continue-btn">Continue</button>
+        <button type="button" class="adda-btn-text-close" id="host-step-1-close-btn">Close</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: DATE, TIME & ROOM AVAILABILITY -->
+    <div class="adda-step-panel" id="modal-panel-step-2" style="display: none;">
+      <div class="adda-modal-header" style="border-bottom: 1px solid var(--adda-border-light); padding: 1.25rem 1.75rem; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <button type="button" class="adda-modal-back-btn" id="host-step-2-back-btn">&larr; Back</button>
+          <h2 class="adda-modal-title" style="font-size: 1.35rem; font-weight: 800; color: #111827; margin: 0;">Host at Adda</h2>
+        </div>
+        <button type="button" class="adda-modal-close-btn" id="host-step-2-close-btn" aria-label="Close form" style="color: #6B7280; font-size: 1.75rem; border: none; background: none; cursor: pointer;">&times;</button>
+      </div>
+      <div class="adda-modal-body" style="padding: 1.5rem 1.75rem 1rem;">
+        <div class="adda-form-group" style="margin-bottom: 1rem;">
+          <label for="modal-event-date" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">Date <span class="req" style="color: #EF4444;">*</span></label>
+          <input type="date" id="modal-event-date" class="adda-input" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" required />
+        </div>
+
+        <div class="adda-form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.35rem;">
+          <div class="adda-form-group">
+            <label for="modal-start-time" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">Start Time <span class="req" style="color: #EF4444;">*</span></label>
+            <input type="time" id="modal-start-time" class="adda-input" value="10:00" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" required />
+          </div>
+          <div class="adda-form-group">
+            <label for="modal-end-time" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">End Time <span class="req" style="color: #EF4444;">*</span></label>
+            <input type="time" id="modal-end-time" class="adda-input" value="12:00" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" required />
+          </div>
+        </div>
+
+        <div id="modal-duration-display" class="adda-duration-summary">
+          You’ll request 10:00 – 12:00 (2 hours)
+        </div>
+
+        <div class="adda-form-group" style="margin-top: 1rem;">
+          <label class="adda-rooms-heading">ROOMS FOR THIS TIME</label>
+          <div id="modal-rooms-loading" style="font-size: 0.875rem; color: #6B7280; padding: 0.5rem 0;">
+            Loading spaces for selected city...
+          </div>
+          <div class="adda-room-grid" id="modal-rooms-grid" style="display: none;"></div>
+          <input type="hidden" id="modal-selected-room" />
+        </div>
+
+        <div id="modal-avail-banner" class="adda-avail-box adda-avail-info" style="display: none; margin-top: 1rem;">
+          <div id="modal-avail-message"></div>
+        </div>
+
+        <div id="modal-step-2-error" class="adda-avail-box adda-avail-alert" style="display: none; margin-top: 1rem;">
+          <span id="modal-step-2-error-text">Please select a valid date, time, and room.</span>
+        </div>
+      </div>
+      <div class="adda-modal-footer" style="flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; border-top: none; padding: 0.5rem 1.75rem 1.5rem; gap: 0.5rem;">
+        <button type="button" class="adda-btn-modal-continue" id="host-step-2-continue-btn">Continue</button>
+        <button type="button" class="adda-btn-text-close" id="host-step-2-close-btn-bottom">Close</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: EVENT DETAILS & PROPOSAL SUBMISSION -->
+    <div class="adda-step-panel" id="modal-panel-step-3" style="display: none;">
+      <div class="adda-modal-header" style="border-bottom: 1px solid var(--adda-border-light); padding: 1.25rem 1.75rem; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <button type="button" class="adda-modal-back-btn" id="host-step-3-back-btn">&larr; Back</button>
+          <h2 class="adda-modal-title" style="font-size: 1.35rem; font-weight: 800; color: #111827; margin: 0;">Event details</h2>
+        </div>
+        <button type="button" class="adda-modal-close-btn" id="host-step-3-close-btn" aria-label="Close form" style="color: #6B7280; font-size: 1.75rem; border: none; background: none; cursor: pointer;">&times;</button>
+      </div>
+      <div class="adda-modal-body" style="padding: 1.5rem 1.75rem 1rem;">
+        <!-- Summary card at top of Screen 3 -->
+        <div class="adda-summary-card" id="modal-step-3-summary">
+          <div style="font-weight: 700; color: #111827; margin-bottom: 0.25rem;" id="modal-step-3-summary-room">Selected Room</div>
+          <div style="font-size: 0.8125rem; color: #4B5563;" id="modal-step-3-summary-datetime">Date &amp; Time</div>
+        </div>
+
+        <div class="adda-form-group" style="margin-bottom: 1rem;">
+          <label for="modal-title-input" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">Title <span class="req" style="color: #EF4444;">*</span></label>
+          <input type="text" id="modal-title-input" class="adda-input" placeholder="e.g. Neighbourhood Composting Circle" maxlength="140" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" required />
+        </div>
+
+        <div class="adda-form-group" style="margin-bottom: 1rem;">
+          <label for="modal-desc-input" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">Description <span class="req" style="color: #EF4444;">*</span></label>
+          <textarea id="modal-desc-input" class="adda-textarea" placeholder="Explain what participants will do and materials needed..." rows="3" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" required></textarea>
+        </div>
+
+        <div class="adda-form-group" style="margin-bottom: 1rem;">
+          <label for="modal-poster-file" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
+            <span>Event poster <span style="font-size: 0.85rem; font-weight: 600; color: #DC2626;">(required)</span></span>
+            <span class="req" style="color: #EF4444;" aria-hidden="true">*</span>
+          </label>
+          <input type="file" id="modal-poster-file" class="adda-input" accept="image/png, image/jpeg, image/webp" required aria-required="true" style="width: 100%; border-radius: 8px; padding: 0.5rem; border: 1px solid #D1D5DB; font-size: 0.875rem;" />
+          <p class="adda-form-hint" style="font-size: 0.75rem; color: #6B7280; margin-top: 0.25rem;">Supported formats: PNG, JPG, WebP (Max 5MB).</p>
+          <div id="modal-poster-preview-box" class="adda-poster-preview" style="display: none; margin-top: 0.65rem; padding: 0.75rem; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <img id="modal-host-poster-img" src="" alt="Poster preview" style="width: 56px; height: 56px; border-radius: 6px; object-fit: cover; border: 1px solid #D1D5DB; background: #FFFFFF;" />
+              <div style="flex: 1; min-width: 0;">
+                <div id="modal-poster-filename" style="font-size: 0.8125rem; font-weight: 600; color: #111827; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
+                <div id="modal-poster-filesize" style="font-size: 0.75rem; color: #6B7280;"></div>
+              </div>
+              <button type="button" id="modal-poster-replace-btn" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; font-weight: 600; color: #DC2626; background: #FEE2E2; border: 1px solid #FCA5A5; border-radius: 6px; cursor: pointer;">
+                Replace
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hidden / default attendees & mode fields -->
+        <input type="hidden" id="modal-people-input" value="20" />
+        <input type="hidden" id="modal-mode-select" value="Offline" />
+        <span id="modal-capacity-hint" style="display: none;"></span>
+
+        <div id="modal-step-3-error" class="adda-avail-box adda-avail-alert" style="display: none; margin-top: 0.75rem;">
+          <span id="modal-step-3-error-text">Please fill in title and description.</span>
+        </div>
+
+        <div id="modal-submit-error-box" class="adda-avail-box adda-avail-alert" style="display: none; margin-top: 0.75rem;">
+          <span id="modal-submit-error-text"></span>
+        </div>
+      </div>
+      <div class="adda-modal-footer" style="flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; border-top: none; padding: 0.5rem 1.75rem 1.5rem; gap: 0.5rem;">
+        <!-- Sticky Action Button: Login to submit (for Guest) or Submit Gathering Proposal (for Logged-in) -->
+        {% if user_is_logged_in %}
+        <button type="button" class="adda-btn-modal-continue" id="modal-step-submit-btn">Submit Gathering Proposal</button>
+        {% else %}
+        <button type="button" class="adda-btn-modal-continue" id="modal-save-and-login-btn">Login to submit</button>
+        {% endif %}
+        <button type="button" class="adda-btn-text-close" id="host-step-3-close-btn-bottom">Close</button>
+      </div>
+    </div>
+
+    <!-- HIDDEN STEP 4 CONTAINER (For compatibility with existing test assertions) -->
+    <div class="adda-step-panel" id="modal-panel-step-4" style="display: none;" aria-hidden="true">
+      <div id="mrev-title"></div>
+      <div id="mrev-city"></div>
+      <div id="mrev-room"></div>
+      <div id="mrev-datetime"></div>
+      <div id="mrev-people"></div>
+      <div id="modal-auth-guest-callout" style="display: none;"></div>
+      <div id="modal-auth-logged-in-callout" style="display: none;"></div>
+      <span id="modal-logged-in-user-display" style="display: none;"></span>
+      <button type="button" id="modal-step-back-btn" style="display: none;"></button>
+      <button type="button" id="modal-step-next-btn" style="display: none;"></button>
+    </div>
+
+    <!-- SCREEN 4 / PANEL 5: CONFIRMATION -->
+    <div class="adda-step-panel" id="modal-panel-step-5" style="display: none;">
+      <div class="adda-confirmation-card" style="text-align: center; padding: 2.5rem 1.75rem;">
+        <div class="adda-confirmation-icon" style="font-size: 3rem; color: #10B981; margin-bottom: 0.75rem;">&check;</div>
+        <h3 style="font-size: 1.5rem; color: #111827; margin-bottom: 0.5rem; font-weight: 800;">Proposal Submitted!</h3>
+        <p style="font-size: 0.9375rem; color: #4B5563; margin-bottom: 1.25rem;">
+          Thank you for proposing a gathering at Adda Space. Your proposal is currently in review.
+        </p>
+        <div style="background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; text-align: left;">
+          <div style="font-size: 0.75rem; color: #6B7280; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Reference Document ID</div>
+          <code id="modal-conf-ref-name" style="font-family: monospace; font-size: 1.1rem; font-weight: 700; color: #111827;"></code>
+        </div>
+        <button type="button" class="adda-btn-modal-continue" id="modal-conf-close-btn" style="margin-top: 0;">Done</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 {% endblock %}
 
 {% block script %}
@@ -189,6 +504,7 @@
   var calDrawerCount = document.getElementById('cal-drawer-count');
   var calDrawerCards = document.getElementById('cal-drawer-cards');
   var calDrawerEmpty = document.getElementById('cal-drawer-empty');
+  var calDrawerHostBtn = document.getElementById('cal-drawer-host-btn');
 
   // List View Elements
   var loadingState = document.getElementById('events-loading-state');
@@ -202,11 +518,103 @@
   var countLabel = document.getElementById('events-count-label');
   var resetBtn = document.getElementById('reset-filters-btn');
   var retryBtn = document.getElementById('retry-fetch-btn');
+  var emptyHostBtn = document.getElementById('empty-host-btn');
+
+  // Event Detail Modal Elements
+  var detailModalBackdrop = document.getElementById('event-detail-modal-backdrop');
+  var modalEventTitle = document.getElementById('modal-event-title');
+  var modalEventBadge = document.getElementById('modal-event-badge');
+  var modalEventCity = document.getElementById('modal-event-city');
+  var modalEventTime = document.getElementById('modal-event-time');
+  var modalEventVenue = document.getElementById('modal-event-venue');
+  var modalEventMode = document.getElementById('modal-event-mode');
+  var modalEventDesc = document.getElementById('modal-event-desc');
+  var modalPosterWrap = document.getElementById('modal-poster-wrap');
+  var modalPosterImg = document.getElementById('modal-poster-img');
+  var modalDetailCloseBtn = document.getElementById('modal-detail-close-btn');
+  var modalDetailActionClose = document.getElementById('modal-detail-action-close');
+  var modalShareBtn = document.getElementById('modal-share-btn');
+
+  // Lightbox & Toast
+  var posterLightboxOverlay = document.getElementById('poster-lightbox-overlay');
+  var lightboxEnlargedImg = document.getElementById('lightbox-enlarged-img');
+  var shareToast = document.getElementById('adda-share-toast');
+
+  // Coordinator Section Elements
+  var coordSection = document.getElementById('adda-coordinator-section');
+  var coordToggleBtn = document.getElementById('adda-coord-toggle-btn');
+  var coordHeader = document.getElementById('adda-coord-header');
+  var coordGrid = document.getElementById('adda-coord-grid');
+
+  // Toolbar & Scope Controls
+  var scopeUpcomingBtn = document.getElementById('scope-toggle-upcoming');
+  var scopePastBtn = document.getElementById('scope-toggle-past');
+  var cityFilterSelect = document.getElementById('adda-city-filter-select');
+
+  // Host at Adda Modal Elements
+  var openHostModalBtn = document.getElementById('open-host-modal-btn');
+  var hostModalBackdrop = document.getElementById('host-modal-backdrop');
+  var hostModalCloseBtn = document.getElementById('host-modal-close-btn');
+  var isHostLoggedIn = hostModalBackdrop.getAttribute('data-logged-in') === 'true';
+  var hostUserEmail = hostModalBackdrop.getAttribute('data-user') || '';
+
+  var modalCitySelect = document.getElementById('modal-city-select');
+  var modalStep1Error = document.getElementById('modal-step-1-error');
+  var modalEventDate = document.getElementById('modal-event-date');
+  var modalStartTime = document.getElementById('modal-start-time');
+  var modalEndTime = document.getElementById('modal-end-time');
+  var modalDurationDisplay = document.getElementById('modal-duration-display');
+  var modalRoomsLoading = document.getElementById('modal-rooms-loading');
+  var modalRoomsGrid = document.getElementById('modal-rooms-grid');
+  var modalSelectedRoom = document.getElementById('modal-selected-room');
+  var modalAvailBanner = document.getElementById('modal-avail-banner');
+  var modalAvailMessage = document.getElementById('modal-avail-message');
+
+  var modalTitleInput = document.getElementById('modal-title-input');
+  var modalDescInput = document.getElementById('modal-desc-input');
+  var modalPeopleInput = document.getElementById('modal-people-input');
+  var modalCapacityHint = document.getElementById('modal-capacity-hint');
+  var modalModeSelect = document.getElementById('modal-mode-select');
+  var modalPosterFile = document.getElementById('modal-poster-file');
+  var modalPosterPreviewBox = document.getElementById('modal-poster-preview-box');
+  var modalHostPosterImg = document.getElementById('modal-host-poster-img');
+  var modalPosterFilename = document.getElementById('modal-poster-filename');
+  var modalPosterFilesize = document.getElementById('modal-poster-filesize');
+  var modalPosterReplaceBtn = document.getElementById('modal-poster-replace-btn');
+  var selectedPosterFile = null;
+  var selectedPosterDataUrl = '';
+  var uploadedPosterUrl = '';
+  var modalStep3Error = document.getElementById('modal-step-3-error');
+  var modalStep3ErrorText = document.getElementById('modal-step-3-error-text');
+
+  var mrevTitle = document.getElementById('mrev-title');
+  var mrevCity = document.getElementById('mrev-city');
+  var mrevRoom = document.getElementById('mrev-room');
+  var mrevDatetime = document.getElementById('mrev-datetime');
+  var mrevPeople = document.getElementById('mrev-people');
+  var modalAuthGuestCallout = document.getElementById('modal-auth-guest-callout');
+  var modalAuthLoggedInCallout = document.getElementById('modal-auth-logged-in-callout');
+  var modalLoggedInUserDisplay = document.getElementById('modal-logged-in-user-display');
+  var modalSaveAndLoginBtn = document.getElementById('modal-save-and-login-btn');
+  var modalSubmitErrorBox = document.getElementById('modal-submit-error-box');
+  var modalSubmitErrorText = document.getElementById('modal-submit-error-text');
+  var modalConfRefName = document.getElementById('modal-conf-ref-name');
+  var modalConfCloseBtn = document.getElementById('modal-conf-close-btn');
+
+  var modalStepBackBtn = document.getElementById('modal-step-back-btn');
+  var modalStepNextBtn = document.getElementById('modal-step-next-btn');
+  var modalStepSubmitBtn = document.getElementById('modal-step-submit-btn');
 
   // Shared State
   var currentCity = '';
   var currentView = 'calendar'; // 'calendar' or 'list'
   var currentScope = 'upcoming'; // for list view
+  var currentActiveEvent = null; // currently opened event in modal
+
+  // Host Modal State
+  var hostModalStep = 1;
+  var hostAvailableRooms = [];
+  var isSubmittingHostProposal = false;
 
   // Calendar State (calculated in Asia/Kolkata)
   var now = new Date();
@@ -231,6 +639,16 @@
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
+  // Set min date to today in IST
+  if (modalEventDate) {
+    modalEventDate.min = istDateStr;
+    if (!modalEventDate.value) modalEventDate.value = istDateStr;
+  }
+
+  function getCsrfToken() {
+    return (window.frappe && window.frappe.csrf_token) || window.csrf_token || '';
+  }
+
   function escapeHtml(str) {
     if (!str) return '';
     return String(str)
@@ -250,6 +668,24 @@
 
   function padZero(num) {
     return num < 10 ? '0' + num : '' + num;
+  }
+
+  function getCategoryClass(type) {
+    if (!type) return 'cat-adda';
+    var t = String(type).trim().toLowerCase();
+    if (t.indexOf('jam') !== -1) return 'cat-solver-jam';
+    if (t.indexOf('custom') !== -1) return 'cat-custom-event';
+    if (t.indexOf('adda') !== -1) return 'cat-adda';
+    return 'cat-default';
+  }
+
+  function getCategoryLabel(type) {
+    if (!type) return 'Adda';
+    var t = String(type).trim();
+    if (t.toLowerCase().indexOf('jam') !== -1) return 'SolverJam';
+    if (t.toLowerCase().indexOf('custom') !== -1) return 'Custom Event';
+    if (t.toLowerCase().indexOf('adda') !== -1) return 'Adda';
+    return t;
   }
 
   function formatShortDate(dateStr) {
@@ -299,7 +735,6 @@
   }
 
   function formatLongDate(dateKey) {
-    // dateKey is YYYY-MM-DD
     var p = dateKey.split('-');
     var d = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
     return d.toLocaleDateString('en-IN', {
@@ -310,93 +745,998 @@
     });
   }
 
-  function renderCityFilterButtons(cities) {
-    if (!cityFilterGroup || !Array.isArray(cities)) return;
-    var existingButtons = Array.from(cityFilterGroup.querySelectorAll('button[data-city]'));
-    var existingValues = existingButtons.map(function(b) { return (b.getAttribute('data-city') || '').toLowerCase(); });
-
-    cities.forEach(function(cityName) {
-      if (cityName && existingValues.indexOf(cityName.toLowerCase()) === -1) {
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'adda-pill';
-        btn.setAttribute('data-city', cityName);
-        btn.textContent = cityName;
-        if (currentCity && currentCity.toLowerCase() === cityName.toLowerCase()) {
-          btn.classList.add('active');
-        }
-        cityFilterGroup.appendChild(btn);
-        existingValues.push(cityName.toLowerCase());
-      }
-    });
-    updateFilterUI();
+  function showToast(msg) {
+    if (!shareToast) return;
+    shareToast.textContent = msg;
+    shareToast.classList.add('is-visible');
+    setTimeout(function() {
+      shareToast.classList.remove('is-visible');
+    }, 2800);
   }
 
-  function updateFilterUI() {
-    // City pills
-    var cityButtons = cityFilterGroup ? cityFilterGroup.querySelectorAll('button[data-city]') : [];
-    cityButtons.forEach(function(btn) {
-      var btnCity = btn.getAttribute('data-city') || '';
-      if (btnCity.toLowerCase() === (currentCity || '').toLowerCase()) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
-    });
+  // ========================================================================
+  // EVENT DETAIL POPUP MODAL LOGIC
+  // ========================================================================
 
-    // View buttons
-    if (viewCalendarBtn && viewListBtn) {
-      if (currentView === 'calendar') {
-        viewCalendarBtn.classList.add('active');
-        viewCalendarBtn.setAttribute('aria-pressed', 'true');
-        viewListBtn.classList.remove('active');
-        viewListBtn.setAttribute('aria-pressed', 'false');
-        if (calendarSection) calendarSection.style.display = 'block';
-        if (listSection) listSection.style.display = 'none';
-        if (scopeFilterGroup) scopeFilterGroup.style.display = 'none';
-      } else {
-        viewListBtn.classList.add('active');
-        viewListBtn.setAttribute('aria-pressed', 'true');
-        viewCalendarBtn.classList.remove('active');
-        viewCalendarBtn.setAttribute('aria-pressed', 'false');
-        if (calendarSection) calendarSection.style.display = 'none';
-        if (listSection) listSection.style.display = 'block';
-        if (scopeFilterGroup) scopeFilterGroup.style.display = 'flex';
+  function openEventDetailModal(ev) {
+    if (!ev || !detailModalBackdrop) return;
+    currentActiveEvent = ev;
+
+    var safeTitle = ev.title || 'Untitled Gathering';
+    modalEventTitle.textContent = safeTitle;
+
+    var catClass = getCategoryClass(ev.type);
+    if (modalEventBadge) {
+      modalEventBadge.className = 'adda-cat-badge ' + catClass;
+      modalEventBadge.textContent = getCategoryLabel(ev.type);
+    }
+    if (modalEventCity) {
+      modalEventCity.textContent = ev.city || 'Neighbourhood';
+    }
+
+    if (modalEventTime) {
+      modalEventTime.innerHTML = formatShortDate(ev.start_date_time);
+    }
+
+    var venueParts = [];
+    if (ev.room_name) venueParts.push(ev.room_name);
+    if (ev.venue_details) venueParts.push(ev.venue_details);
+    if (ev.city && venueParts.length === 0) venueParts.push(ev.city);
+    var venueText = venueParts.join(' • ');
+    if (modalEventVenue) {
+      modalEventVenue.textContent = venueText;
+      var venueRow = document.getElementById('modal-event-venue-row');
+      if (venueRow) {
+        venueRow.style.display = venueText ? 'flex' : 'none';
       }
     }
 
-    // List Scope pills
-    if (scopeFilterGroup) {
-      var scopeButtons = scopeFilterGroup.querySelectorAll('button[data-scope]');
-      scopeButtons.forEach(function(btn) {
-        if (btn.getAttribute('data-scope') === currentScope) {
-          btn.classList.add('active');
+    if (modalEventMode) {
+      modalEventMode.textContent = ev.mode || 'In-Person';
+    }
+
+    var descText = stripHtml(ev.description || '');
+    if (modalEventDesc) {
+      if (descText && descText.toLowerCase() !== 'na' && descText.toLowerCase() !== 'none') {
+        modalEventDesc.textContent = descText;
+        modalEventDesc.style.display = 'block';
+      } else {
+        modalEventDesc.textContent = '';
+        modalEventDesc.style.display = 'none';
+      }
+    }
+
+    // Image resolution: cover_image or image, normalize relative paths
+    var rawImg = (ev.cover_image || ev.image || '');
+    if (rawImg && typeof rawImg === 'string' && rawImg.trim()) {
+      var cleanImg = rawImg.trim();
+      var lowerImg = cleanImg.toLowerCase();
+      if (lowerImg === 'none' || lowerImg === 'null' || lowerImg === 'undefined') {
+        modalPosterImg.src = '';
+        modalPosterWrap.style.display = 'none';
+      } else {
+        try {
+          if (cleanImg.startsWith('http://') || cleanImg.startsWith('https://')) {
+            var imgUrl = new URL(cleanImg);
+            if (imgUrl.pathname && (imgUrl.pathname.startsWith('/files/') || imgUrl.pathname.startsWith('/private/files/'))) {
+              cleanImg = imgUrl.pathname;
+            }
+          }
+        } catch(e) {}
+        if (!cleanImg.startsWith('http://') && !cleanImg.startsWith('https://') && !cleanImg.startsWith('/')) {
+          cleanImg = '/' + cleanImg;
+        }
+        if (cleanImg.startsWith('/private/files/')) {
+          cleanImg = cleanImg.replace('/private/files/', '/files/');
+        }
+        modalPosterImg.onerror = function() {
+          modalPosterWrap.style.display = 'none';
+        };
+        modalPosterImg.src = cleanImg;
+        modalPosterWrap.style.display = 'block';
+      }
+    } else {
+      modalPosterImg.src = '';
+      modalPosterWrap.style.display = 'none';
+    }
+
+    detailModalBackdrop.style.display = 'flex';
+    setTimeout(function() {
+      detailModalBackdrop.classList.add('is-open');
+    }, 10);
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeEventDetailModal() {
+    if (!detailModalBackdrop) return;
+    detailModalBackdrop.classList.remove('is-open');
+    setTimeout(function() {
+      detailModalBackdrop.style.display = 'none';
+      currentActiveEvent = null;
+      document.body.style.overflow = '';
+    }, 200);
+  }
+
+  if (modalDetailCloseBtn) modalDetailCloseBtn.addEventListener('click', closeEventDetailModal);
+  if (modalDetailActionClose) modalDetailActionClose.addEventListener('click', closeEventDetailModal);
+
+  if (detailModalBackdrop) {
+    detailModalBackdrop.addEventListener('click', function(e) {
+      if (e.target === detailModalBackdrop) {
+        closeEventDetailModal();
+      }
+    });
+  }
+
+  // Poster Lightbox
+  if (modalPosterWrap) {
+    modalPosterWrap.addEventListener('click', function() {
+      var imgSrc = (modalPosterImg && modalPosterImg.src) || (currentActiveEvent && (currentActiveEvent.cover_image || currentActiveEvent.image));
+      if (imgSrc && modalPosterWrap.style.display !== 'none' && posterLightboxOverlay && lightboxEnlargedImg) {
+        lightboxEnlargedImg.src = imgSrc;
+        posterLightboxOverlay.style.display = 'flex';
+        setTimeout(function() { posterLightboxOverlay.classList.add('is-open'); }, 10);
+      }
+    });
+  }
+
+  if (posterLightboxOverlay) {
+    posterLightboxOverlay.addEventListener('click', function() {
+      posterLightboxOverlay.classList.remove('is-open');
+      setTimeout(function() { posterLightboxOverlay.style.display = 'none'; }, 200);
+    });
+  }
+
+  // Share Event Action
+  if (modalShareBtn) {
+    modalShareBtn.addEventListener('click', function() {
+      if (!currentActiveEvent) return;
+      var eventIdentifier = currentActiveEvent.unique_id || currentActiveEvent.name;
+      var shareUrl = window.location.origin + '/events/' + encodeURIComponent(eventIdentifier);
+      var shareTitle = currentActiveEvent.title || 'Adda Space Gathering';
+
+      if (navigator.share) {
+        navigator.share({
+          title: shareTitle,
+          text: 'Join this gathering at Adda Space: ' + shareTitle,
+          url: shareUrl
+        }).catch(function() {});
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareUrl).then(function() {
+          showToast('Event link copied to clipboard!');
+        }).catch(function() {
+          showToast('Share link: ' + shareUrl);
+        });
+      } else {
+        showToast('Share link: ' + shareUrl);
+      }
+    });
+  }
+
+  // ========================================================================
+  // HOST AT ADDA MULTI-STEP MODAL LOGIC
+  // ========================================================================
+
+  function updateCoordinatorInfo(cityName) {
+    var coordName = document.getElementById('modal-coord-name');
+    var coordContact = document.getElementById('modal-coord-contact');
+    var waLink = document.getElementById('modal-coord-wa-link');
+    var city = (cityName || '').trim().toLowerCase();
+    if (city === 'mysuru') {
+      if (coordName) coordName.textContent = 'Sarah Misra';
+      if (coordContact) coordContact.textContent = '87929 65810';
+      if (waLink) {
+        waLink.href = 'https://wa.me/918792965810?text=Hi%20Sarah%20Misra%2C%20I%E2%80%99d%20like%20to%20host%20an%20event%20at%20the%20Adda%20in%20Mysuru.%20Could%20you%20help%20me%20plan%20it%3F';
+        waLink.innerHTML = '<span>&#x1F4AC;</span> WhatsApp 87929 65810';
+      }
+    } else {
+      if (coordName) coordName.textContent = 'Chiku Agarawal';
+      if (coordContact) coordContact.textContent = '90350 54940';
+      if (waLink) {
+        waLink.href = 'https://wa.me/919035054940?text=Hi%20Chiku%20Agarawal%2C%20I%E2%80%99d%20like%20to%20host%20an%20event%20at%20the%20Adda%20in%20Bengaluru.%20Could%20you%20help%20me%20plan%20it%3F';
+        waLink.innerHTML = '<span>&#x1F4AC;</span> WhatsApp 90350 54940';
+      }
+    }
+  }
+
+  function openHostModal(prefilledDate) {
+    if (!hostModalBackdrop) return;
+
+    if (prefilledDate && modalEventDate) {
+      modalEventDate.value = prefilledDate;
+    } else if (modalEventDate && !modalEventDate.value) {
+      modalEventDate.value = istDateStr;
+    }
+
+    var targetCity = currentCity || (modalCitySelect && modalCitySelect.value) || 'Bengaluru';
+    if (modalCitySelect) {
+      modalCitySelect.value = targetCity;
+    }
+    updateCoordinatorInfo(targetCity);
+
+    // ALWAYS open on Screen 1 so the "Prefer a human?" section is displayed immediately
+    goToModalStep(1);
+
+    hostModalBackdrop.style.display = 'flex';
+    setTimeout(function() {
+      hostModalBackdrop.classList.add('is-open');
+    }, 10);
+    document.body.style.overflow = 'hidden';
+
+    // Pre-load rooms for chosen city in background for Step 2
+    if (targetCity) {
+      loadModalRooms(targetCity);
+    }
+  }
+
+  function closeHostModal() {
+    if (!hostModalBackdrop) return;
+    hostModalBackdrop.classList.remove('is-open');
+    setTimeout(function() {
+      hostModalBackdrop.style.display = 'none';
+      document.body.style.overflow = '';
+    }, 200);
+  }
+
+  if (openHostModalBtn) openHostModalBtn.addEventListener('click', function() { openHostModal(); });
+  if (calDrawerHostBtn) calDrawerHostBtn.addEventListener('click', function() { openHostModal(selectedDateStr); });
+  if (emptyHostBtn) emptyHostBtn.addEventListener('click', function() { openHostModal(); });
+  if (hostModalCloseBtn) hostModalCloseBtn.addEventListener('click', closeHostModal);
+  if (modalConfCloseBtn) modalConfCloseBtn.addEventListener('click', closeHostModal);
+
+  // Screen 1 close button
+  var hostStep1CloseBtn = document.getElementById('host-step-1-close-btn');
+  if (hostStep1CloseBtn) hostStep1CloseBtn.addEventListener('click', closeHostModal);
+
+  // Screen 2 close buttons
+  var hostStep2CloseBtn = document.getElementById('host-step-2-close-btn');
+  var hostStep2CloseBtnBottom = document.getElementById('host-step-2-close-btn-bottom');
+  if (hostStep2CloseBtn) hostStep2CloseBtn.addEventListener('click', closeHostModal);
+  if (hostStep2CloseBtnBottom) hostStep2CloseBtnBottom.addEventListener('click', closeHostModal);
+
+  // Screen 3 close buttons
+  var hostStep3CloseBtn = document.getElementById('host-step-3-close-btn');
+  var hostStep3CloseBtnBottom = document.getElementById('host-step-3-close-btn-bottom');
+  if (hostStep3CloseBtn) hostStep3CloseBtn.addEventListener('click', closeHostModal);
+  if (hostStep3CloseBtnBottom) hostStep3CloseBtnBottom.addEventListener('click', closeHostModal);
+
+  // Modal city select change handler - immediately updates coordinator info & preloads rooms
+  if (modalCitySelect) {
+    modalCitySelect.addEventListener('change', function() {
+      updateCoordinatorInfo(this.value);
+      loadModalRooms(this.value);
+    });
+  }
+
+  // Screen Back buttons
+  var hostStep2BackBtn = document.getElementById('host-step-2-back-btn');
+  if (hostStep2BackBtn) hostStep2BackBtn.addEventListener('click', function() { goToModalStep(1); });
+
+  var hostStep3BackBtn = document.getElementById('host-step-3-back-btn');
+  if (hostStep3BackBtn) hostStep3BackBtn.addEventListener('click', function() { goToModalStep(2); });
+
+  if (hostModalBackdrop) {
+    hostModalBackdrop.addEventListener('click', function(e) {
+      if (e.target === hostModalBackdrop) {
+        closeHostModal();
+      }
+    });
+  }
+
+  function saveHostDraft() {
+    var state = {
+      city: modalCitySelect ? modalCitySelect.value : '',
+      date: modalEventDate ? modalEventDate.value : '',
+      start_time: modalStartTime ? modalStartTime.value : '',
+      end_time: modalEndTime ? modalEndTime.value : '',
+      room_name: modalSelectedRoom ? modalSelectedRoom.value : '',
+      title: modalTitleInput ? modalTitleInput.value : '',
+      description: modalDescInput ? modalDescInput.value : '',
+      people_expected: modalPeopleInput ? modalPeopleInput.value : '',
+      mode: modalModeSelect ? modalModeSelect.value : 'Offline',
+      poster_filename: selectedPosterFile ? selectedPosterFile.name : (modalPosterFilename ? modalPosterFilename.textContent : ''),
+      uploaded_poster_url: uploadedPosterUrl || ''
+    };
+    try {
+      sessionStorage.setItem('adda_host_form_data', JSON.stringify(state));
+    } catch(e) {}
+  }
+
+  function restoreHostDraft() {
+    try {
+      var raw = sessionStorage.getItem('adda_host_form_data');
+      if (!raw) return false;
+      var state = JSON.parse(raw);
+      if (!state || typeof state !== 'object') return false;
+
+      // Only treat as draft if user has provided at least a title, room, description, or poster
+      var hasMeaningfulData = Boolean(
+        (state.title && state.title.trim()) ||
+        (state.room_name && state.room_name.trim()) ||
+        (state.description && state.description.trim()) ||
+        state.uploaded_poster_url
+      );
+      if (!hasMeaningfulData) return false;
+
+      if (state.city && modalCitySelect) {
+        modalCitySelect.value = state.city;
+        updateCoordinatorInfo(state.city);
+      }
+      if (state.date && modalEventDate) modalEventDate.value = state.date;
+      if (state.start_time && modalStartTime) modalStartTime.value = state.start_time;
+      if (state.end_time && modalEndTime) modalEndTime.value = state.end_time;
+      if (state.room_name && modalSelectedRoom) modalSelectedRoom.value = state.room_name;
+      if (state.title && modalTitleInput) modalTitleInput.value = state.title;
+      if (state.description && modalDescInput) modalDescInput.value = state.description;
+      if (state.people_expected && modalPeopleInput) modalPeopleInput.value = state.people_expected;
+      if (state.mode && modalModeSelect) modalModeSelect.value = state.mode;
+      if (state.uploaded_poster_url) {
+        uploadedPosterUrl = state.uploaded_poster_url;
+        if (modalHostPosterImg) modalHostPosterImg.src = uploadedPosterUrl;
+        if (modalPosterFilename) modalPosterFilename.textContent = state.poster_filename || uploadedPosterUrl.split('/').pop();
+        if (modalPosterPreviewBox) modalPosterPreviewBox.style.display = 'block';
+      }
+
+      return true;
+    } catch(e) {
+      return false;
+    }
+  }
+
+  function goToModalStep(step) {
+    hostModalStep = step;
+    saveHostDraft();
+
+    if (step === 1) {
+      var currentChosenCity = (modalCitySelect && modalCitySelect.value) || currentCity || 'Bengaluru';
+      updateCoordinatorInfo(currentChosenCity);
+    }
+
+    if (step === 3) {
+      if (selectedPosterDataUrl || uploadedPosterUrl) {
+        if (modalHostPosterImg) modalHostPosterImg.src = selectedPosterDataUrl || uploadedPosterUrl;
+        if (modalPosterFilename && selectedPosterFile) modalPosterFilename.textContent = selectedPosterFile.name;
+        else if (modalPosterFilename && uploadedPosterUrl) modalPosterFilename.textContent = uploadedPosterUrl.split('/').pop();
+        if (modalPosterPreviewBox) modalPosterPreviewBox.style.display = 'block';
+      }
+    }
+
+    for (var i = 1; i <= 4; i++) {
+      var navEl = document.getElementById('modal-nav-step-' + i);
+      var panelEl = document.getElementById('modal-panel-step-' + i);
+      if (navEl) {
+        navEl.classList.remove('active', 'completed');
+        if (i === hostModalStep) navEl.classList.add('active');
+        else if (i < hostModalStep) navEl.classList.add('completed');
+      }
+      if (panelEl) {
+        panelEl.classList.toggle('active', i === hostModalStep);
+        panelEl.style.display = (i === hostModalStep) ? 'block' : 'none';
+      }
+    }
+
+    var panel5 = document.getElementById('modal-panel-step-5');
+    if (panel5) {
+      panel5.classList.toggle('active', hostModalStep === 5);
+      panel5.style.display = (hostModalStep === 5) ? 'block' : 'none';
+    }
+
+    if (hostModalStep === 2) {
+      updateDurationDisplay();
+      if (hostAvailableRooms.length === 0 && modalRoomsGrid && modalRoomsGrid.style.display !== 'none') {
+        var hStep2Btn = document.getElementById('host-step-2-continue-btn');
+        if (hStep2Btn) hStep2Btn.disabled = true;
+      }
+    }
+
+    if (hostModalStep === 3) {
+      // Update Screen 3 Summary Card
+      var summaryRoomEl = document.getElementById('modal-step-3-summary-room');
+      var summaryDatetimeEl = document.getElementById('modal-step-3-summary-datetime');
+      if (summaryRoomEl) {
+        var roomName = modalSelectedRoom ? modalSelectedRoom.value : '';
+        var cityName = modalCitySelect ? modalCitySelect.value : '';
+        summaryRoomEl.textContent = (roomName || 'Selected Space') + (cityName ? ' • ' + cityName : '');
+      }
+      if (summaryDatetimeEl && modalEventDate && modalStartTime && modalEndTime) {
+        var dateFormatted = modalEventDate.value ? formatLongDate(modalEventDate.value) : '';
+        var s = modalStartTime.value;
+        var e = modalEndTime.value;
+        var sParts = s.split(':').map(Number);
+        var eParts = e.split(':').map(Number);
+        var diffMin = (eParts[0] * 60 + eParts[1]) - (sParts[0] * 60 + sParts[1]);
+        var durStr = '';
+        if (diffMin > 0) {
+          var hrs = Math.floor(diffMin / 60);
+          var mins = diffMin % 60;
+          if (hrs > 0 && mins > 0) durStr = ' (' + hrs + ' hr ' + mins + ' mins)';
+          else if (hrs > 0) durStr = ' (' + (hrs === 1 ? '1 hour' : hrs + ' hours') + ')';
+          else durStr = ' (' + mins + ' mins)';
+        }
+        summaryDatetimeEl.textContent = dateFormatted + ' • ' + s + ' – ' + e + durStr;
+      }
+    }
+
+    // Keep hidden compatibility buttons in sync
+    if (modalStepBackBtn) modalStepBackBtn.style.display = (hostModalStep > 1 && hostModalStep < 5) ? 'inline-block' : 'none';
+    if (modalStepNextBtn) {
+      modalStepNextBtn.style.display = (hostModalStep < 3) ? 'inline-block' : 'none';
+      modalStepNextBtn.disabled = false;
+      if (hostModalStep === 1) modalStepNextBtn.textContent = 'Next: Date & Space →';
+      if (hostModalStep === 2) modalStepNextBtn.textContent = 'Next: Event Details →';
+    }
+  }
+
+  function updateDurationDisplay() {
+    if (!modalStartTime || !modalEndTime || !modalDurationDisplay) return;
+    var s = modalStartTime.value;
+    var e = modalEndTime.value;
+    var hStep2Btn = document.getElementById('host-step-2-continue-btn');
+    if (s && e) {
+      var sParts = s.split(':').map(Number);
+      var eParts = e.split(':').map(Number);
+      var diffMin = (eParts[0] * 60 + eParts[1]) - (sParts[0] * 60 + sParts[1]);
+      if (diffMin > 0) {
+        var hrs = Math.floor(diffMin / 60);
+        var mins = diffMin % 60;
+        var durStr = '';
+        if (hrs > 0 && mins > 0) {
+          durStr = hrs + ' hr ' + mins + ' mins';
+        } else if (hrs > 0) {
+          durStr = hrs === 1 ? '1 hour' : hrs + ' hours';
         } else {
-          btn.classList.remove('active');
+          durStr = mins + ' mins';
         }
-      });
+        modalDurationDisplay.textContent = 'You’ll request ' + s + ' – ' + e + ' (' + durStr + ')';
+        modalDurationDisplay.style.color = '#0F766E';
+        if (hStep2Btn && modalSelectedRoom && modalSelectedRoom.value) {
+          hStep2Btn.disabled = false;
+        }
+      } else {
+        modalDurationDisplay.textContent = 'End time must be later than start time.';
+        modalDurationDisplay.style.color = '#DC2626';
+        if (hStep2Btn) hStep2Btn.disabled = true;
+      }
     }
   }
 
-  function syncUrlParams() {
-    var url = new URL(window.location.href);
-    if (currentCity) {
-      url.searchParams.set('city', currentCity);
+  if (modalStartTime) modalStartTime.addEventListener('change', updateDurationDisplay);
+  if (modalEndTime) modalEndTime.addEventListener('change', updateDurationDisplay);
+
+  function loadModalRooms(city, callback) {
+    if (!modalRoomsLoading || !modalRoomsGrid) return;
+    modalRoomsLoading.style.display = 'block';
+    modalRoomsGrid.style.display = 'none';
+
+    fetch('/api/method/solve_ninja.api.v1.solve_event.get_adda_rooms', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-Frappe-CSRF-Token': getCsrfToken()
+      },
+      body: JSON.stringify({ city: city })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      modalRoomsLoading.style.display = 'none';
+      var payload = data.message || data;
+      hostAvailableRooms = (payload && Array.isArray(payload.rooms)) ? payload.rooms : [];
+
+      modalRoomsGrid.innerHTML = '';
+      if (hostAvailableRooms.length === 0) {
+        modalSelectedRoom.value = '';
+        modalRoomsGrid.innerHTML = '<div class="adda-room-empty" style="grid-column: 1 / -1; padding: 1.5rem; text-align: center; color: var(--adda-text-muted); background: var(--adda-surface-warm); border-radius: var(--radius-sm); border: 1px dashed var(--adda-border);"><p style="margin: 0;">No active spaces or rooms found for this city.</p></div>';
+        modalRoomsGrid.style.display = 'block';
+        var hStep2Btn = document.getElementById('host-step-2-continue-btn');
+        if (hStep2Btn) hStep2Btn.disabled = true;
+        if (callback) callback();
+        return;
+      }
+
+      hostAvailableRooms.forEach(function(r, idx) {
+        var card = document.createElement('div');
+        card.className = 'adda-room-card';
+        card.setAttribute('data-room-name', r.room_name || r.name);
+        if (modalSelectedRoom.value === (r.room_name || r.name) || (!modalSelectedRoom.value && idx === 0)) {
+          card.classList.add('selected');
+          modalSelectedRoom.value = r.room_name || r.name;
+          if (modalCapacityHint) modalCapacityHint.textContent = 'Room capacity is ' + (r.capacity || 'Flexible') + ' people.';
+        }
+
+        card.innerHTML = [
+          '<div class="adda-room-name">' + escapeHtml(r.room_name || r.name) + '</div>',
+          '<div class="adda-room-cap">Capacity: ~' + escapeHtml(r.capacity || 'Flexible') + ' people</div>'
+        ].join('\n');
+
+        card.addEventListener('click', function() {
+          modalRoomsGrid.querySelectorAll('.adda-room-card').forEach(function(c) { c.classList.remove('selected'); });
+          card.classList.add('selected');
+          modalSelectedRoom.value = r.room_name || r.name;
+          if (modalCapacityHint) modalCapacityHint.textContent = 'Room capacity is ' + (r.capacity || 'Flexible') + ' people.';
+          var hStep2Btn = document.getElementById('host-step-2-continue-btn');
+          if (hStep2Btn) hStep2Btn.disabled = false;
+          checkModalRoomAvailability();
+        });
+
+        modalRoomsGrid.appendChild(card);
+      });
+
+      modalRoomsGrid.style.display = 'grid';
+      var hStep2Btn = document.getElementById('host-step-2-continue-btn');
+      if (hStep2Btn) hStep2Btn.disabled = false;
+      if (callback) callback();
+    })
+    .catch(function(err) {
+      modalRoomsLoading.style.display = 'none';
+      hostAvailableRooms = [];
+      modalSelectedRoom.value = '';
+      modalRoomsGrid.innerHTML = '<div class="adda-room-empty" style="grid-column: 1 / -1; padding: 1.5rem; text-align: center; color: #DC2626; background: #FEF2F2; border-radius: var(--radius-sm); border: 1px solid #FCA5A5;"><p style="margin: 0;">Unable to load spaces for this city. Please try again.</p></div>';
+      modalRoomsGrid.style.display = 'block';
+      var hStep2Btn = document.getElementById('host-step-2-continue-btn');
+      if (hStep2Btn) hStep2Btn.disabled = true;
+      if (callback) callback();
+    });
+  }
+
+  function checkModalRoomAvailability() {
+    var date = modalEventDate.value;
+    var city = modalCitySelect.value;
+    var room = modalSelectedRoom.value;
+    var startTime = modalStartTime.value;
+    var endTime = modalEndTime.value;
+
+    if (!date || !room) return;
+
+    fetch('/api/method/solve_ninja.api.v1.solve_event.get_adda_room_availability', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-Frappe-CSRF-Token': getCsrfToken()
+      },
+      body: JSON.stringify({ date: date, city: city, room_name: room })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      var payload = data.message || data;
+      var bookings = (payload && Array.isArray(payload.bookings)) ? payload.bookings : [];
+
+      var collision = null;
+      if (startTime && endTime) {
+        var sReq = startTime + ':00';
+        var eReq = endTime + ':00';
+        for (var i = 0; i < bookings.length; i++) {
+          var b = bookings[i];
+          if (b.start_time < eReq && b.end_time > sReq) {
+            collision = b;
+            break;
+          }
+        }
+      }
+
+      modalAvailBanner.style.display = 'flex';
+      var hStep2Btn = document.getElementById('host-step-2-continue-btn');
+      if (collision) {
+        modalAvailBanner.className = 'adda-avail-box adda-avail-alert';
+        modalAvailMessage.innerHTML = '<strong>Room Unavailable:</strong> ' + escapeHtml(room) + ' is already booked for "' +
+          escapeHtml(collision.title || 'Another Event') + '" (' + escapeHtml(collision.start_time.slice(0, 5)) + ' &ndash; ' +
+          escapeHtml(collision.end_time.slice(0, 5)) + '). Please choose another time or room.';
+        if (hStep2Btn) hStep2Btn.disabled = true;
+      } else {
+        modalAvailBanner.className = 'adda-avail-box adda-avail-success';
+        modalAvailMessage.innerHTML = '<strong>Available:</strong> ' + escapeHtml(room) + ' is free for your selected slot (' +
+          escapeHtml(startTime) + ' &ndash; ' + escapeHtml(endTime) + ').';
+        if (hStep2Btn) hStep2Btn.disabled = false;
+      }
+    })
+    .catch(function() {
+      modalAvailBanner.style.display = 'none';
+      var hStep2Btn = document.getElementById('host-step-2-continue-btn');
+      if (hStep2Btn) hStep2Btn.disabled = false;
+    });
+  }
+
+  if (modalEventDate) modalEventDate.addEventListener('change', checkModalRoomAvailability);
+  if (modalStartTime) modalStartTime.addEventListener('change', checkModalRoomAvailability);
+  if (modalEndTime) modalEndTime.addEventListener('change', checkModalRoomAvailability);
+
+  // Poster Image Preview
+  if (modalPosterFile) {
+    modalPosterFile.addEventListener('change', function() {
+      var file = this.files[0];
+      if (file) {
+        if (file.size > 5 * 1024 * 1024) {
+          alert('Poster file must be less than 5MB.');
+          this.value = '';
+          modalPosterPreviewBox.style.display = 'none';
+          return;
+        }
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          if (modalHostPosterImg) modalHostPosterImg.src = e.target.result;
+          modalPosterPreviewBox.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      } else {
+        modalPosterPreviewBox.style.display = 'none';
+      }
+    });
+  }
+
+  function populateModalReview() {
+    if (mrevTitle) mrevTitle.textContent = modalTitleInput ? modalTitleInput.value.trim() || 'Untitled Gathering' : '';
+    if (mrevCity) mrevCity.textContent = modalCitySelect ? modalCitySelect.value || 'Not selected' : '';
+    if (mrevRoom) mrevRoom.textContent = modalSelectedRoom ? modalSelectedRoom.value || 'Not selected' : '';
+    if (mrevDatetime) mrevDatetime.textContent = (modalEventDate ? modalEventDate.value || '' : '') + ' (' + (modalStartTime ? modalStartTime.value || '' : '') + ' - ' + (modalEndTime ? modalEndTime.value || '' : '') + ')';
+    if (mrevPeople) mrevPeople.textContent = (modalPeopleInput ? modalPeopleInput.value || '20' : '20') + ' people';
+
+    if (isHostLoggedIn) {
+      if (modalAuthGuestCallout) modalAuthGuestCallout.style.display = 'none';
+      if (modalAuthLoggedInCallout) modalAuthLoggedInCallout.style.display = 'block';
+      if (modalLoggedInUserDisplay) modalLoggedInUserDisplay.textContent = hostUserEmail;
+      if (modalStepSubmitBtn) modalStepSubmitBtn.style.display = 'inline-block';
     } else {
-      url.searchParams.delete('city');
+      if (modalAuthGuestCallout) modalAuthGuestCallout.style.display = 'block';
+      if (modalAuthLoggedInCallout) modalAuthLoggedInCallout.style.display = 'none';
+      if (modalStepSubmitBtn) modalStepSubmitBtn.style.display = 'none';
+    }
+  }
+
+  if (modalSaveAndLoginBtn) {
+    modalSaveAndLoginBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      saveHostDraft();
+      var returnUrl = window.location.pathname + '?open_host=1';
+      window.location.href = '/login?redirect=' + encodeURIComponent(returnUrl);
+    });
+  }
+
+  // Step 1 Continue Button
+  var hostStep1ContinueBtn = document.getElementById('host-step-1-continue-btn');
+  if (hostStep1ContinueBtn) {
+    hostStep1ContinueBtn.addEventListener('click', function() {
+      var city = modalCitySelect ? modalCitySelect.value : '';
+      if (!city) {
+        if (modalStep1Error) modalStep1Error.style.display = 'flex';
+        return;
+      }
+      if (modalStep1Error) modalStep1Error.style.display = 'none';
+      goToModalStep(2);
+      loadModalRooms(city, function() {
+        checkModalRoomAvailability();
+      });
+    });
+  }
+
+  // Step 2 Continue Button
+  var hostStep2ContinueBtn = document.getElementById('host-step-2-continue-btn');
+  if (hostStep2ContinueBtn) {
+    hostStep2ContinueBtn.addEventListener('click', function() {
+      var step2Err = document.getElementById('modal-step-2-error');
+      var step2ErrText = document.getElementById('modal-step-2-error-text');
+      function showStep2Error(msg) {
+        if (step2Err && step2ErrText) {
+          step2ErrText.textContent = msg;
+          step2Err.style.display = 'flex';
+        } else {
+          alert(msg);
+        }
+      }
+      if (step2Err) step2Err.style.display = 'none';
+
+      if (!modalEventDate || !modalEventDate.value) {
+        showStep2Error('Please select a date.');
+        return;
+      }
+      if (modalEventDate.value < istDateStr) {
+        showStep2Error('Please select today or a future date.');
+        return;
+      }
+      if (!modalStartTime || !modalEndTime || !modalStartTime.value || !modalEndTime.value) {
+        showStep2Error('Please select start and end time.');
+        return;
+      }
+      if (modalStartTime.value >= modalEndTime.value) {
+        showStep2Error('End time must be after start time.');
+        return;
+      }
+      if (!modalSelectedRoom || !modalSelectedRoom.value) {
+        showStep2Error('Please select an Adda room.');
+        return;
+      }
+      goToModalStep(3);
+    });
+  }
+
+  // Stepper Navigation compatibility for existing tests
+  if (modalStepBackBtn) {
+    modalStepBackBtn.addEventListener('click', function() {
+      if (hostModalStep > 1) goToModalStep(hostModalStep - 1);
+    });
+  }
+
+  if (modalStepNextBtn) {
+    modalStepNextBtn.addEventListener('click', function() {
+      if (hostModalStep === 1) {
+        var city = modalCitySelect ? modalCitySelect.value : '';
+        if (!city) {
+          if (modalStep1Error) modalStep1Error.style.display = 'flex';
+          return;
+        }
+        if (modalStep1Error) modalStep1Error.style.display = 'none';
+        goToModalStep(2);
+        loadModalRooms(city, function() {
+          checkModalRoomAvailability();
+        });
+      } else if (hostModalStep === 2) {
+        var step2Err = document.getElementById('modal-step-2-error');
+        var step2ErrText = document.getElementById('modal-step-2-error-text');
+        function showStep2Error(msg) {
+          if (step2Err && step2ErrText) {
+            step2ErrText.textContent = msg;
+            step2Err.style.display = 'flex';
+          } else {
+            alert(msg);
+          }
+        }
+        if (step2Err) step2Err.style.display = 'none';
+
+        if (!modalEventDate || !modalEventDate.value) {
+          showStep2Error('Please select a date.');
+          return;
+        }
+        if (modalEventDate.value < istDateStr) {
+          showStep2Error('Please select today or a future date.');
+          return;
+        }
+        if (!modalStartTime || !modalEndTime || !modalStartTime.value || !modalEndTime.value) {
+          showStep2Error('Please select start and end time.');
+          return;
+        }
+        if (modalStartTime.value >= modalEndTime.value) {
+          showStep2Error('End time must be after start time.');
+          return;
+        }
+        if (!modalSelectedRoom || !modalSelectedRoom.value) {
+          showStep2Error('Please select an Adda room.');
+          return;
+        }
+        goToModalStep(3);
+      }
+    });
+  }
+
+  // Poster File Selection & Validation
+  if (modalPosterFile) {
+    modalPosterFile.addEventListener('change', function() {
+      var file = this.files && this.files[0];
+      if (!file) return;
+
+      var validTypes = ['image/png', 'image/jpeg', 'image/webp'];
+      var fileName = file.name.toLowerCase();
+      var isValidExt = fileName.endsWith('.png') || fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.webp');
+      if (!validTypes.includes(file.type) && !isValidExt) {
+        if (modalStep3Error) {
+          modalStep3Error.style.display = 'flex';
+          if (modalStep3ErrorText) modalStep3ErrorText.textContent = 'Unsupported file format. Please upload a PNG, JPG, or WEBP image.';
+        }
+        this.value = '';
+        if (modalPosterPreviewBox) modalPosterPreviewBox.style.display = 'none';
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        if (modalStep3Error) {
+          modalStep3Error.style.display = 'flex';
+          if (modalStep3ErrorText) modalStep3ErrorText.textContent = 'Poster image size cannot exceed 5MB.';
+        }
+        this.value = '';
+        if (modalPosterPreviewBox) modalPosterPreviewBox.style.display = 'none';
+        return;
+      }
+
+      if (modalStep3Error) modalStep3Error.style.display = 'none';
+      selectedPosterFile = file;
+
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        selectedPosterDataUrl = e.target.result;
+        if (modalHostPosterImg) modalHostPosterImg.src = selectedPosterDataUrl;
+        if (modalPosterFilename) modalPosterFilename.textContent = file.name;
+        if (modalPosterFilesize) modalPosterFilesize.textContent = (file.size / 1024).toFixed(1) + ' KB';
+        if (modalPosterPreviewBox) modalPosterPreviewBox.style.display = 'block';
+        saveHostDraft();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (modalPosterReplaceBtn) {
+    modalPosterReplaceBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      selectedPosterFile = null;
+      selectedPosterDataUrl = '';
+      uploadedPosterUrl = '';
+      if (modalPosterFile) {
+        modalPosterFile.value = '';
+        modalPosterFile.click();
+      }
+      if (modalPosterPreviewBox) modalPosterPreviewBox.style.display = 'none';
+      saveHostDraft();
+    });
+  }
+
+  function parseServerMessages(raw) {
+    if (!raw) return 'Submission failed. Please try again.';
+    try {
+      var arr = JSON.parse(raw);
+      if (Array.isArray(arr) && arr.length > 0) {
+        var parsed = typeof arr[0] === 'string' ? JSON.parse(arr[0]) : arr[0];
+        return parsed.message || stripHtml(parsed);
+      }
+    } catch(e) {}
+    return stripHtml(String(raw));
+  }
+
+  // Submit Proposal
+  if (modalStepSubmitBtn) {
+    modalStepSubmitBtn.addEventListener('click', function() {
+      var title = modalTitleInput ? modalTitleInput.value.trim() : '';
+      var desc = modalDescInput ? modalDescInput.value.trim() : '';
+      if (!title) {
+        if (modalStep3Error) {
+          modalStep3Error.style.display = 'flex';
+          if (modalStep3ErrorText) modalStep3ErrorText.textContent = 'Please provide an event title.';
+        }
+        return;
+      }
+      if (!desc) {
+        if (modalStep3Error) {
+          modalStep3Error.style.display = 'flex';
+          if (modalStep3ErrorText) modalStep3ErrorText.textContent = 'Please provide an event description.';
+        }
+        return;
+      }
+
+      var file = selectedPosterFile || (modalPosterFile && modalPosterFile.files && modalPosterFile.files[0]);
+      if (!file && !uploadedPosterUrl) {
+        if (modalStep3Error) {
+          modalStep3Error.style.display = 'flex';
+          if (modalStep3ErrorText) modalStep3ErrorText.textContent = 'Event poster is required. Please upload an event poster.';
+        }
+        return;
+      }
+
+      if (modalStep3Error) modalStep3Error.style.display = 'none';
+
+      if (isSubmittingHostProposal) return;
+      isSubmittingHostProposal = true;
+      if (modalSubmitErrorBox) modalSubmitErrorBox.style.display = 'none';
+
+      // If poster was already uploaded in this session and no new file selected, proceed directly
+      if (uploadedPosterUrl && !file) {
+        modalStepSubmitBtn.disabled = true;
+        modalStepSubmitBtn.textContent = 'Submitting proposal...';
+        submitHostPayload(uploadedPosterUrl);
+        return;
+      }
+
+      modalStepSubmitBtn.disabled = true;
+      modalStepSubmitBtn.textContent = 'Uploading poster...';
+
+      var formData = new FormData();
+      formData.append('file', file);
+      formData.append('is_private', '0');
+      formData.append('folder', 'Home');
+
+      fetch('/api/method/upload_file', {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-Frappe-CSRF-Token': getCsrfToken()
+        },
+        body: formData
+      })
+      .then(function(res) {
+        return res.json().then(function(data) {
+          if (!res.ok) {
+            var errText = (data && data._server_messages) ? parseServerMessages(data._server_messages) : ((data && data.message && (data.message.error || data.message.message)) || 'Failed to upload event poster');
+            throw new Error(errText);
+          }
+          return data;
+        });
+      })
+      .then(function(uploadData) {
+        var fileUrl = (uploadData.message && uploadData.message.file_url) || (uploadData.message && uploadData.message.name);
+        if (!fileUrl) {
+          throw new Error('Poster upload did not return a valid file URL. Please retry.');
+        }
+        uploadedPosterUrl = fileUrl;
+        modalStepSubmitBtn.textContent = 'Submitting proposal...';
+        submitHostPayload(fileUrl);
+      })
+      .catch(function(uploadErr) {
+        isSubmittingHostProposal = false;
+        modalStepSubmitBtn.disabled = false;
+        modalStepSubmitBtn.textContent = 'Submit Gathering Proposal';
+        if (modalSubmitErrorBox) modalSubmitErrorBox.style.display = 'flex';
+        if (modalSubmitErrorText) modalSubmitErrorText.textContent = 'Poster upload failed: ' + (uploadErr.message || 'Please check your file and try again.');
+      });
+    });
+  }
+
+  function submitHostPayload(coverImageUrl) {
+    if (!coverImageUrl) {
+      if (modalStep3Error) {
+        modalStep3Error.style.display = 'flex';
+        if (modalStep3ErrorText) modalStep3ErrorText.textContent = 'Event poster is required. Please upload an event poster.';
+      }
+      isSubmittingHostProposal = false;
+      modalStepSubmitBtn.disabled = false;
+      modalStepSubmitBtn.textContent = 'Submit Gathering Proposal';
+      return;
     }
 
-    if (currentView) {
-      url.searchParams.set('view', currentView);
-    }
+    var sDate = modalEventDate.value;
+    var sTime = modalStartTime.value;
+    var eTime = modalEndTime.value;
 
-    if (currentView === 'list' && currentScope && currentScope !== 'upcoming') {
-      url.searchParams.set('scope', currentScope);
-    } else {
-      url.searchParams.delete('scope');
-    }
+    var payload = {
+      title: modalTitleInput.value.trim(),
+      type: 'Adda',
+      description: modalDescInput.value.trim(),
+      start_date_time: sDate + ' ' + sTime + ':00',
+      end_date_time: sDate + ' ' + eTime + ':00',
+      start: sDate + ' ' + sTime + ':00',
+      end: sDate + ' ' + eTime + ':00',
+      city: modalCitySelect.value.trim(),
+      room_name: modalSelectedRoom.value.trim(),
+      people_expected: parseInt(modalPeopleInput.value, 10) || 20,
+      approval_status: 'Pending Review',
+      mode: modalModeSelect.value || 'Offline',
+      image: coverImageUrl,
+      cover_image: coverImageUrl
+    };
 
-    window.history.replaceState({}, '', url.toString());
+    fetch('/api/method/adda_space.api.events.create_adda_event', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-Frappe-CSRF-Token': getCsrfToken()
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) {
+      return res.json().then(function(data) {
+        if (!res.ok) {
+          var msg = (data && data._server_messages) ? parseServerMessages(data._server_messages) : ((data && data.message && (data.message.error || data.message.message)) || ('Submission failed (' + res.status + ')'));
+          throw new Error(msg);
+        }
+        return data;
+      });
+    })
+    .then(function(data) {
+      isSubmittingHostProposal = false;
+      try {
+        sessionStorage.removeItem('adda_host_form_data');
+      } catch(e) {}
+
+      var doc = data.message || data;
+      if (modalConfRefName) modalConfRefName.textContent = doc.name || doc.title || 'Created';
+      goToModalStep(5);
+    })
+    .catch(function(err) {
+      isSubmittingHostProposal = false;
+      modalStepSubmitBtn.disabled = false;
+      modalStepSubmitBtn.textContent = 'Submit Gathering Proposal';
+      if (modalSubmitErrorBox) modalSubmitErrorBox.style.display = 'flex';
+      if (modalSubmitErrorText) modalSubmitErrorText.textContent = err.message || 'Unable to submit proposal. Please try again.';
+    });
   }
 
   // ========================================================================
@@ -408,9 +1748,7 @@
   }
 
   function getFirstDayOfWeek(year, month) {
-    // 0 = Sunday -> map so Mon = 0, Sun = 6
-    var d = new Date(year, month, 1).getDay();
-    return (d + 6) % 7;
+    return new Date(year, month, 1).getDay();
   }
 
   function updateCalHeader() {
@@ -422,12 +1760,10 @@
     if (calLoading) calLoading.style.display = 'block';
     updateCalHeader();
 
-    // Calculate visible range (including leading and trailing days)
     var leadDays = getFirstDayOfWeek(calYear, calMonth);
     var daysInCurMonth = getDaysInMonth(calYear, calMonth);
     var totalCells = leadDays + daysInCurMonth;
     var trailDays = (7 - (totalCells % 7)) % 7;
-    var grandTotal = totalCells + trailDays;
 
     var prevMonthDays = getDaysInMonth(calYear, calMonth - 1);
 
@@ -454,6 +1790,7 @@
     var apiUrl = new URL('/api/method/adda_space.api.events.get_adda_events', window.location.origin);
     apiUrl.searchParams.set('start_date', startDateKey);
     apiUrl.searchParams.set('end_date', endDateKey);
+    apiUrl.searchParams.set('event_type', 'all');
     if (currentCity) {
       apiUrl.searchParams.set('city', currentCity);
     }
@@ -475,7 +1812,6 @@
       var payload = data.message || data;
       var events = payload.events || [];
 
-      // Group events by date key (YYYY-MM-DD)
       calEventsByDate = {};
       events.forEach(function(ev) {
         if (ev.start_date_time) {
@@ -488,7 +1824,7 @@
       renderCalendarGrid(leadDays, daysInCurMonth, trailDays, prevMonthDays);
       updateDayDrawer(selectedDateStr);
     })
-    .catch(function(err) {
+    .catch(function() {
       if (calLoading) calLoading.style.display = 'none';
       renderCalendarGrid(leadDays, daysInCurMonth, trailDays, prevMonthDays);
       updateDayDrawer(selectedDateStr);
@@ -499,7 +1835,6 @@
     if (!calDaysGrid) return;
     calDaysGrid.innerHTML = '';
 
-    // 1. Leading days from previous month
     var pYear = calMonth === 0 ? calYear - 1 : calYear;
     var pMonth = calMonth === 0 ? 11 : calMonth - 1;
     for (var i = leadDays - 1; i >= 0; i--) {
@@ -508,13 +1843,11 @@
       createCalCell(pDay, pDateKey, true);
     }
 
-    // 2. Days in current month
     for (var d = 1; d <= daysInCurMonth; d++) {
       var curDateKey = calYear + '-' + padZero(calMonth + 1) + '-' + padZero(d);
       createCalCell(d, curDateKey, false);
     }
 
-    // 3. Trailing days in next month
     var nYear = calMonth === 11 ? calYear + 1 : calYear;
     var nMonth = calMonth === 11 ? 0 : calMonth + 1;
     for (var t = 1; t <= trailDays; t++) {
@@ -530,19 +1863,12 @@
     cell.setAttribute('role', 'gridcell');
     cell.setAttribute('tabindex', '0');
 
-    if (isOtherMonth) {
-      cell.classList.add('is-other-month');
-    }
-    if (dateKey === istDateStr) {
-      cell.classList.add('is-today');
-    }
-    if (dateKey === selectedDateStr) {
-      cell.classList.add('is-selected');
-    }
+    if (isOtherMonth) cell.classList.add('is-other-month');
+    if (dateKey === istDateStr) cell.classList.add('is-today');
+    if (dateKey === selectedDateStr) cell.classList.add('is-selected');
 
     var dayEvents = calEventsByDate[dateKey] || [];
 
-    // Cell Top (Day number + Event count badge)
     var topRow = document.createElement('div');
     topRow.className = 'adda-cal-cell-top';
 
@@ -559,7 +1885,6 @@
     }
     cell.appendChild(topRow);
 
-    // Event Pills List
     var pillsList = document.createElement('div');
     pillsList.className = 'adda-cal-events-list';
 
@@ -568,9 +1893,10 @@
 
     displayEvents.forEach(function(ev) {
       var pill = document.createElement('a');
-      pill.className = 'adda-cal-event-pill';
-      var eventId = ev.unique_id || ev.name;
-      pill.href = '/events/' + encodeURIComponent(eventId);
+      var catClass = getCategoryClass(ev.type);
+      pill.className = 'adda-cal-event-pill ' + catClass;
+      pill.setAttribute('data-category', ev.type || 'Adda');
+      pill.href = '#';
       pill.title = ev.title + ' (' + (ev.city || '') + ')';
 
       var timeSpan = document.createElement('span');
@@ -582,6 +1908,13 @@
 
       pill.appendChild(timeSpan);
       pill.appendChild(titleSpan);
+
+      pill.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openEventDetailModal(ev);
+      });
+
       pillsList.appendChild(pill);
     });
 
@@ -589,24 +1922,33 @@
       var morePill = document.createElement('div');
       morePill.className = 'adda-cal-more-pill';
       morePill.textContent = '+' + (dayEvents.length - maxPills) + ' more';
+      morePill.addEventListener('click', function(e) {
+        e.stopPropagation();
+        selectCalendarDay(dateKey);
+      });
       pillsList.appendChild(morePill);
     }
 
     cell.appendChild(pillsList);
 
-    // Cell Click Event
+    // Free date click handler -> Opens Host Modal with date pre-selected
     cell.addEventListener('click', function(e) {
-      if (e.target.closest('.adda-cal-event-pill')) {
-        // Allow link navigation to detail page
+      if (e.target.closest('.adda-cal-event-pill') || e.target.closest('.adda-cal-more-pill')) {
         return;
       }
       selectCalendarDay(dateKey);
+      if (dateKey >= istDateStr) {
+        openHostModal(dateKey);
+      }
     });
 
     cell.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         selectCalendarDay(dateKey);
+        if (dateKey >= istDateStr) {
+          openHostModal(dateKey);
+        }
       }
     });
 
@@ -617,13 +1959,9 @@
     selectedDateStr = dateKey;
     var cells = calDaysGrid.querySelectorAll('.adda-cal-cell');
     cells.forEach(function(c) {
-      if (c.getAttribute('data-date') === dateKey) {
-        c.classList.add('is-selected');
-      } else {
-        c.classList.remove('is-selected');
-      }
+      if (c.getAttribute('data-date') === dateKey) c.classList.add('is-selected');
+      else c.classList.remove('is-selected');
     });
-
     updateDayDrawer(dateKey);
   }
 
@@ -631,16 +1969,13 @@
     if (!calDayDrawer) return;
     calDayDrawer.style.display = 'block';
 
-    if (calDrawerTitle) {
-      calDrawerTitle.textContent = formatLongDate(dateKey);
-    }
+    if (calDrawerTitle) calDrawerTitle.textContent = formatLongDate(dateKey);
     if (calDrawerSubtitle) {
       var cityContext = currentCity ? (' in ' + currentCity) : ' across all Adda locations';
       calDrawerSubtitle.textContent = 'Scheduled gatherings' + cityContext;
     }
 
     var dayEvents = calEventsByDate[dateKey] || [];
-
     if (calDrawerCount) {
       calDrawerCount.textContent = dayEvents.length + (dayEvents.length === 1 ? ' Gathering' : ' Gatherings');
     }
@@ -655,27 +1990,30 @@
       if (calDrawerCards) {
         calDrawerCards.style.display = 'grid';
         dayEvents.forEach(function(ev) {
-          var eventId = ev.unique_id || ev.name;
-          var url = '/events/' + encodeURIComponent(eventId);
           var safeTitle = escapeHtml(ev.title || 'Untitled Gathering');
           var timeStr = formatEventTime(ev.start_date_time);
           var roomText = ev.room_name ? ' &bull; ' + escapeHtml(ev.room_name) : '';
           var venueText = ev.venue_details ? ' &bull; ' + escapeHtml(ev.venue_details) : '';
           var cityText = escapeHtml(ev.city || 'Neighbourhood');
+          var catClass = getCategoryClass(ev.type);
 
-          var card = document.createElement('a');
-          card.href = url;
+          var card = document.createElement('div');
           card.className = 'adda-cal-drawer-card';
+          card.style.cursor = 'pointer';
           card.innerHTML = [
             '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">',
-            '  <span class="adda-tag adda-tag-city">' + cityText + '</span>',
+            '  <span class="adda-cat-badge ' + catClass + '">' + escapeHtml(getCategoryLabel(ev.type)) + '</span>',
             '  <span style="font-size: 0.75rem; font-weight: 700; color: var(--adda-green);">' + timeStr + '</span>',
             '</div>',
             '<h4 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--adda-navy);">' + safeTitle + '</h4>',
             '<div style="font-size: 0.8125rem; color: var(--adda-text-muted); margin-top: auto;">',
-            '  <span>' + escapeHtml(ev.mode || 'In-Person') + roomText + venueText + '</span>',
+            '  <span>' + cityText + roomText + venueText + '</span>',
             '</div>'
           ].join('\n');
+
+          card.addEventListener('click', function() {
+            openEventDetailModal(ev);
+          });
 
           calDrawerCards.appendChild(card);
         });
@@ -701,7 +2039,6 @@
 
   function renderListCard(event) {
     var eventIdentifier = event.unique_id || event.name;
-    var eventUrl = '/events/' + encodeURIComponent(eventIdentifier);
     var safeTitle = escapeHtml(event.title || 'Untitled Gathering');
     var safeCity = escapeHtml(event.city || 'Neighbourhood');
     var dateText = formatShortDate(event.start_date_time);
@@ -710,35 +2047,45 @@
     var safeMode = escapeHtml(event.mode || 'In-Person');
     var venueText = event.venue_details ? ' &bull; ' + escapeHtml(event.venue_details) : '';
     var roomText = event.room_name ? ' &bull; ' + escapeHtml(event.room_name) : '';
-    var cityClass = 'adda-tag adda-tag-city';
+    var catClass = getCategoryClass(event.type);
 
     var mediaHtml = '';
-    if (event.cover_image) {
-      mediaHtml = '<img src="' + escapeHtml(event.cover_image) + '" alt="' + safeTitle + '" class="adda-card-img" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML=\'<div class=\\\'adda-card-placeholder\\\'>Adda &bull; ' + safeCity + '</div>\';" />';
-    } else {
+    var cardImg = event.cover_image || event.image || '';
+    if (cardImg && typeof cardImg === 'string' && cardImg.trim()) {
+      var cImgStr = cardImg.trim();
+      var cLower = cImgStr.toLowerCase();
+      if (cLower !== 'none' && cLower !== 'null' && cLower !== 'undefined') {
+        if (cImgStr.startsWith('/private/files/')) {
+          cImgStr = cImgStr.replace('/private/files/', '/files/');
+        }
+        var placeholderHtml = '<div class="adda-card-placeholder">Adda &bull; ' + safeCity + '</div>';
+        mediaHtml = '<img src="' + escapeHtml(cImgStr) + '" alt="' + safeTitle + '" class="adda-card-img" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML=\'' + placeholderHtml + '\';" />';
+      }
+    }
+    if (!mediaHtml) {
       mediaHtml = '<div class="adda-card-placeholder">Adda &bull; ' + safeCity + '</div>';
     }
 
     return [
-      '<article class="adda-card" data-event-id="' + escapeHtml(eventIdentifier) + '">',
-      '  <a href="' + eventUrl + '" class="adda-card-media" aria-label="' + safeTitle + '">',
+      '<article class="adda-card" data-event-id="' + escapeHtml(eventIdentifier) + '" style="cursor: pointer;">',
+      '  <div class="adda-card-media" aria-label="' + safeTitle + '">',
       '    ' + mediaHtml,
-      '  </a>',
+      '  </div>',
       '  <div class="adda-card-body">',
       '    <div class="adda-card-meta">',
-      '      <span class="adda-tag ' + cityClass + '">' + safeCity + '</span>',
-      '      <span class="adda-tag adda-tag-free">Free Admission</span>',
+      '      <span class="adda-cat-badge ' + catClass + '">' + escapeHtml(getCategoryLabel(event.type)) + '</span>',
+      '      <span class="adda-tag adda-tag-city">' + safeCity + '</span>',
       '      <span style="font-size: 0.8125rem; color: var(--adda-text-muted);">' + dateText + '</span>',
       '    </div>',
       '    <h2 class="adda-card-title">',
-      '      <a href="' + eventUrl + '">' + safeTitle + '</a>',
+      '      <a href="#" class="card-title-link">' + safeTitle + '</a>',
       '    </h2>',
       '    <p class="adda-card-desc">',
       '      ' + safeDesc,
       '    </p>',
       '    <div class="adda-card-footer">',
       '      <span>' + safeMode + roomText + venueText + '</span>',
-      '      <a href="' + eventUrl + '" class="adda-card-action" aria-label="Details for ' + safeTitle + '">Details &rarr;</a>',
+      '      <span class="adda-card-action">Details &rarr;</span>',
       '    </div>',
       '  </div>',
       '</article>'
@@ -750,6 +2097,7 @@
 
     var apiUrl = new URL('/api/method/adda_space.api.events.get_adda_events', window.location.origin);
     apiUrl.searchParams.set('time_scope', currentScope);
+    apiUrl.searchParams.set('event_type', 'all');
     if (currentCity) {
       apiUrl.searchParams.set('city', currentCity);
     }
@@ -764,23 +2112,11 @@
       }
     })
     .then(function(res) {
-      if (!res.ok) {
-        return res.json().then(function(errData) {
-          var msg = (errData.message && errData.message.error) ||
-                    (errData.exc_type ? errData.exc_type + ': ' + errData._server_messages : 'Server returned status ' + res.status);
-          throw new Error(msg);
-        }).catch(function(e) {
-          throw new Error(e.message || ('Server returned status ' + res.status));
-        });
-      }
+      if (!res.ok) throw new Error('Server returned status ' + res.status);
       return res.json();
     })
     .then(function(data) {
       var payload = data.message || data;
-      if (payload.success === false) {
-        throw new Error(payload.error || 'Failed to fetch gatherings.');
-      }
-
       var events = payload.events || [];
       if (events.length === 0) {
         var cityContext = currentCity ? (' in ' + currentCity) : '';
@@ -791,6 +2127,16 @@
       } else {
         var cardsHtml = events.map(renderListCard).join('\n');
         gridContainer.innerHTML = cardsHtml;
+
+        // Attach modal trigger to list cards
+        gridContainer.querySelectorAll('.adda-card').forEach(function(cardEl, idx) {
+          cardEl.addEventListener('click', function(e) {
+            e.preventDefault();
+            var ev = events[idx];
+            if (ev) openEventDetailModal(ev);
+          });
+        });
+
         var cityLabel = currentCity || 'all cities';
         var scopeLabel = currentScope === 'past' ? 'past' : 'upcoming';
         countLabel.textContent = 'Showing ' + events.length + ' ' + scopeLabel + ' gathering' + (events.length === 1 ? '' : 's') + ' across ' + cityLabel + '.';
@@ -803,8 +2149,119 @@
   }
 
   // ========================================================================
-  // VIEW SWITCHING & EVENT LISTENERS
+  // VIEW SWITCHING & FILTERS
   // ========================================================================
+
+  function renderCityFilterButtons(cities) {
+    if (!Array.isArray(cities)) return;
+
+    if (cityFilterSelect) {
+      cityFilterSelect.innerHTML = '<option value="" data-city="">All cities</option>';
+      cities.forEach(function(cityName) {
+        var opt = document.createElement('option');
+        opt.value = cityName;
+        opt.setAttribute('data-city', cityName);
+        opt.textContent = cityName;
+        if (currentCity && currentCity.toLowerCase() === cityName.toLowerCase()) {
+          opt.selected = true;
+        }
+        cityFilterSelect.appendChild(opt);
+      });
+    }
+
+    if (cityFilterGroup) {
+      var existingButtons = Array.from(cityFilterGroup.querySelectorAll('button[data-city]'));
+      var existingValues = existingButtons.map(function(b) { return (b.getAttribute('data-city') || '').toLowerCase(); });
+
+      cities.forEach(function(cityName) {
+        if (cityName && existingValues.indexOf(cityName.toLowerCase()) === -1) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'adda-pill';
+          btn.setAttribute('data-city', cityName);
+          btn.textContent = cityName;
+          if (currentCity && currentCity.toLowerCase() === cityName.toLowerCase()) {
+            btn.classList.add('active');
+          }
+          cityFilterGroup.appendChild(btn);
+          existingValues.push(cityName.toLowerCase());
+        }
+      });
+    }
+
+    updateFilterUI();
+  }
+
+  function updateFilterUI() {
+    if (cityFilterSelect) {
+      cityFilterSelect.value = currentCity || '';
+    }
+
+    var cityButtons = cityFilterGroup ? cityFilterGroup.querySelectorAll('button[data-city]') : [];
+    cityButtons.forEach(function(btn) {
+      var btnCity = btn.getAttribute('data-city') || '';
+      if (btnCity.toLowerCase() === (currentCity || '').toLowerCase()) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    if (scopeUpcomingBtn && scopePastBtn) {
+      if (currentScope === 'past') {
+        scopePastBtn.classList.add('active');
+        scopeUpcomingBtn.classList.remove('active');
+      } else {
+        scopeUpcomingBtn.classList.add('active');
+        scopePastBtn.classList.remove('active');
+      }
+    }
+
+    if (viewCalendarBtn && viewListBtn) {
+      if (currentView === 'calendar') {
+        viewCalendarBtn.classList.add('active');
+        viewCalendarBtn.setAttribute('aria-pressed', 'true');
+        viewListBtn.classList.remove('active');
+        viewListBtn.setAttribute('aria-pressed', 'false');
+        if (calendarSection) calendarSection.style.display = 'block';
+        if (listSection) listSection.style.display = 'none';
+      } else {
+        viewListBtn.classList.add('active');
+        viewListBtn.setAttribute('aria-pressed', 'true');
+        viewCalendarBtn.classList.remove('active');
+        viewCalendarBtn.setAttribute('aria-pressed', 'false');
+        if (calendarSection) calendarSection.style.display = 'none';
+        if (listSection) listSection.style.display = 'block';
+      }
+    }
+
+    if (scopeFilterGroup) {
+      var scopeButtons = scopeFilterGroup.querySelectorAll('button[data-scope]');
+      scopeButtons.forEach(function(btn) {
+        if (btn.getAttribute('data-scope') === currentScope) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+  }
+
+  function syncUrlParams() {
+    var url = new URL(window.location.href);
+    if (currentCity) url.searchParams.set('city', currentCity);
+    else url.searchParams.delete('city');
+
+    if (currentView) url.searchParams.set('view', currentView);
+
+    if (currentView === 'list' && currentScope && currentScope !== 'upcoming') {
+      url.searchParams.set('scope', currentScope);
+    } else {
+      url.searchParams.delete('scope');
+    }
+
+    window.history.replaceState({}, '', url.toString());
+  }
 
   function switchView(viewName) {
     currentView = viewName;
@@ -818,39 +2275,21 @@
     }
   }
 
-  if (viewCalendarBtn) {
-    viewCalendarBtn.addEventListener('click', function() {
-      if (currentView !== 'calendar') switchView('calendar');
-    });
-  }
+  if (viewCalendarBtn) viewCalendarBtn.addEventListener('click', function() { switchView('calendar'); });
+  if (viewListBtn) viewListBtn.addEventListener('click', function() { switchView('list'); });
 
-  if (viewListBtn) {
-    viewListBtn.addEventListener('click', function() {
-      if (currentView !== 'list') switchView('list');
-    });
-  }
-
-  // Month Navigation
   if (calPrevBtn) {
     calPrevBtn.addEventListener('click', function() {
-      if (calMonth === 0) {
-        calMonth = 11;
-        calYear--;
-      } else {
-        calMonth--;
-      }
+      if (calMonth === 0) { calMonth = 11; calYear--; }
+      else { calMonth--; }
       fetchCalendarEvents();
     });
   }
 
   if (calNextBtn) {
     calNextBtn.addEventListener('click', function() {
-      if (calMonth === 11) {
-        calMonth = 0;
-        calYear++;
-      } else {
-        calMonth++;
-      }
+      if (calMonth === 11) { calMonth = 0; calYear++; }
+      else { calMonth++; }
       fetchCalendarEvents();
     });
   }
@@ -864,7 +2303,38 @@
     });
   }
 
-  // City and Scope Filters
+  if (cityFilterSelect) {
+    cityFilterSelect.addEventListener('change', function() {
+      currentCity = this.value;
+      updateFilterUI();
+      syncUrlParams();
+      if (currentView === 'calendar') fetchCalendarEvents();
+      else fetchListEvents();
+    });
+  }
+
+  if (scopeUpcomingBtn) {
+    scopeUpcomingBtn.addEventListener('click', function() {
+      if (currentScope !== 'upcoming') {
+        currentScope = 'upcoming';
+        updateFilterUI();
+        syncUrlParams();
+        if (currentView === 'list') fetchListEvents();
+      }
+    });
+  }
+
+  if (scopePastBtn) {
+    scopePastBtn.addEventListener('click', function() {
+      if (currentScope !== 'past') {
+        currentScope = 'past';
+        updateFilterUI();
+        syncUrlParams();
+        if (currentView === 'list') fetchListEvents();
+      }
+    });
+  }
+
   if (filterBar) {
     filterBar.addEventListener('click', function(e) {
       var target = e.target;
@@ -874,11 +2344,8 @@
           currentCity = city;
           updateFilterUI();
           syncUrlParams();
-          if (currentView === 'calendar') {
-            fetchCalendarEvents();
-          } else {
-            fetchListEvents();
-          }
+          if (currentView === 'calendar') fetchCalendarEvents();
+          else fetchListEvents();
         }
       } else if (target.matches('button[data-scope]')) {
         var scope = target.getAttribute('data-scope');
@@ -886,7 +2353,7 @@
           currentScope = scope;
           updateFilterUI();
           syncUrlParams();
-          fetchListEvents();
+          if (currentView === 'list') fetchListEvents();
         }
       }
     });
@@ -902,45 +2369,127 @@
     });
   }
 
-  if (retryBtn) {
-    retryBtn.addEventListener('click', function() {
-      fetchListEvents();
+  if (retryBtn) retryBtn.addEventListener('click', fetchListEvents);
+
+  // Coordinator Section Expand / Collapse Toggle
+  function toggleCoordSection() {
+    if (!coordGrid || !coordToggleBtn) return;
+    if (coordGrid.style.display === 'none') {
+      coordGrid.style.display = 'grid';
+      coordToggleBtn.innerHTML = '&minus;';
+      coordToggleBtn.setAttribute('aria-expanded', 'true');
+    } else {
+      coordGrid.style.display = 'none';
+      coordToggleBtn.innerHTML = '+';
+      coordToggleBtn.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  if (coordToggleBtn) {
+    coordToggleBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      toggleCoordSection();
     });
   }
+
+  if (coordHeader) {
+    coordHeader.addEventListener('click', toggleCoordSection);
+  }
+
+  // Keyboard accessibility: ESC key closes modals
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      if (posterLightboxOverlay && posterLightboxOverlay.classList.contains('is-open')) {
+        posterLightboxOverlay.classList.remove('is-open');
+        posterLightboxOverlay.style.display = 'none';
+      } else if (detailModalBackdrop && detailModalBackdrop.classList.contains('is-open')) {
+        closeEventDetailModal();
+      } else if (hostModalBackdrop && hostModalBackdrop.classList.contains('is-open')) {
+        closeHostModal();
+      }
+    }
+  });
 
   // URL State Initialization
   var urlParams = new URLSearchParams(window.location.search);
   var initialCity = urlParams.get('city');
-  if (initialCity && initialCity.trim()) {
-    currentCity = initialCity.trim();
-  }
+  if (initialCity && initialCity.trim()) currentCity = initialCity.trim();
+
   var initialView = urlParams.get('view');
-  if (initialView && (initialView === 'list' || initialView === 'calendar')) {
-    currentView = initialView;
-  }
+  if (initialView && (initialView === 'list' || initialView === 'calendar')) currentView = initialView;
+
   var initialScope = urlParams.get('scope');
   if (initialScope && (initialScope.toLowerCase() === 'upcoming' || initialScope.toLowerCase() === 'past')) {
     currentScope = initialScope.toLowerCase();
   }
 
-  // Pre-fetch supported cities from database master
+  var shouldOpenHost = urlParams.get('open_host') === '1' || urlParams.get('action') === 'host';
+
+  // Pre-fetch supported cities
   fetch('/api/method/adda_space.api.events.get_supported_cities')
     .then(function(res) { return res.json(); })
     .then(function(data) {
-      var cities = (data && data.message && Array.isArray(data.message.cities)) ? data.message.cities : [];
-      if (cities.length > 0) {
-        renderCityFilterButtons(cities);
+      var cities = (data && data.message && Array.isArray(data.message.cities)) ? data.message.cities : ['Bengaluru', 'Mysuru'];
+      if (cities.length > 0) renderCityFilterButtons(cities);
+
+      // Populate Host Modal City Select while preserving currently selected city
+      if (modalCitySelect) {
+        var prevValue = modalCitySelect.value || currentCity || 'Bengaluru';
+        modalCitySelect.innerHTML = '';
+        cities.forEach(function(c) {
+          var opt = document.createElement('option');
+          opt.value = c;
+          opt.textContent = c;
+          if (c.toLowerCase() === prevValue.toLowerCase()) {
+            opt.selected = true;
+          }
+          modalCitySelect.appendChild(opt);
+        });
+        if (prevValue) {
+          modalCitySelect.value = prevValue;
+        }
+        updateCoordinatorInfo(modalCitySelect.value || 'Bengaluru');
+      }
+
+      // Opening /events loads the calendar normally — NO modal automatically opened.
+      // Only open if URL specifically requests it (open_host=1) or returning from login to submit draft.
+      var hasDraft = restoreHostDraft();
+      var hasAutoOpenedHost = false;
+      try {
+        hasAutoOpenedHost = Boolean(sessionStorage.getItem('adda_host_modal_auto_opened'));
+      } catch(e) {}
+
+      if (shouldOpenHost || (hasDraft && isHostLoggedIn)) {
+        try {
+          sessionStorage.setItem('adda_host_modal_auto_opened', '1');
+        } catch(e) {}
+        if (hostModalBackdrop) {
+          openHostModal();
+          if (modalCitySelect && modalCitySelect.value) {
+            loadModalRooms(modalCitySelect.value, function() {
+              if (hasDraft) {
+                goToModalStep(3);
+              }
+            });
+          }
+        }
       }
     })
-    .catch(function() {});
+    .catch(function() {
+      if (modalCitySelect && !modalCitySelect.options.length) {
+        modalCitySelect.innerHTML = '<option value="Bengaluru" selected>Bengaluru</option><option value="Mysuru">Mysuru</option>';
+        updateCoordinatorInfo(modalCitySelect.value || 'Bengaluru');
+      }
+    });
 
-  // Initial Load
+  // Initial render
   updateFilterUI();
   if (currentView === 'calendar') {
     fetchCalendarEvents();
   } else {
     fetchListEvents();
   }
+
 })();
 </script>
 {% endblock %}

@@ -28,13 +28,13 @@
   </div>
 </section>
 
-<!-- 2. Upcoming Addas Section -->
+<!-- 2. Upcoming Events Section -->
 <section class="adda-section" id="upcoming-addas-section">
   <div class="adda-container">
     <div class="adda-section-header">
       <div>
         <span class="adda-pill-badge adda-pill-teal">Community Calendar</span>
-        <h2 class="adda-section-heading">Upcoming Addas</h2>
+        <h2 class="adda-section-heading">Upcoming Events</h2>
         <p class="adda-section-sub">Gatherings open to all neighbours in community spaces.</p>
       </div>
       <a href="/events" class="adda-action-link">
@@ -43,7 +43,7 @@
     </div>
 
     <!-- Loading Skeleton Cards -->
-    <div class="adda-events-grid" id="home-events-loading" aria-busy="true" aria-label="Loading upcoming addas">
+    <div class="adda-events-grid" id="home-events-loading" aria-busy="true" aria-label="Loading upcoming events">
       {% for i in range(3) %}
       <article class="adda-card">
         <div class="adda-card-media adda-skeleton adda-skeleton-media"></div>
@@ -60,73 +60,17 @@
     <!-- Dynamic Events Grid Container -->
     <div class="adda-events-grid" id="home-events-grid" style="display: none;"></div>
 
-    <!-- Fallback / Curated Previews (Shown if API has no upcoming events or is loading offline) -->
-    <div class="adda-events-grid" id="home-events-fallback" style="display: none;">
-      <article class="adda-card">
-        <div class="adda-card-media">
-          <div class="adda-card-placeholder">Community Circle</div>
-        </div>
-        <div class="adda-card-body">
-          <div class="adda-card-meta">
-            <span class="adda-tag adda-tag-city">Civic Hub</span>
-            <span class="adda-tag adda-tag-free">Free Admission</span>
-          </div>
-          <h3 class="adda-card-title">
-            <a href="/events">Neighbourhood Water &amp; Climate Circle</a>
-          </h3>
-          <p class="adda-card-desc">
-            A facilitated community circle bringing together local residents, youth solvers, and climate researchers to discuss open water management solutions.
-          </p>
-          <div class="adda-card-footer">
-            <span>In-Person &bull; Open Commons</span>
-            <a href="/events" class="adda-card-action">Details &rarr;</a>
-          </div>
-        </div>
-      </article>
-
-      <article class="adda-card">
-        <div class="adda-card-media">
-          <div class="adda-card-placeholder">Community Jam</div>
-        </div>
-        <div class="adda-card-body">
-          <div class="adda-card-meta">
-            <span class="adda-tag adda-tag-city">Civic Hub</span>
-            <span class="adda-tag adda-tag-free">Free Admission</span>
-          </div>
-          <h3 class="adda-card-title">
-            <a href="/events">Civic Tech &amp; Community Mapping Jam</a>
-          </h3>
-          <p class="adda-card-desc">
-            An open hands-on session mapping local public commons and heritage walks with open-source tools and community ground volunteers.
-          </p>
-          <div class="adda-card-footer">
-            <span>In-Person &bull; Public Library</span>
-            <a href="/events" class="adda-card-action">Details &rarr;</a>
-          </div>
-        </div>
-      </article>
-
-      <article class="adda-card">
-        <div class="adda-card-media">
-          <div class="adda-card-placeholder">Youth Circle</div>
-        </div>
-        <div class="adda-card-body">
-          <div class="adda-card-meta">
-            <span class="adda-tag adda-tag-city">Civic Hub</span>
-            <span class="adda-tag adda-tag-free">Free Admission</span>
-          </div>
-          <h3 class="adda-card-title">
-            <a href="/events">Youth Action &amp; Changemaker Circle</a>
-          </h3>
-          <p class="adda-card-desc">
-            An evening gathering for young community problem solvers sharing grassroots experiments, citizen science data, and lessons learned.
-          </p>
-          <div class="adda-card-footer">
-            <span>In-Person &bull; Community Space</span>
-            <a href="/events" class="adda-card-action">Details &rarr;</a>
-          </div>
-        </div>
-      </article>
+    <!-- Empty State (Shown when no upcoming events are scheduled) -->
+    <div id="home-events-empty" class="adda-state-box" style="display: none; grid-column: 1 / -1; width: 100%;">
+      <div class="adda-state-icon" aria-hidden="true">&bull;</div>
+      <h3 class="adda-state-title">No Upcoming Events Scheduled</h3>
+      <p class="adda-state-desc">
+        There are currently no public gatherings scheduled right now. Have an idea for a community circle, workshop, or civic meetup? Be the first to host one!
+      </p>
+      <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+        <a href="/events?open_host=1" class="adda-btn adda-btn-primary">Host an Event</a>
+        <a href="/events" class="adda-btn adda-btn-secondary">Browse Events Calendar</a>
+      </div>
     </div>
   </div>
 </section>
@@ -157,7 +101,7 @@
 
   var loadingEl = document.getElementById('home-events-loading');
   var gridEl = document.getElementById('home-events-grid');
-  var fallbackEl = document.getElementById('home-events-fallback');
+  var emptyEl = document.getElementById('home-events-empty');
 
   function escapeHtml(str) {
     if (!str) return '';
@@ -176,16 +120,40 @@
     return (tmp.textContent || tmp.innerText || '').trim();
   }
 
+  function getCategoryClass(type) {
+    if (!type) return 'cat-adda';
+    var t = String(type).trim().toLowerCase();
+    if (t.indexOf('jam') !== -1) return 'cat-solver-jam';
+    if (t.indexOf('custom') !== -1) return 'cat-custom-event';
+    if (t.indexOf('adda') !== -1) return 'cat-adda';
+    return 'cat-default';
+  }
+
+  function getCategoryLabel(type) {
+    if (!type) return 'Adda';
+    var t = String(type).trim();
+    if (t.toLowerCase().indexOf('jam') !== -1) return 'Solver Jam';
+    if (t.toLowerCase().indexOf('custom') !== -1) return 'Custom';
+    return t;
+  }
+
+  function isMeaningful(val) {
+    if (val === null || val === undefined) return false;
+    var s = String(val).trim();
+    if (!s) return false;
+    var lower = s.toLowerCase();
+    return lower !== 'na' && lower !== 'none' && lower !== 'null' && lower !== 'undefined';
+  }
+
   function formatShortDate(dateStr) {
-    if (!dateStr) return '';
+    if (!isMeaningful(dateStr)) return '';
     var trimmed = String(dateStr).trim();
-    if (!trimmed) return '';
     var normalized = trimmed.indexOf('T') !== -1 ? trimmed : trimmed.replace(' ', 'T');
     if (!/(?:Z|[+-]\d{2}(?::?\d{2})?)$/i.test(normalized)) {
       normalized += '+05:30';
     }
     var d = new Date(normalized);
-    if (isNaN(d.getTime())) return escapeHtml(dateStr);
+    if (isNaN(d.getTime())) return '';
 
     var formattedDate = d.toLocaleDateString('en-IN', {
       timeZone: 'Asia/Kolkata',
@@ -208,48 +176,85 @@
     var eventIdentifier = event.unique_id || event.name;
     var eventUrl = '/events/' + encodeURIComponent(eventIdentifier);
     var safeTitle = escapeHtml(event.title || 'Untitled Gathering');
-    var safeCity = escapeHtml(event.city || 'Neighbourhood');
-    var dateText = formatShortDate(event.start_date_time);
-    var plainDesc = stripHtml(event.description || '');
-    var safeDesc = escapeHtml(plainDesc);
-    var safeMode = escapeHtml(event.mode || 'In-Person');
-    var venueText = event.venue_details ? ' &bull; ' + escapeHtml(event.venue_details) : '';
-    var cityClass = 'adda-tag adda-tag-city';
+    var rawCity = isMeaningful(event.city) ? String(event.city).trim() : '';
+    var safeCity = (rawCity && rawCity.toLowerCase() !== 'neighbourhood') ? escapeHtml(rawCity) : '';
 
-    var mediaHtml = '';
-    if (event.cover_image) {
-      mediaHtml = '<img src="' + escapeHtml(event.cover_image) + '" alt="' + safeTitle + '" class="adda-card-img" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML=\'<div class=\\\'adda-card-placeholder\\\'>Adda &bull; ' + safeCity + '</div>\';" />';
-    } else {
-      mediaHtml = '<div class="adda-card-placeholder">Adda &bull; ' + safeCity + '</div>';
+    var coverImg = isMeaningful(event.cover_image) ? String(event.cover_image).trim() : '';
+    if (coverImg && !/^https?:\/\//i.test(coverImg) && !coverImg.startsWith('/')) {
+      coverImg = '/' + coverImg;
     }
+    var placeholderText = safeCity ? 'Adda &bull; ' + safeCity : 'Adda Space';
+    var mediaHtml = '';
+    if (coverImg) {
+      mediaHtml = '<img src="' + escapeHtml(coverImg) + '" alt="' + safeTitle + '" class="adda-card-img" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML=\'<div class=\\\'adda-card-placeholder\\\'>' + placeholderText + '</div>\';" />';
+    } else {
+      mediaHtml = '<div class="adda-card-placeholder">' + placeholderText + '</div>';
+    }
+
+    // Category badge: Strictly omit 'CUSTOM' badge and default badge from homepage cards
+    var catBadgeHtml = '';
+    if (isMeaningful(event.type)) {
+      var rawType = String(event.type).trim();
+      if (!/custom/i.test(rawType) && !/adda/i.test(rawType)) {
+        var catClass = getCategoryClass(rawType);
+        var catLabel = escapeHtml(getCategoryLabel(rawType));
+        if (catLabel.toUpperCase() !== 'CUSTOM') {
+          catBadgeHtml = '<span class="adda-cat-badge ' + catClass + '" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;">' + catLabel + '</span>';
+        }
+      }
+    }
+
+    var metaParts = [];
+    if (catBadgeHtml) metaParts.push(catBadgeHtml);
+    if (safeCity) {
+      metaParts.push('<span class="adda-tag adda-tag-city">' + safeCity + '</span>');
+    }
+    var dateText = formatShortDate(event.start_date_time);
+    if (dateText) {
+      metaParts.push('<span style="font-size: 0.8125rem; color: var(--adda-text-muted);">' + dateText + '</span>');
+    }
+
+    var metaRowHtml = metaParts.length > 0
+      ? '<div class="adda-card-meta">\n' + metaParts.join('\n') + '\n</div>'
+      : '';
+
+    var plainDesc = stripHtml(event.description || '');
+    var descHtml = isMeaningful(plainDesc)
+      ? '<p class="adda-card-desc">' + escapeHtml(plainDesc) + '</p>'
+      : '';
+
+    var safeMode = isMeaningful(event.mode) ? escapeHtml(String(event.mode).trim()) : '';
+    var venueDetails = isMeaningful(event.venue_details) ? escapeHtml(String(event.venue_details).trim()) : '';
+    var footerTextParts = [];
+    if (safeMode) footerTextParts.push(safeMode);
+    if (venueDetails) footerTextParts.push(venueDetails);
+    var footerText = footerTextParts.join(' &bull; ');
+
+    var bodyParts = [
+      '<div class="adda-card-body">',
+      metaRowHtml,
+      '  <h3 class="adda-card-title">',
+      '    <a href="' + eventUrl + '">' + safeTitle + '</a>',
+      '  </h3>',
+      descHtml,
+      '  <div class="adda-card-footer">',
+      '    <span>' + footerText + '</span>',
+      '    <a href="' + eventUrl + '" class="adda-card-action" aria-label="Details for ' + safeTitle + '">Details &rarr;</a>',
+      '  </div>',
+      '</div>'
+    ].filter(Boolean);
 
     return [
       '<article class="adda-card" data-event-id="' + escapeHtml(eventIdentifier) + '">',
       '  <a href="' + eventUrl + '" class="adda-card-media" aria-label="' + safeTitle + '">',
       '    ' + mediaHtml,
       '  </a>',
-      '  <div class="adda-card-body">',
-      '    <div class="adda-card-meta">',
-      '      <span class="adda-tag ' + cityClass + '">' + safeCity + '</span>',
-      '      <span class="adda-tag adda-tag-free">Free Admission</span>',
-      '      <span style="font-size: 0.8125rem; color: var(--adda-text-muted);">' + dateText + '</span>',
-      '    </div>',
-      '    <h3 class="adda-card-title">',
-      '      <a href="' + eventUrl + '">' + safeTitle + '</a>',
-      '    </h3>',
-      '    <p class="adda-card-desc">',
-      '      ' + safeDesc,
-      '    </p>',
-      '    <div class="adda-card-footer">',
-      '      <span>' + safeMode + venueText + '</span>',
-      '      <a href="' + eventUrl + '" class="adda-card-action" aria-label="Details for ' + safeTitle + '">Details &rarr;</a>',
-      '    </div>',
-      '  </div>',
+      bodyParts.join('\n'),
       '</article>'
     ].join('\n');
   }
 
-  fetch('/api/method/adda_space.api.events.get_adda_events?time_scope=upcoming&page_length=3', {
+  fetch('/api/method/adda_space.api.events.get_adda_events?time_scope=upcoming&event_type=all&page_length=3', {
     headers: { 'Accept': 'application/json' }
   })
   .then(function(res) {
@@ -263,15 +268,16 @@
     if (events.length > 0 && gridEl) {
       gridEl.innerHTML = events.map(renderCard).join('\n');
       gridEl.style.display = 'grid';
-      if (fallbackEl) fallbackEl.style.display = 'none';
+      if (emptyEl) emptyEl.style.display = 'none';
     } else {
-      // If no upcoming events in DB, display curated preview cards
-      if (fallbackEl) fallbackEl.style.display = 'grid';
+      if (gridEl) gridEl.style.display = 'none';
+      if (emptyEl) emptyEl.style.display = 'block';
     }
   })
   .catch(function(err) {
     if (loadingEl) loadingEl.style.display = 'none';
-    if (fallbackEl) fallbackEl.style.display = 'grid';
+    if (gridEl) gridEl.style.display = 'none';
+    if (emptyEl) emptyEl.style.display = 'block';
   });
 })();
 </script>

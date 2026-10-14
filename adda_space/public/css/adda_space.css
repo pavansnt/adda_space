@@ -258,6 +258,15 @@ p.lead {
   align-items: center;
   justify-content: space-between;
   height: 72px;
+  gap: 1.5rem;
+}
+
+.adda-header-auth {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .adda-brand {
@@ -1218,8 +1227,9 @@ p.lead {
 .adda-skeleton-media { height: 100%; width: 100%; }
 
 /* --------------------------------------------------------------------------
-   Footer (Dark Navy with Community Problem Solving Recognition)
+   Footer (Clean 2-Column Matching Solve Ninja Reference)
    -------------------------------------------------------------------------- */
+.adda-site-footer,
 .adda-footer {
   flex-shrink: 0 !important;
   margin-top: auto !important;
@@ -1227,123 +1237,98 @@ p.lead {
   width: 100% !important;
   position: relative !important;
   clear: both !important;
-  background-color: var(--adda-navy-dark) !important;
-  color: var(--adda-text-muted-on-dark);
-  padding-top: clamp(3.5rem, 5vw, 5.5rem);
-  padding-bottom: 3rem;
-  border-top: 1px solid var(--adda-border-dark);
+  background-color: #FFFFFF !important;
+  border-top: 1px solid var(--adda-border-light, #E5E7EB);
+  padding: 2.5rem 0 3rem 0;
+  color: var(--adda-text, #1F2937);
 }
 
-.adda-footer-grid {
+.adda-footer-two-col {
   display: grid;
-  grid-template-columns: 2fr 1fr 1.5fr;
-  gap: clamp(2rem, 5vw, 4rem);
-  margin-bottom: 3.5rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: flex-start;
 }
 
-@media (max-width: 860px) {
-  .adda-footer-grid {
+@media (max-width: 768px) {
+  .adda-footer-two-col {
     grid-template-columns: 1fr;
-    gap: 2.5rem;
+    gap: 2rem;
   }
 }
 
-.adda-footer-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.adda-footer-title {
-  font-family: var(--font-headings);
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: #FFFFFF;
-}
-
-.adda-footer-desc {
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  color: var(--adda-text-muted-on-dark);
-  max-width: 440px;
-}
-
-.adda-footer-pill {
-  display: inline-block;
-  padding: 0.25rem 0.65rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  background-color: rgba(255, 255, 255, 0.08);
-  color: #FFFFFF;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  margin-right: 0.5rem;
-}
-
-.adda-footer-heading {
-  font-family: var(--font-headings);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #FFFFFF;
-  margin-bottom: 1rem;
-}
-
-.adda-footer-links {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.adda-footer-col {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
 }
 
-.adda-footer-links a {
-  color: var(--adda-text-muted-on-dark);
-  font-size: 0.9375rem;
+.adda-footer-col .adda-footer-heading {
+  font-family: var(--font-headings);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #0F172A;
+  margin: 0 0 0.85rem 0;
 }
 
-.adda-footer-links a:hover {
-  color: #FFFFFF;
-}
-
-.adda-footer-cities {
+.adda-footer-socials {
   display: flex;
-  gap: 0.5rem;
   flex-wrap: wrap;
-  margin-top: 0.5rem;
+  gap: 0.65rem;
+  align-items: center;
 }
 
-.adda-city-badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  background-color: rgba(255, 255, 255, 0.08);
-  color: #FFFFFF;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+.adda-footer-social-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #334155;
+  background-color: #FFFFFF;
+  border: 1px solid #D1D5DB;
+  border-radius: var(--radius-sm, 6px);
+  text-decoration: none;
   transition: all 0.15s ease;
 }
 
-.adda-city-badge:hover {
-  background-color: var(--adda-green);
-  color: #FFFFFF;
-  border-color: var(--adda-green);
+.adda-footer-social-pill:hover {
+  background-color: #F8FAFC;
+  border-color: #94A3B8;
+  color: #0F172A;
 }
 
-.adda-footer-bottom {
-  padding-top: 2rem;
-  border-top: 1px solid var(--adda-border-dark);
+.adda-footer-icon {
+  flex-shrink: 0;
+}
+
+.adda-footer-contact-info {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.adda-footer-email-link {
+  font-size: 0.875rem;
+  color: #1E293B;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.adda-footer-email-link:hover {
+  color: var(--adda-green, #1B8A5A);
+  text-decoration: underline;
+}
+
+.adda-footer-address {
   font-size: 0.8125rem;
-  color: #798C9E;
+  color: #64748B;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 24rem;
+}
 }
 
 /* ==========================================================================
@@ -1581,11 +1566,9 @@ p.lead {
 
 .adda-cal-event-pill {
   display: block;
-  padding: 0.25rem 0.45rem;
-  background-color: var(--adda-green-light);
-  border-left: 3px solid var(--adda-green);
+  padding: 0.35rem 0.55rem;
   border-radius: var(--radius-sm);
-  color: var(--adda-navy);
+  color: #FFFFFF !important;
   font-size: 0.75rem;
   line-height: 1.25;
   text-decoration: none;
@@ -1593,26 +1576,29 @@ p.lead {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-weight: 600;
+  border: none;
+  margin-bottom: 0.25rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
   transition: all 0.15s ease;
 }
 
 .adda-cal-event-pill:hover {
-  background-color: var(--adda-green);
-  color: #FFFFFF;
-  border-left-color: var(--adda-navy);
+  color: #FFFFFF !important;
   transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+  filter: brightness(1.08);
 }
 
 .adda-cal-event-time {
   font-size: 0.6875rem;
-  color: var(--adda-green-hover);
+  color: rgba(255, 255, 255, 0.92);
   display: block;
   font-weight: 700;
   margin-bottom: 0.1rem;
 }
 
 .adda-cal-event-pill:hover .adda-cal-event-time {
-  color: #E8F5EE;
+  color: #FFFFFF;
 }
 
 .adda-cal-more-pill {
@@ -2015,5 +2001,1058 @@ p.lead {
   justify-content: center;
   font-size: 2rem;
   margin-bottom: 1.25rem;
+}
+
+/* ==========================================================================
+   Header Auth Navigation & User Profile
+   ========================================================================== */
+
+.adda-nav-auth {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.adda-nav-btn-login,
+.adda-nav-btn-signup {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-headings);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  padding: 0.55rem 1.25rem;
+  background-color: var(--adda-green) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--adda-green) !important;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 2px 6px rgba(27, 138, 90, 0.25);
+  transition: all 0.15s ease;
+  text-decoration: none;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.adda-nav-btn-login:hover,
+.adda-nav-btn-signup:hover {
+  background-color: var(--adda-green-hover) !important;
+  border-color: var(--adda-green-hover) !important;
+  color: #FFFFFF !important;
+  transform: translateY(-1px);
+}
+
+.adda-nav-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.adda-user-badge {
+  font-family: var(--font-headings);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--adda-navy) !important;
+  background-color: var(--adda-green-light) !important;
+  border: 1px solid var(--adda-green-border);
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-pill);
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.adda-nav-logout {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--adda-text-muted) !important;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--adda-border);
+  background-color: var(--adda-surface-warm);
+  transition: all 0.15s ease;
+  text-decoration: none;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.adda-nav-logout:hover {
+  color: #DC2626 !important;
+  border-color: #FCA5A5;
+  background-color: #FEF2F2;
+}
+
+.adda-nav-auth-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .adda-header-auth {
+    display: none;
+  }
+  .adda-nav-auth-mobile {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 1rem;
+    gap: 0.5rem;
+  }
+  .adda-nav-auth-mobile .adda-nav-btn-login,
+  .adda-nav-auth-mobile .adda-nav-btn-signup {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ==========================================================================
+   Event Categories & Color Palette
+   Green: Adda / Solver Adda (#00A859 / #10B981)
+   Orange: SolverJam / Solver Jam (#F59E0B / #D97706)
+   Blue/Teal: Custom Event (#06B6D4 / #0284C7)
+   ========================================================================== */
+
+.adda-cal-event-pill.cat-adda,
+.adda-cal-event-pill.cat-solver-adda,
+.adda-cal-event-pill[data-category="Adda"],
+.adda-cal-event-pill[data-category="Solver Adda"] {
+  background-color: #00875A !important;
+  color: #FFFFFF !important;
+  border-left: none;
+}
+
+.adda-cal-event-pill.cat-adda:hover,
+.adda-cal-event-pill.cat-solver-adda:hover {
+  background-color: #00734D !important;
+}
+
+.adda-cal-event-pill.cat-solver-jam,
+.adda-cal-event-pill[data-category="Solver Jam"],
+.adda-cal-event-pill[data-category="SolverJam"] {
+  background-color: #F59E0B !important;
+  color: #FFFFFF !important;
+  border-left: none;
+}
+
+.adda-cal-event-pill.cat-solver-jam:hover {
+  background-color: #D97706 !important;
+}
+
+.adda-cal-event-pill.cat-custom-event,
+.adda-cal-event-pill[data-category="Custom Event"] {
+  background-color: #0D9488 !important;
+  color: #FFFFFF !important;
+  border-left: none;
+}
+
+.adda-cal-event-pill.cat-custom-event:hover {
+  background-color: #0F766E !important;
+}
+
+.adda-cal-event-pill.cat-pending-event,
+.adda-cal-event-pill[data-status="Pending Review"] {
+  background: repeating-linear-gradient(
+    45deg,
+    #0D9488,
+    #0D9488 8px,
+    #0F766E 8px,
+    #0F766E 16px
+  ) !important;
+  color: #FFFFFF !important;
+  border-left: none;
+}
+
+.adda-cal-event-pill.cat-default {
+  background-color: #0D9488 !important;
+  color: #FFFFFF !important;
+  border-left: none;
+}
+
+/* Category Badges for Cards and Modals */
+.adda-cat-badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-headings);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-pill);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.adda-cat-badge.cat-adda,
+.adda-cat-badge.cat-solver-adda {
+  background-color: #D1FAE5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+
+.adda-cat-badge.cat-solver-jam {
+  background-color: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+}
+
+.adda-cat-badge.cat-custom-event {
+  background-color: #CFFAFE;
+  color: #0E7490;
+  border: 1px solid #A5F3FC;
+}
+
+.adda-cat-badge.cat-default {
+  background-color: #E2E8F0;
+  color: #334155;
+  border: 1px solid #CBD5E1;
+}
+
+/* ==========================================================================
+   Universal Modal Dialogs & Lightbox
+   ========================================================================== */
+
+.adda-modal-backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(15, 23, 42, 0.7) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  z-index: 2100 !important;
+  display: none !important;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.adda-modal-backdrop.is-open {
+  display: flex !important;
+}
+
+#host-modal-backdrop .adda-modal-container {
+  max-width: 740px !important;
+}
+
+#event-detail-modal-backdrop .adda-modal-container {
+  max-width: 580px !important;
+}
+
+#events-intro-modal-backdrop .adda-modal-container {
+  max-width: 580px !important;
+}
+
+.adda-modal-container {
+  background: var(--adda-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
+  max-width: 680px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  transform: translateY(20px) scale(0.98);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.adda-modal-backdrop.is-open .adda-modal-container {
+  transform: translateY(0) scale(1);
+}
+
+.adda-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.75rem;
+  border-bottom: 1px solid var(--adda-border-light);
+  background: var(--adda-surface);
+}
+
+.adda-modal-title {
+  margin: 0;
+  font-family: var(--font-headings);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--adda-navy);
+}
+
+.adda-modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--adda-text-subtle);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.adda-modal-close-btn:hover {
+  color: var(--adda-navy);
+  background: var(--adda-bg-alt);
+}
+
+.adda-modal-body {
+  padding: 1.75rem;
+  overflow-y: auto;
+  flex: 1 1 auto;
+}
+
+.adda-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.75rem;
+  border-top: 1px solid var(--adda-border-light);
+  background: var(--adda-bg-alt);
+}
+
+/* Event Detail Specific Styles */
+.adda-detail-poster-wrap {
+  width: 100%;
+  max-height: 320px;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.25rem;
+  background-color: var(--adda-bg-alt);
+  cursor: zoom-in;
+  position: relative;
+}
+
+.adda-detail-poster-img {
+  width: 100%;
+  height: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.adda-detail-poster-wrap:hover .adda-detail-poster-img {
+  transform: scale(1.02);
+}
+
+.adda-detail-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--adda-surface-warm);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--adda-border);
+}
+
+.adda-detail-meta-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.adda-detail-meta-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--adda-text-subtle);
+  letter-spacing: 0.04em;
+  margin-bottom: 0.2rem;
+}
+
+.adda-detail-meta-value {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--adda-navy);
+}
+
+.adda-detail-desc {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--adda-text);
+  margin-bottom: 1.5rem;
+  white-space: pre-wrap;
+}
+
+.adda-detail-org {
+  font-size: 0.875rem;
+  color: var(--adda-text-muted);
+  border-top: 1px solid var(--adda-border-light);
+  padding-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Lightbox Image Overlay */
+.adda-lightbox-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(0, 0, 0, 0.92) !important;
+  z-index: 2200 !important;
+  display: none !important;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  cursor: zoom-out;
+  box-sizing: border-box;
+}
+
+.adda-lightbox-overlay.is-open {
+  display: flex !important;
+}
+
+.adda-lightbox-img {
+  max-width: 95vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Toast Notification */
+.adda-toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--adda-navy);
+  color: #FFFFFF;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  z-index: 2000;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.adda-toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ==========================================================================
+   Events Calendar Page Shell & Layout (Solve Ninja Experience)
+   ========================================================================== */
+
+.events-calendar-section {
+  width: 100%;
+  padding: 2.5rem 0 3.5rem;
+  background-color: var(--adda-bg);
+  box-sizing: border-box;
+}
+
+.events-calendar-section__container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  box-sizing: border-box;
+}
+
+.events-calendar-section__shell {
+  max-width: 58rem;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.events-calendar-section__header {
+  margin-bottom: 1.75rem;
+}
+
+.events-calendar-section__header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.events-calendar-section__title-col {
+  flex: 1 1 320px;
+}
+
+.events-calendar-section__title {
+  margin: 0 0 0.5rem 0;
+  font-family: var(--font-headings);
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 800;
+  color: var(--adda-navy);
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+.events-calendar-section__subtitle {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--adda-text-muted);
+  max-width: 42rem;
+}
+
+.events-calendar-section__action-col {
+  flex-shrink: 0;
+}
+
+/* Compact Events Header & Layout matching Solve Ninja */
+.adda-page-header#adda-events-header {
+  background: #FFFFFF !important;
+  background-image: none !important;
+  border-bottom: 1px solid var(--adda-border-light) !important;
+  padding-top: 2rem !important;
+  padding-bottom: 1.5rem !important;
+}
+
+.adda-page-header#adda-events-header .adda-events-title {
+  color: #111827 !important;
+  font-family: var(--font-headings);
+  font-size: clamp(2rem, 3.5vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin: 0 0 0.4rem 0;
+}
+
+.adda-page-header#adda-events-header .adda-events-subtitle {
+  color: #4B5563 !important;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.adda-events-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0;
+}
+
+.adda-events-title-col {
+  flex: 1 1 300px;
+}
+
+.adda-events-title {
+  margin: 0 0 0.4rem 0;
+  font-family: var(--font-headings);
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+.adda-events-subtitle {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #4B5563;
+}
+
+.adda-btn-host-adda {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #0F766E;
+  color: #FFFFFF !important;
+  font-family: var(--font-headings);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  padding: 0.65rem 1.4rem;
+  border-radius: var(--radius-pill);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(15, 118, 110, 0.25);
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.adda-btn-host-adda:hover {
+  background-color: #0D9488;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.35);
+}
+
+/* Event Detail Popup & 3-Screen Host Modal Components */
+.adda-btn-share-full {
+  width: 100%;
+  background-color: #10B981 !important;
+  color: #FFFFFF !important;
+  font-family: var(--font-headings);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.85rem 1.5rem;
+  border-radius: 9999px !important;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.adda-btn-share-full:hover {
+  background-color: #059669 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+}
+
+.adda-btn-text-close {
+  background: none !important;
+  border: none !important;
+  color: #6B7280 !important;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.4rem 1rem;
+  text-decoration: underline !important;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease;
+}
+
+.adda-btn-text-close:hover {
+  color: #111827 !important;
+}
+
+.adda-btn-modal-continue {
+  width: 100%;
+  background-color: #10B981 !important;
+  color: #FFFFFF !important;
+  font-family: var(--font-headings);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.85rem 1.5rem;
+  border-radius: 9999px !important;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+  transition: all 0.2s ease;
+  margin-top: 1rem;
+  text-decoration: none;
+}
+
+.adda-btn-modal-continue:hover:not(:disabled) {
+  background-color: #059669 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+}
+
+.adda-btn-modal-continue:disabled {
+  background-color: #D1D5DB !important;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.adda-modal-back-btn {
+  background: none;
+  border: none;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #0F766E;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  margin-left: -0.5rem;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.adda-modal-back-btn:hover {
+  background: #F0FDF4;
+}
+
+.adda-coordinator-lead-card {
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.adda-coord-lead-header {
+  margin-bottom: 0.75rem;
+}
+
+.adda-coord-lead-title {
+  font-family: var(--font-headings);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.25rem 0;
+}
+
+.adda-coord-lead-desc {
+  font-size: 0.875rem;
+  color: #6B7280;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.adda-coord-lead-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #E5E7EB;
+}
+
+.adda-coord-lead-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.adda-coord-lead-name {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.adda-coord-lead-phone {
+  font-size: 0.8125rem;
+  color: #6B7280;
+}
+
+.adda-coord-lead-wa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: #25D366;
+  color: #FFFFFF !important;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(37, 211, 102, 0.3);
+  transition: all 0.2s;
+}
+
+.adda-coord-lead-wa-btn:hover {
+  background-color: #1EBE5D;
+  transform: translateY(-1px);
+}
+
+.adda-duration-summary {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0F766E;
+  margin-top: 0.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.adda-rooms-heading {
+  display: block;
+  font-family: var(--font-headings);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #4B5563;
+  margin-bottom: 0.75rem;
+}
+
+.adda-summary-card {
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+  color: #374151;
+  line-height: 1.5;
+}
+
+/* Compact City Filter Dropdown matching Solve Ninja */
+.adda-city-dropdown-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.adda-city-dropdown-label {
+  font-family: var(--font-headings);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--adda-navy);
+}
+
+.adda-city-dropdown-select {
+  padding: 0.45rem 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--adda-navy);
+  background-color: #FFFFFF;
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  min-width: 140px;
+}
+
+.adda-city-dropdown-select:focus {
+  outline: none;
+  border-color: var(--adda-green);
+  box-shadow: 0 0 0 3px var(--adda-green-light);
+}
+
+/* Compact Calendar Toolbar matching Solve Ninja */
+.adda-cal-toolbar-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--adda-surface);
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.adda-cal-nav-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.adda-cal-arrow-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: var(--adda-bg-alt);
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-sm);
+  color: var(--adda-navy);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.adda-cal-arrow-btn:hover {
+  background-color: var(--adda-surface);
+  border-color: var(--adda-green);
+  color: var(--adda-green);
+}
+
+.adda-cal-month-heading {
+  margin: 0;
+  font-family: var(--font-headings);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--adda-navy);
+  letter-spacing: -0.015em;
+}
+
+.adda-cal-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.adda-pill-toggle {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--adda-bg-alt);
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-pill);
+  padding: 2px;
+}
+
+.adda-pill-toggle-btn {
+  border: none;
+  background: transparent;
+  color: var(--adda-text-muted);
+  font-family: var(--font-headings);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+}
+
+.adda-pill-toggle-btn:hover {
+  color: var(--adda-navy);
+}
+
+.adda-pill-toggle-btn.active {
+  background-color: var(--adda-green);
+  color: #FFFFFF;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(27, 138, 90, 0.3);
+}
+
+.adda-btn-today-pill {
+  border: 1px solid var(--adda-border);
+  background-color: #FFFFFF;
+  color: var(--adda-navy);
+  font-family: var(--font-headings);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  padding: 0.4rem 0.95rem;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.adda-btn-today-pill:hover {
+  border-color: var(--adda-green);
+  color: var(--adda-green);
+  background-color: var(--adda-green-light);
+}
+
+/* Coordinator Section matching Solve Ninja */
+.adda-coordinator-section {
+  background-color: #FFFFFF;
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-md);
+  padding: 1.75rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-card);
+}
+
+.adda-coord-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+
+.adda-coord-title {
+  margin: 0;
+  font-family: var(--font-headings);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--adda-navy);
+  letter-spacing: -0.015em;
+}
+
+.adda-coord-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--adda-border);
+  border-radius: 50%;
+  background: var(--adda-bg-alt);
+  color: var(--adda-navy);
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+
+.adda-coord-toggle-btn:hover {
+  background: var(--adda-surface-warm);
+  border-color: var(--adda-green);
+  color: var(--adda-green);
+}
+
+.adda-coord-subtitle {
+  margin: 0.35rem 0 1.25rem 0;
+  font-size: 0.875rem;
+  color: var(--adda-text-muted);
+  line-height: 1.45;
+}
+
+.adda-coord-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.adda-coord-card {
+  background-color: var(--adda-surface-warm);
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-sm);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.adda-coord-city-tag {
+  font-family: var(--font-headings);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--adda-text-subtle);
+  margin-bottom: 0.35rem;
+}
+
+.adda-coord-name {
+  font-family: var(--font-headings);
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--adda-navy);
+  margin-bottom: 0.2rem;
+}
+
+.adda-coord-phone {
+  font-size: 0.875rem;
+  color: var(--adda-text-muted);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.adda-coord-wa-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #25D366;
+  color: #FFFFFF !important;
+  font-family: var(--font-headings);
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 0.6rem 1.15rem;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: all 0.15s ease;
+  margin-top: auto;
+  box-shadow: 0 1px 3px rgba(37, 211, 102, 0.3);
+}
+
+.adda-coord-wa-btn:hover {
+  background-color: #1EBE5D;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(37, 211, 102, 0.4);
 }
 

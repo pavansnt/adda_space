@@ -1,6 +1,7 @@
 {% extends "templates/base.html" %}
 
 {% set body_class = "adda-body" %}
+{% set web_include_js = (web_include_js or []) | select | list %}
 {% block title %}{{ title or "Adda Space — Community Gatherings" }}{% endblock %}
 
 {% block head_include %}
@@ -10,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   
   <!-- Adda Space Reap Benefit-Inspired Stylesheet -->
-  <link rel="stylesheet" href="/assets/adda_space/css/adda_space.css?v={{ build_version or '2.0.1' }}&t=20261009_v3">
+  <link rel="stylesheet" href="/assets/adda_space/css/adda_space.css?v={{ build_version or '2.0.1' }}&t=20261013_v1">
 {% endblock %}
 
 {% block navbar %}
@@ -26,4 +27,3 @@
 {% block footer %}
   {% include "templates/includes/footer.html" %}
 {% endblock %}
-
