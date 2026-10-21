@@ -715,18 +715,16 @@ def get_backend_health() -> Dict[str, Any]:
 	return status
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def create_adda_event(**kwargs) -> Dict[str, Any]:
 	"""
 	Adda Space event proposal creation endpoint.
 	Enforces mandatory poster upload validation and verifies file existence/format
 	before delegating to Solve Ninja's create_solve_event backend.
 	Ensures room conflict checks, attendee limits, and Pending Review status are preserved.
+	Login is not required — guest users can submit event proposals freely.
 	"""
 	import os
-
-	if frappe.session.user in (None, "", "Guest"):
-		frappe.throw(_("Please log in to submit an event proposal"))
 
 	# Parse JSON request data if supplied via fetch or RPC
 	data: Dict[str, Any] = {}

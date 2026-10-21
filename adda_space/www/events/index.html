@@ -431,12 +431,8 @@
         </div>
       </div>
       <div class="adda-modal-footer" style="flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; border-top: none; padding: 0.5rem 1.75rem 1.5rem; gap: 0.5rem;">
-        <!-- Sticky Action Button: Login to submit (for Guest) or Submit Gathering Proposal (for Logged-in) -->
-        {% if user_is_logged_in %}
+        <!-- Sticky Action Button: Submit Gathering Proposal (auth removed — all users can submit) -->
         <button type="button" class="adda-btn-modal-continue" id="modal-step-submit-btn">Submit Gathering Proposal</button>
-        {% else %}
-        <button type="button" class="adda-btn-modal-continue" id="modal-save-and-login-btn">Login to submit</button>
-        {% endif %}
         <button type="button" class="adda-btn-text-close" id="host-step-3-close-btn-bottom">Close</button>
       </div>
     </div>
@@ -1373,16 +1369,8 @@
     if (mrevDatetime) mrevDatetime.textContent = (modalEventDate ? modalEventDate.value || '' : '') + ' (' + (modalStartTime ? modalStartTime.value || '' : '') + ' - ' + (modalEndTime ? modalEndTime.value || '' : '') + ')';
     if (mrevPeople) mrevPeople.textContent = (modalPeopleInput ? modalPeopleInput.value || '20' : '20') + ' people';
 
-    if (isHostLoggedIn) {
-      if (modalAuthGuestCallout) modalAuthGuestCallout.style.display = 'none';
-      if (modalAuthLoggedInCallout) modalAuthLoggedInCallout.style.display = 'block';
-      if (modalLoggedInUserDisplay) modalLoggedInUserDisplay.textContent = hostUserEmail;
-      if (modalStepSubmitBtn) modalStepSubmitBtn.style.display = 'inline-block';
-    } else {
-      if (modalAuthGuestCallout) modalAuthGuestCallout.style.display = 'block';
-      if (modalAuthLoggedInCallout) modalAuthLoggedInCallout.style.display = 'none';
-      if (modalStepSubmitBtn) modalStepSubmitBtn.style.display = 'none';
-    }
+    // Auth callouts removed — all users can submit freely
+    if (modalStepSubmitBtn) modalStepSubmitBtn.style.display = 'inline-block';
   }
 
   if (modalSaveAndLoginBtn) {
@@ -2459,7 +2447,7 @@
         hasAutoOpenedHost = Boolean(sessionStorage.getItem('adda_host_modal_auto_opened'));
       } catch(e) {}
 
-      if (shouldOpenHost || (hasDraft && isHostLoggedIn)) {
+      if (shouldOpenHost || hasDraft) {
         try {
           sessionStorage.setItem('adda_host_modal_auto_opened', '1');
         } catch(e) {}

@@ -304,24 +304,8 @@
             </div>
           </div>
 
-          <!-- Auth Check Callout -->
-          <div id="auth-guest-callout" style="display: none; background-color: #EFF6FF; border: 1px solid #BFDBFE; border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 2rem;">
-            <h4 style="color: #1E40AF; font-size: 1.1rem; margin-bottom: 0.5rem;">
-              Account Sign-In Required
-            </h4>
-            <p style="font-size: 0.9375rem; color: #1E3A8A; margin-bottom: 1rem;">
-              You must be logged in to submit a gathering proposal. Your proposal draft is automatically saved and will remain intact when you return.
-            </p>
-            <a href="/login?redirect-to=/host-an-event" class="adda-btn adda-btn-primary" id="save-and-login-btn">
-              Log In to Submit Proposal
-            </a>
-          </div>
-
-          <div id="auth-logged-in-callout" style="display: none; background-color: #ECFDF5; border: 1px solid #A7F3D0; border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 2rem;">
-            <span style="font-size: 0.9375rem; color: #065F46;">
-              Submitting as: <strong id="logged-in-user-display"></strong>
-            </span>
-          </div>
+          <!-- Submission Error Alert -->
+          <!-- (Auth callouts removed — all users can submit freely) -->
 
           <!-- Submission Error Alert -->
           <div id="submit-error-box" class="adda-avail-box adda-avail-alert" style="display: none;">
@@ -332,7 +316,7 @@
             <button type="button" class="adda-btn adda-btn-secondary" id="step-4-back-btn">
               &larr; Back
             </button>
-            <button type="button" class="adda-btn adda-btn-primary" id="step-submit-btn" style="display: none;">
+            <button type="button" class="adda-btn adda-btn-primary" id="step-submit-btn">
               Submit Gathering Proposal
             </button>
           </div>
@@ -441,8 +425,7 @@
   var authLoggedInCallout = document.getElementById('auth-logged-in-callout');
   var loggedInUserDisplay = document.getElementById('logged-in-user-display');
   var saveAndLoginBtn = document.getElementById('save-and-login-btn');
-  var step4BackBtn = document.getElementById('step-4-back-btn');
-  var stepSubmitBtn = document.getElementById('step-submit-btn');
+  var step4BackBtn = document.getElementById('step-4-back-btn');  var stepSubmitBtn = document.getElementById('step-submit-btn');
   var submitErrorBox = document.getElementById('submit-error-box');
   var submitErrorText = document.getElementById('submit-error-text');
 
@@ -562,10 +545,8 @@
       var restored = restoreFormStateFromStorage();
       if (restored && citySelect.value) {
         loadRoomsForCity(citySelect.value, function() {
-          if (isLoggedIn) {
-            populateReviewCard();
-            goToStep(4);
-          }
+          populateReviewCard();
+          goToStep(4);
         });
       }
     })
@@ -824,21 +805,9 @@
     revPeople.textContent = (peopleInput.value || '20') + ' people';
     revMode.textContent = modeSelect.value || 'Offline';
 
-    if (isLoggedIn) {
-      authGuestCallout.style.display = 'none';
-      authLoggedInCallout.style.display = 'block';
-      loggedInUserDisplay.textContent = userEmail;
-      stepSubmitBtn.style.display = 'inline-block';
-    } else {
-      authGuestCallout.style.display = 'block';
-      authLoggedInCallout.style.display = 'none';
-      stepSubmitBtn.style.display = 'none';
-    }
+    // Auth callouts removed — all users can submit freely
+    stepSubmitBtn.style.display = 'inline-block';
   }
-
-  saveAndLoginBtn.addEventListener('click', function() {
-    saveFormStateToStorage();
-  });
 
   // Step 4 Navigation
   step4BackBtn.addEventListener('click', function() { goToStep(3); });
