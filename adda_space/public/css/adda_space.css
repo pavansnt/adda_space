@@ -410,22 +410,39 @@ p.lead {
 
 @media (max-width: 768px) {
   .adda-nav {
-    display: none;
+    display: flex;
     position: absolute;
-    top: 76px;
+    top: calc(100% + 3px);
     left: 0;
     right: 0;
     background-color: var(--adda-navy-dark);
     border-bottom: 1px solid var(--adda-border-dark);
     flex-direction: column;
-    padding: 1.5rem var(--container-px);
+    padding: 0 var(--container-px);
     gap: 1.25rem;
     align-items: flex-start;
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+    max-height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: max-height 0.25s ease, padding 0.25s ease, opacity 0.2s ease, visibility 0.2s ease;
   }
-  .adda-nav.is-open { display: flex; }
+  .adda-nav.is-open {
+    max-height: 80vh;
+    padding: 1rem var(--container-px) 1.25rem;
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+  }
   .adda-menu-toggle { display: inline-flex; }
   .adda-nav-btn { width: 100%; text-align: center; }
+  .adda-nav-link { padding: 0.55rem 0; }
+  .adda-nav .adda-nav-link { color: #FFFFFF !important; }
+  .adda-nav .adda-nav-link:hover,
+  .adda-nav .adda-nav-link.active { color: #A7F3D0 !important; }
+  .adda-menu-toggle { min-height: 44px; min-width: 44px; justify-content: center; }
 }
 
 /* --------------------------------------------------------------------------
@@ -910,6 +927,24 @@ p.lead {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-card);
   margin-bottom: 2rem;
+}
+
+/* Events view controls live beside the city filter so they remain available
+   when the calendar itself is hidden in list view. */
+.adda-events-view-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  .adda-events-view-controls {
+    width: 100%;
+    justify-content: space-between;
+    margin-left: 0;
+  }
 }
 
 .adda-filter-group {
@@ -3054,5 +3089,357 @@ p.lead {
   background-color: #1EBE5D;
   transform: translateY(-1px);
   box-shadow: 0 3px 6px rgba(37, 211, 102, 0.4);
+}
+
+/* --------------------------------------------------------------------------
+   Mobile layouts: compact calendar, touch-friendly wizard, and detail pages
+   -------------------------------------------------------------------------- */
+.adda-cal-mobile-indicators {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .adda-container,
+  .adda-container-narrow {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .adda-events-header-row {
+    align-items: stretch;
+  }
+
+  .adda-btn-host-adda {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  .adda-wizard-nav {
+    padding: 0.6rem 0.75rem;
+    gap: 0.25rem;
+  }
+
+  .adda-wizard-step {
+    min-width: 0;
+    padding: 0.4rem 0.25rem;
+    gap: 0.35rem;
+  }
+
+  .adda-wizard-body {
+    padding: 1.25rem;
+  }
+
+  .adda-step-panel .adda-input,
+  .adda-step-panel .adda-select,
+  .adda-step-panel .adda-textarea,
+  .adda-step-panel input[type="file"] {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .adda-wizard-actions {
+    gap: 0.75rem;
+  }
+
+  .adda-wizard-actions .adda-btn {
+    min-height: 44px;
+  }
+
+  .adda-room-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .adda-sidebar-card {
+    position: static;
+  }
+
+  .adda-detail-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .adda-detail-hero-media {
+    margin-bottom: 1.75rem;
+  }
+
+  .adda-section-header {
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .adda-host-banner {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .adda-host-desc {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .adda-cal-toolbar-compact {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.65rem;
+  }
+
+  .adda-cal-nav-group {
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  .adda-cal-month-heading {
+    font-size: clamp(0.95rem, 4vw, 1.15rem);
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .adda-cal-arrow-btn {
+    width: 36px;
+    height: 40px;
+    flex: 0 0 auto;
+  }
+
+  .adda-cal-controls-right {
+    justify-content: flex-end;
+  }
+
+  .adda-btn-today-pill {
+    min-height: 40px;
+    padding: 0.35rem 0.7rem;
+  }
+
+  .adda-calendar-wrapper {
+    margin-bottom: 1rem;
+    border-radius: 8px;
+  }
+
+  .adda-cal-header-cell {
+    padding: 0.45rem 0.1rem;
+    font-size: 0.625rem;
+    letter-spacing: 0;
+  }
+
+  .adda-cal-grid {
+    gap: 1px;
+  }
+
+  .adda-cal-cell {
+    min-height: 0;
+    height: auto;
+    aspect-ratio: 1.12 / 1;
+    padding: 0.2rem 0.15rem;
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden;
+  }
+
+  .adda-cal-cell-top {
+    width: 100%;
+    justify-content: center;
+    margin: 0;
+  }
+
+  .adda-cal-day-num {
+    font-size: 0.75rem;
+    line-height: 1;
+  }
+
+  .adda-cal-cell.is-today .adda-cal-day-num {
+    width: 22px;
+    height: 22px;
+  }
+
+  .adda-cal-badge-count,
+  .adda-cal-events-list {
+    display: none;
+  }
+
+  .adda-cal-mobile-indicators {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 8px;
+    gap: 3px;
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .adda-cal-mobile-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #00875A;
+    flex: 0 0 6px;
+  }
+
+  .adda-cal-mobile-dot.cat-solver-jam { background: #D97706; }
+  .adda-cal-mobile-dot.cat-custom-event,
+  .adda-cal-mobile-dot.cat-pending-event,
+  .adda-cal-mobile-dot.cat-default { background: #0D9488; }
+
+  .adda-cal-mobile-overflow {
+    color: var(--adda-text-muted);
+    font-size: 0.5625rem;
+    line-height: 1;
+    font-weight: 700;
+  }
+
+  .adda-cal-cell.is-selected {
+    outline-width: 2px;
+  }
+
+  .adda-cal-drawer {
+    margin-top: 0.75rem;
+    padding: 1rem;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.22s ease, transform 0.22s ease;
+  }
+
+  .adda-cal-drawer.is-open {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .adda-cal-drawer-header {
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .adda-cal-drawer-title {
+    font-size: 1rem;
+  }
+
+  .adda-cal-drawer-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .adda-cal-drawer-card {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .adda-hero {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+
+  .adda-hero-logo {
+    height: 44px;
+    max-width: 140px;
+  }
+
+  .adda-hero-tagline {
+    font-size: 1.7rem !important;
+  }
+
+  .adda-hero-actions {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .adda-hero-actions .adda-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .adda-section-header {
+    flex-direction: column;
+  }
+
+  .adda-action-link {
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .adda-wizard-nav {
+    justify-content: space-between;
+  }
+
+  .adda-wizard-step {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0.25rem;
+  }
+
+  .adda-wizard-step .adda-step-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .adda-step-num {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+  }
+
+  .adda-wizard-body {
+    padding: 1rem;
+  }
+
+  .adda-step-title {
+    font-size: 1.25rem;
+  }
+
+  .adda-wizard-actions {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .adda-wizard-actions > * {
+    width: 100%;
+  }
+
+  .adda-wizard-actions .adda-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .adda-form-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .adda-events-view-controls {
+    gap: 0.4rem;
+  }
+
+  .adda-pill-toggle-btn,
+  .adda-view-btn {
+    padding-left: 0.65rem;
+    padding-right: 0.65rem;
+  }
+
+  .adda-detail-meta {
+    gap: 0.4rem;
+  }
+
+  .adda-sidebar-card {
+    padding: 1.25rem;
+  }
+
+  .adda-cal-drawer-empty .adda-btn,
+  #cal-drawer-empty .adda-btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+  }
 }
 

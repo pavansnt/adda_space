@@ -742,59 +742,69 @@ def create_adda_event(**kwargs) -> Dict[str, Any]:
 
 	data.update(kwargs)
 
-	# 1. Validate mandatory event poster
+	# 1. Validate mandatory event poster (uploaded file or external URL)
 	cover_image = str(data.get("cover_image") or data.get("image") or "").strip()
 	if not cover_image:
-		frappe.throw(_("Event poster is mandatory. Please upload a valid event poster."))
+		frappe.throw(_("Event poster is mandatory. Please upload a valid event poster or provide an image URL."))
 
-	# 2. Validate supported file format (PNG, JPG, JPEG, WEBP)
+	is_external_url = cover_image.startswith(("http://", "https://", "//"))
 	clean_path = cover_image.split("?")[0].split("#")[0].strip()
 	ext = os.path.splitext(clean_path)[1].lower()
 	allowed_extensions = (".png", ".jpg", ".jpeg", ".webp")
-	if ext not in allowed_extensions:
-		frappe.throw(
-			_("Unsupported poster image format '{0}'. Allowed formats are: PNG, JPG, JPEG, WEBP.").format(ext or "unknown")
-		)
 
-	# 3. Validate file existence on server
-	normalized_path = clean_path if clean_path.startswith("/") else f"/{clean_path}"
-
-	if not _is_mock_db():
-		file_exists = frappe.db.exists("File", {"file_url": normalized_path})
-		if not file_exists:
-			file_exists = frappe.db.exists("File", {"file_url": normalized_path.lstrip("/")})
-		if not file_exists:
-			site_path = getattr(frappe.local, "site_path", None)
-			if site_path:
-				disk_path = os.path.join(site_path, "public", normalized_path.lstrip("/"))
-				file_exists = os.path.exists(disk_path)
-
-		if not file_exists and not clean_path.startswith(("http://", "https://", "//")):
-			frappe.throw(_("The uploaded poster file '{0}' could not be verified on the server. Please re-upload.").format(cover_image))
-
-		# Ensure poster file is public so guest visitors can view it without 403 Forbidden
-		try:
-			file_names = frappe.get_all(
-				"File",
-				filters={"file_url": ["in", [normalized_path, normalized_path.lstrip("/"), f"/private{normalized_path}"]]},
-				pluck="name",
+	if not is_external_url:
+		# 2. Validate supported file format (PNG, JPG, JPEG, WEBP)
+		if ext not in allowed_extensions:
+			frappe.throw(
+				_("Unsupported poster image format '{0}'. Allowed formats are: PNG, JPG, JPEG, WEBP.").format(ext or "unknown")
 			)
-			for f_name in file_names:
-				file_doc = frappe.get_doc("File", f_name)
-				if getattr(file_doc, "is_private", 0):
-					file_doc.is_private = 0
-					file_doc.save(ignore_permissions=True)
-					if file_doc.file_url:
-						normalized_path = file_doc.file_url
-		except Exception:
-			pass
 
-	if normalized_path.startswith("/private/files/"):
-		normalized_path = normalized_path.replace("/private/files/", "/files/")
+		# 3. Validate file existence on server
+		normalized_path = clean_path if clean_path.startswith("/") else f"/{clean_path}"
 
-	# 4. Standardize image fields in payload
-	data["cover_image"] = normalized_path if not clean_path.startswith(("http://", "https://", "//")) else clean_path
-	data["image"] = data["cover_image"]
+		if not _is_mock_db():
+			file_exists = frappe.db.exists("File", {"file_url": normalized_path})
+			if not file_exists:
+				file_exists = frappe.db.exists("File", {"file_url": normalized_path.lstrip("/")})
+			if not file_exists:
+				site_path = getattr(frappe.local, "site_path", None)
+				if site_path:
+					disk_path = os.path.join(site_path, "public", normalized_path.lstrip("/"))
+					file_exists = os.path.exists(disk_path)
+
+			if not file_exists:
+				frappe.throw(_("The uploaded poster file '{0}' could not be verified on the server. Please re-upload.").format(cover_image))
+
+			# Ensure poster file is public so guest visitors can view it without 403 Forbidden
+			try:
+				file_names = frappe.get_all(
+					"File",
+					filters={"file_url": ["in", [normalized_path, normalized_path.lstrip("/"), f"/private{normalized_path}"]]},
+					pluck="name",
+				)
+				for f_name in file_names:
+					file_doc = frappe.get_doc("File", f_name)
+					if getattr(file_doc, "is_private", 0):
+						file_doc.is_private = 0
+						file_doc.save(ignore_permissions=True)
+						if file_doc.file_url:
+							normalized_path = file_doc.file_url
+			except Exception:
+				pass
+
+		if normalized_path.startswith("/private/files/"):
+			normalized_path = normalized_path.replace("/private/files/", "/files/")
+
+		data["cover_image"] = normalized_path
+		data["image"] = data["cover_image"]
+	else:
+		# For external URLs, validate extension if explicitly present in path
+		if ext and ext not in allowed_extensions:
+			frappe.throw(
+				_("Unsupported poster image format '{0}'. Allowed formats are: PNG, JPG, JPEG, WEBP.").format(ext)
+			)
+		data["cover_image"] = cover_image
+		data["image"] = cover_image
 
 	# 5. Delegate to Solve Ninja's create_solve_event backend
 	from solve_ninja.api.v1.solve_event import create_solve_event
@@ -822,11 +832,15 @@ def create_adda_event(**kwargs) -> Dict[str, Any]:
 	event_name = res.get("name")
 	if event_name:
 		saved_img = frappe.db.get_value("Solve Event", event_name, "cover_image")
-		if not saved_img or str(saved_img).startswith("/private/files/"):
+		if not saved_img or str(saved_img).startswith("/private/files/") or is_external_url:
 			frappe.db.set_value("Solve Event", event_name, "cover_image", data["cover_image"])
 			res["cover_image"] = data["cover_image"]
 		else:
 			res["cover_image"] = saved_img
+
+		if is_external_url:
+			frappe.db.set_value("Solve Event", event_name, "image", data["cover_image"])
+			res["image"] = data["cover_image"]
 
 	res["success"] = True
 	return res

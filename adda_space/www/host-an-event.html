@@ -29,19 +29,19 @@
       <nav class="adda-wizard-nav" aria-label="Proposal Steps">
         <div class="adda-wizard-step active" id="nav-step-1" data-step="1">
           <span class="adda-step-num">1</span>
-          <span>City &amp; Format</span>
+          <span class="adda-step-label">City &amp; Format</span>
         </div>
         <div class="adda-wizard-step" id="nav-step-2" data-step="2">
           <span class="adda-step-num">2</span>
-          <span>Date &amp; Space</span>
+          <span class="adda-step-label">Date &amp; Space</span>
         </div>
         <div class="adda-wizard-step" id="nav-step-3" data-step="3">
           <span class="adda-step-num">3</span>
-          <span>Event Details</span>
+          <span class="adda-step-label">Event Details</span>
         </div>
         <div class="adda-wizard-step" id="nav-step-4" data-step="4">
           <span class="adda-step-num">4</span>
-          <span>Review &amp; Submit</span>
+          <span class="adda-step-label">Review &amp; Submit</span>
         </div>
       </nav>
 
@@ -201,8 +201,8 @@
                 Format / Mode
               </label>
               <select id="step-mode-select" class="adda-select">
-                <option value="Offline" selected>In-Person (Physical Adda Space)</option>
-                <option value="Hybrid">Hybrid</option>
+                <option value="Offline" selected>Offline</option>
+                <option value="Online">Online</option>
               </select>
             </div>
           </div>
@@ -223,12 +223,34 @@
           </div>
 
           <div class="adda-form-group">
-            <label for="step-poster-file" class="adda-form-label" style="display: flex; align-items: center; justify-content: space-between;">
+            <label class="adda-form-label" style="display: flex; align-items: center; justify-content: space-between;">
               <span>Event poster <span style="font-size: 0.85rem; font-weight: 600; color: #DC2626;">(required)</span></span>
               <span class="req" style="color: #EF4444;" aria-hidden="true">*</span>
             </label>
-            <input type="file" id="step-poster-file" class="adda-input" accept="image/png, image/jpeg, image/webp" required aria-required="true" />
-            <p class="adda-form-hint">Supported formats: PNG, JPG, WebP (Max 5MB). Dimensions recommended: 1200 &times; 630px.</p>
+
+            <!-- Poster source tab toggle -->
+            <div id="step-poster-tab-row" style="display: flex; gap: 0; margin-bottom: 0.75rem; border: 1px solid #D1D5DB; border-radius: 8px; overflow: hidden;">
+              <button type="button" id="step-poster-tab-upload" class="adda-poster-tab active" style="flex: 1; padding: 0.5rem 0.75rem; font-size: 0.875rem; font-weight: 600; background: #111827; color: #FFFFFF; border: none; cursor: pointer; transition: background 0.15s;">
+                &#8679; Upload File
+              </button>
+              <button type="button" id="step-poster-tab-url" class="adda-poster-tab" style="flex: 1; padding: 0.5rem 0.75rem; font-size: 0.875rem; font-weight: 600; background: #F9FAFB; color: #374151; border: none; border-left: 1px solid #D1D5DB; cursor: pointer; transition: background 0.15s;">
+                &#128279; Image URL
+              </button>
+            </div>
+
+            <!-- Tab A: Upload File -->
+            <div id="step-poster-upload-panel">
+              <input type="file" id="step-poster-file" class="adda-input" accept="image/png, image/jpeg, image/webp" aria-required="true" />
+              <p class="adda-form-hint">Supported formats: PNG, JPG, WebP (Max 5MB). Dimensions recommended: 1200 &times; 630px.</p>
+            </div>
+
+            <!-- Tab B: Image URL -->
+            <div id="step-poster-url-panel" style="display: none;">
+              <input type="url" id="step-poster-url-input" class="adda-input" placeholder="https://example.com/event-poster.jpg" autocomplete="off" />
+              <p class="adda-form-hint">Paste a direct link to a PNG, JPG, or WebP image. A preview will appear below.</p>
+            </div>
+
+            <!-- Shared preview box (shown for both upload & URL) -->
             <div id="step-poster-preview-box" class="adda-poster-preview" style="display: none; margin-top: 0.65rem; padding: 0.75rem; background: var(--adda-surface-warm, #F9FAFB); border: 1px solid var(--adda-border, #E5E7EB); border-radius: var(--radius-md, 8px);">
               <div style="display: flex; align-items: center; gap: 0.75rem;">
                 <img id="step-poster-img" src="" alt="Poster preview" style="width: 56px; height: 56px; border-radius: 6px; object-fit: cover; border: 1px solid #D1D5DB; background: #FFFFFF;" />
@@ -401,6 +423,11 @@
   var venueNotesInput = document.getElementById('step-venue-notes');
   var waGroupInput = document.getElementById('step-wa-group');
   var posterFileInput = document.getElementById('step-poster-file');
+  var posterTabUpload = document.getElementById('step-poster-tab-upload');
+  var posterTabUrl = document.getElementById('step-poster-tab-url');
+  var posterUploadPanel = document.getElementById('step-poster-upload-panel');
+  var posterUrlPanel = document.getElementById('step-poster-url-panel');
+  var posterUrlInput = document.getElementById('step-poster-url-input');
   var posterPreviewBox = document.getElementById('step-poster-preview-box');
   var posterImg = document.getElementById('step-poster-img');
   var posterFilename = document.getElementById('step-poster-filename');
@@ -409,6 +436,7 @@
   var selectedPosterFile = null;
   var selectedPosterDataUrl = '';
   var uploadedPosterUrl = '';
+  var posterSource = 'upload';
   var step3Error = document.getElementById('step-3-error');
   var step3ErrorText = document.getElementById('step-3-error-text');
   var step3BackBtn = document.getElementById('step-3-back-btn');
@@ -457,7 +485,8 @@
       venue_details: venueNotesInput.value || '',
       wa_group_link: waGroupInput.value || '',
       poster_filename: posterFilename ? posterFilename.textContent : '',
-      poster_url: uploadedPosterUrl || ''
+      poster_url: (posterUrlInput && posterUrlInput.value.trim()) || uploadedPosterUrl || '',
+      poster_source: posterSource || 'upload'
     };
     try {
       sessionStorage.setItem('adda_host_form_data', JSON.stringify(state));
@@ -482,11 +511,15 @@
       if (state.mode) modeSelect.value = state.mode;
       if (state.venue_details) venueNotesInput.value = state.venue_details;
       if (state.wa_group_link) waGroupInput.value = state.wa_group_link;
+      if (state.poster_source === 'url' || (state.poster_url && /^https?:\/\//i.test(state.poster_url))) {
+        setPosterTab('url');
+        if (posterUrlInput) posterUrlInput.value = state.poster_url;
+      }
       if (state.poster_url) {
         uploadedPosterUrl = state.poster_url;
         if (posterImg) posterImg.src = uploadedPosterUrl;
-        if (posterFilename) posterFilename.textContent = state.poster_filename || 'Uploaded poster';
-        if (posterFilesize) posterFilesize.textContent = 'Uploaded';
+        if (posterFilename) posterFilename.textContent = state.poster_filename || (uploadedPosterUrl.split('?')[0].split('/').pop()) || 'Poster Image';
+        if (posterFilesize) posterFilesize.textContent = /^https?:\/\//i.test(uploadedPosterUrl) ? 'Web Image Link' : 'Uploaded';
         if (posterPreviewBox) posterPreviewBox.style.display = 'block';
       }
 
@@ -718,6 +751,85 @@
     goToStep(3);
   });
 
+  // Poster Source Tab Switching
+  function setPosterTab(mode) {
+    posterSource = mode;
+    if (mode === 'upload') {
+      if (posterTabUpload) {
+        posterTabUpload.style.background = '#111827';
+        posterTabUpload.style.color = '#FFFFFF';
+        posterTabUpload.classList.add('active');
+      }
+      if (posterTabUrl) {
+        posterTabUrl.style.background = '#F9FAFB';
+        posterTabUrl.style.color = '#374151';
+        posterTabUrl.classList.remove('active');
+      }
+      if (posterUploadPanel) posterUploadPanel.style.display = 'block';
+      if (posterUrlPanel) posterUrlPanel.style.display = 'none';
+    } else {
+      if (posterTabUpload) {
+        posterTabUpload.style.background = '#F9FAFB';
+        posterTabUpload.style.color = '#374151';
+        posterTabUpload.classList.remove('active');
+      }
+      if (posterTabUrl) {
+        posterTabUrl.style.background = '#111827';
+        posterTabUrl.style.color = '#FFFFFF';
+        posterTabUrl.classList.add('active');
+      }
+      if (posterUploadPanel) posterUploadPanel.style.display = 'none';
+      if (posterUrlPanel) posterUrlPanel.style.display = 'block';
+      if (posterUrlInput && posterUrlInput.value.trim()) {
+        handlePosterUrlInput();
+      }
+    }
+    saveFormStateToStorage();
+  }
+
+  if (posterTabUpload) posterTabUpload.addEventListener('click', function() { setPosterTab('upload'); });
+  if (posterTabUrl) posterTabUrl.addEventListener('click', function() { setPosterTab('url'); });
+
+  function handlePosterUrlInput() {
+    var url = (posterUrlInput && posterUrlInput.value.trim()) || '';
+    if (!url) {
+      if (posterSource === 'url' && !selectedPosterFile && !uploadedPosterUrl) {
+        if (posterPreviewBox) posterPreviewBox.style.display = 'none';
+      }
+      return;
+    }
+    var isValidUrl = /^https?:\/\/.+/i.test(url) || /^\/\/.+/i.test(url);
+    if (!isValidUrl) {
+      if (posterPreviewBox && posterSource === 'url' && !selectedPosterFile) {
+        posterPreviewBox.style.display = 'none';
+      }
+      return;
+    }
+    if (step3Error) step3Error.style.display = 'none';
+    if (posterImg) {
+      posterImg.onload = function() {
+        if (posterFilename) {
+          var cleanName = url.split('?')[0].split('#')[0].split('/').pop();
+          posterFilename.textContent = cleanName || 'Image URL';
+        }
+        if (posterFilesize) posterFilesize.textContent = 'Web Image Link';
+        if (posterPreviewBox) posterPreviewBox.style.display = 'block';
+      };
+      posterImg.onerror = function() {
+        if (posterPreviewBox && posterSource === 'url' && !selectedPosterFile) {
+          posterPreviewBox.style.display = 'none';
+        }
+      };
+      posterImg.src = url;
+    }
+    saveFormStateToStorage();
+  }
+
+  if (posterUrlInput) {
+    posterUrlInput.addEventListener('input', handlePosterUrlInput);
+    posterUrlInput.addEventListener('change', handlePosterUrlInput);
+  }
+
   // Poster Image Preview & Replace
   if (posterFileInput) {
     posterFileInput.addEventListener('change', function() {
@@ -765,8 +877,11 @@
       uploadedPosterUrl = '';
       if (posterFileInput) {
         posterFileInput.value = '';
-        posterFileInput.click();
       }
+      if (posterUrlInput) {
+        posterUrlInput.value = '';
+      }
+      if (posterImg) posterImg.src = '';
       if (posterPreviewBox) posterPreviewBox.style.display = 'none';
       saveFormStateToStorage();
     });
@@ -779,6 +894,7 @@
     var desc = descInput.value.trim();
     var people = parseInt(peopleInput.value, 10);
     var file = (posterFileInput && posterFileInput.files[0]) || selectedPosterFile;
+    var directUrl = (posterUrlInput && posterUrlInput.value.trim()) || '';
 
     if (!title || !desc || isNaN(people) || people < 1) {
       step3Error.style.display = 'flex';
@@ -786,10 +902,19 @@
       return;
     }
 
-    if (!file && !uploadedPosterUrl) {
+    if (!file && !uploadedPosterUrl && !directUrl) {
       step3Error.style.display = 'flex';
-      step3ErrorText.textContent = 'Event poster is required. Please upload an event poster.';
+      step3ErrorText.textContent = 'Event poster is required. Please upload an image or provide an image URL.';
       return;
+    }
+
+    if (directUrl && !file && !uploadedPosterUrl) {
+      var isValidUrl = /^https?:\/\/.+/i.test(directUrl) || /^\/\/.+/i.test(directUrl);
+      if (!isValidUrl) {
+        step3Error.style.display = 'flex';
+        step3ErrorText.textContent = 'Please provide a valid image URL starting with http:// or https://';
+        return;
+      }
     }
 
     step3Error.style.display = 'none';
@@ -817,6 +942,7 @@
     var title = titleInput.value.trim();
     var desc = descInput.value.trim();
     var file = (posterFileInput && posterFileInput.files[0]) || selectedPosterFile;
+    var directUrl = (posterUrlInput && posterUrlInput.value.trim()) || '';
 
     if (!title || !desc) {
       goToStep(3);
@@ -827,11 +953,11 @@
       return;
     }
 
-    if (!file && !uploadedPosterUrl) {
+    if (!file && !uploadedPosterUrl && !directUrl) {
       goToStep(3);
       if (step3Error) {
         step3Error.style.display = 'flex';
-        if (step3ErrorText) step3ErrorText.textContent = 'Event poster is required. Please upload an event poster.';
+        if (step3ErrorText) step3ErrorText.textContent = 'Event poster is required. Please upload an event poster or provide an image URL.';
       }
       return;
     }
@@ -839,6 +965,14 @@
     if (isSubmitting) return;
     isSubmitting = true;
     submitErrorBox.style.display = 'none';
+
+    // If direct image URL provided and no local file selected, submit directly
+    if (directUrl && !file) {
+      stepSubmitBtn.disabled = true;
+      stepSubmitBtn.textContent = 'Submitting proposal...';
+      submitEventPayload(directUrl);
+      return;
+    }
 
     // If poster was already uploaded and no new file selected, proceed directly
     if (uploadedPosterUrl && !file) {

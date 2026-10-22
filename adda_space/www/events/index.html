@@ -34,6 +34,16 @@
           <option value="" data-city="">All cities</option>
         </select>
       </div>
+      <div class="adda-events-view-controls">
+        <div class="adda-pill-toggle" id="adda-scope-filter-group" role="group" aria-label="Timeline scope">
+          <button type="button" class="adda-pill-toggle-btn active" id="scope-toggle-upcoming" data-scope="upcoming" aria-pressed="true">Upcoming</button>
+          <button type="button" class="adda-pill-toggle-btn" id="scope-toggle-past" data-scope="past" aria-pressed="false">Past</button>
+        </div>
+        <div class="adda-view-switcher" role="radiogroup" aria-label="View format">
+          <button type="button" class="adda-pill-toggle-btn adda-view-btn active" id="view-calendar-btn" data-view="calendar" aria-pressed="true">Cal</button>
+          <button type="button" class="adda-pill-toggle-btn adda-view-btn" id="view-list-btn" data-view="list" aria-pressed="false">List</button>
+        </div>
+      </div>
     </div>
 
     <!-- ====================================================================
@@ -49,20 +59,8 @@
         </div>
 
         <div class="adda-cal-controls-right">
-          <!-- Upcoming / Past pill -->
-          <div class="adda-pill-toggle" id="adda-scope-filter-group" role="group" aria-label="Timeline scope">
-            <button type="button" class="adda-pill-toggle-btn active" id="scope-toggle-upcoming" data-scope="upcoming">Upcoming</button>
-            <button type="button" class="adda-pill-toggle-btn" id="scope-toggle-past" data-scope="past">Past</button>
-          </div>
-
           <!-- Today Button -->
           <button type="button" class="adda-btn-today-pill" id="cal-today-btn">Today</button>
-
-          <!-- Cal / List view switcher -->
-          <div class="adda-view-switcher" role="radiogroup" aria-label="View format">
-            <button type="button" class="adda-pill-toggle-btn adda-view-btn active" id="view-calendar-btn" data-view="calendar" aria-pressed="true">Cal</button>
-            <button type="button" class="adda-pill-toggle-btn adda-view-btn" id="view-list-btn" data-view="list" aria-pressed="false">List</button>
-          </div>
         </div>
       </div>
 
@@ -87,7 +85,7 @@
       </div>
 
       <!-- Selected Day Drawer (Details for clicked date) -->
-      <div class="adda-cal-drawer" id="cal-day-drawer" style="display: none;">
+      <div class="adda-cal-drawer" id="cal-day-drawer" style="display: none;" aria-live="polite" aria-label="Gatherings for selected date">
         <div class="adda-cal-drawer-header">
           <div>
             <h3 class="adda-cal-drawer-title" id="cal-drawer-title">Gatherings for Selected Date</h3>
@@ -397,12 +395,34 @@
         </div>
 
         <div class="adda-form-group" style="margin-bottom: 1rem;">
-          <label for="modal-poster-file" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
+          <label class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
             <span>Event poster <span style="font-size: 0.85rem; font-weight: 600; color: #DC2626;">(required)</span></span>
             <span class="req" style="color: #EF4444;" aria-hidden="true">*</span>
           </label>
-          <input type="file" id="modal-poster-file" class="adda-input" accept="image/png, image/jpeg, image/webp" required aria-required="true" style="width: 100%; border-radius: 8px; padding: 0.5rem; border: 1px solid #D1D5DB; font-size: 0.875rem;" />
-          <p class="adda-form-hint" style="font-size: 0.75rem; color: #6B7280; margin-top: 0.25rem;">Supported formats: PNG, JPG, WebP (Max 5MB).</p>
+
+          <!-- Poster source tab toggle -->
+          <div id="modal-poster-tab-row" style="display: flex; gap: 0; margin-bottom: 0.75rem; border: 1px solid #D1D5DB; border-radius: 8px; overflow: hidden;">
+            <button type="button" id="modal-poster-tab-upload" class="adda-poster-tab active" style="flex: 1; padding: 0.45rem 0.65rem; font-size: 0.8125rem; font-weight: 600; background: #111827; color: #FFFFFF; border: none; cursor: pointer; transition: background 0.15s;">
+              &#8679; Upload File
+            </button>
+            <button type="button" id="modal-poster-tab-url" class="adda-poster-tab" style="flex: 1; padding: 0.45rem 0.65rem; font-size: 0.8125rem; font-weight: 600; background: #F9FAFB; color: #374151; border: none; border-left: 1px solid #D1D5DB; cursor: pointer; transition: background 0.15s;">
+              &#128279; Image URL
+            </button>
+          </div>
+
+          <!-- Tab A: Upload File -->
+          <div id="modal-poster-upload-panel">
+            <input type="file" id="modal-poster-file" class="adda-input" accept="image/png, image/jpeg, image/webp" aria-required="true" style="width: 100%; border-radius: 8px; padding: 0.5rem; border: 1px solid #D1D5DB; font-size: 0.875rem;" />
+            <p class="adda-form-hint" style="font-size: 0.75rem; color: #6B7280; margin-top: 0.25rem;">Supported formats: PNG, JPG, WebP (Max 5MB).</p>
+          </div>
+
+          <!-- Tab B: Image URL -->
+          <div id="modal-poster-url-panel" style="display: none;">
+            <input type="url" id="modal-poster-url-input" class="adda-input" placeholder="https://example.com/event-poster.jpg" autocomplete="off" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" />
+            <p class="adda-form-hint" style="font-size: 0.75rem; color: #6B7280; margin-top: 0.25rem;">Paste a direct link to a PNG, JPG, or WebP image.</p>
+          </div>
+
+          <!-- Shared Preview Box -->
           <div id="modal-poster-preview-box" class="adda-poster-preview" style="display: none; margin-top: 0.65rem; padding: 0.75rem; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px;">
             <div style="display: flex; align-items: center; gap: 0.75rem;">
               <img id="modal-host-poster-img" src="" alt="Poster preview" style="width: 56px; height: 56px; border-radius: 6px; object-fit: cover; border: 1px solid #D1D5DB; background: #FFFFFF;" />
@@ -417,9 +437,15 @@
           </div>
         </div>
 
-        <!-- Hidden / default attendees & mode fields -->
+        <!-- Hidden / default attendees field; mode exposed as a visible select -->
         <input type="hidden" id="modal-people-input" value="20" />
-        <input type="hidden" id="modal-mode-select" value="Offline" />
+        <div class="adda-form-group" style="margin-bottom: 1rem;">
+          <label for="modal-mode-select" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">Format / Mode</label>
+          <select id="modal-mode-select" class="adda-select" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;">
+            <option value="Offline" selected>Offline</option>
+            <option value="Online">Online</option>
+          </select>
+        </div>
         <span id="modal-capacity-hint" style="display: none;"></span>
 
         <div id="modal-step-3-error" class="adda-avail-box adda-avail-alert" style="display: none; margin-top: 0.75rem;">
@@ -572,6 +598,11 @@
   var modalCapacityHint = document.getElementById('modal-capacity-hint');
   var modalModeSelect = document.getElementById('modal-mode-select');
   var modalPosterFile = document.getElementById('modal-poster-file');
+  var modalPosterTabUpload = document.getElementById('modal-poster-tab-upload');
+  var modalPosterTabUrl = document.getElementById('modal-poster-tab-url');
+  var modalPosterUploadPanel = document.getElementById('modal-poster-upload-panel');
+  var modalPosterUrlPanel = document.getElementById('modal-poster-url-panel');
+  var modalPosterUrlInput = document.getElementById('modal-poster-url-input');
   var modalPosterPreviewBox = document.getElementById('modal-poster-preview-box');
   var modalHostPosterImg = document.getElementById('modal-host-poster-img');
   var modalPosterFilename = document.getElementById('modal-poster-filename');
@@ -580,6 +611,7 @@
   var selectedPosterFile = null;
   var selectedPosterDataUrl = '';
   var uploadedPosterUrl = '';
+  var modalPosterSource = 'upload';
   var modalStep3Error = document.getElementById('modal-step-3-error');
   var modalStep3ErrorText = document.getElementById('modal-step-3-error-text');
 
@@ -788,7 +820,7 @@
     }
 
     if (modalEventMode) {
-      modalEventMode.textContent = ev.mode || 'In-Person';
+      modalEventMode.textContent = ev.mode || 'Offline';
     }
 
     var descText = stripHtml(ev.description || '');
@@ -1031,7 +1063,8 @@
       people_expected: modalPeopleInput ? modalPeopleInput.value : '',
       mode: modalModeSelect ? modalModeSelect.value : 'Offline',
       poster_filename: selectedPosterFile ? selectedPosterFile.name : (modalPosterFilename ? modalPosterFilename.textContent : ''),
-      uploaded_poster_url: uploadedPosterUrl || ''
+      uploaded_poster_url: (modalPosterUrlInput && modalPosterUrlInput.value.trim()) || uploadedPosterUrl || '',
+      poster_source: modalPosterSource || 'upload'
     };
     try {
       sessionStorage.setItem('adda_host_form_data', JSON.stringify(state));
@@ -1066,10 +1099,15 @@
       if (state.description && modalDescInput) modalDescInput.value = state.description;
       if (state.people_expected && modalPeopleInput) modalPeopleInput.value = state.people_expected;
       if (state.mode && modalModeSelect) modalModeSelect.value = state.mode;
+      if (state.poster_source === 'url' || (state.uploaded_poster_url && /^https?:\/\//i.test(state.uploaded_poster_url))) {
+        setModalPosterTab('url');
+        if (modalPosterUrlInput) modalPosterUrlInput.value = state.uploaded_poster_url;
+      }
       if (state.uploaded_poster_url) {
         uploadedPosterUrl = state.uploaded_poster_url;
         if (modalHostPosterImg) modalHostPosterImg.src = uploadedPosterUrl;
-        if (modalPosterFilename) modalPosterFilename.textContent = state.poster_filename || uploadedPosterUrl.split('/').pop();
+        if (modalPosterFilename) modalPosterFilename.textContent = state.poster_filename || (uploadedPosterUrl.split('?')[0].split('/').pop()) || 'Poster Image';
+        if (modalPosterFilesize) modalPosterFilesize.textContent = /^https?:\/\//i.test(uploadedPosterUrl) ? 'Web Image Link' : 'Uploaded';
         if (modalPosterPreviewBox) modalPosterPreviewBox.style.display = 'block';
       }
 
@@ -1497,6 +1535,85 @@
     });
   }
 
+  // Modal Poster Tab Switching & URL Input
+  function setModalPosterTab(mode) {
+    modalPosterSource = mode;
+    if (mode === 'upload') {
+      if (modalPosterTabUpload) {
+        modalPosterTabUpload.style.background = '#111827';
+        modalPosterTabUpload.style.color = '#FFFFFF';
+        modalPosterTabUpload.classList.add('active');
+      }
+      if (modalPosterTabUrl) {
+        modalPosterTabUrl.style.background = '#F9FAFB';
+        modalPosterTabUrl.style.color = '#374151';
+        modalPosterTabUrl.classList.remove('active');
+      }
+      if (modalPosterUploadPanel) modalPosterUploadPanel.style.display = 'block';
+      if (modalPosterUrlPanel) modalPosterUrlPanel.style.display = 'none';
+    } else {
+      if (modalPosterTabUpload) {
+        modalPosterTabUpload.style.background = '#F9FAFB';
+        modalPosterTabUpload.style.color = '#374151';
+        modalPosterTabUpload.classList.remove('active');
+      }
+      if (modalPosterTabUrl) {
+        modalPosterTabUrl.style.background = '#111827';
+        modalPosterTabUrl.style.color = '#FFFFFF';
+        modalPosterTabUrl.classList.add('active');
+      }
+      if (modalPosterUploadPanel) modalPosterUploadPanel.style.display = 'none';
+      if (modalPosterUrlPanel) modalPosterUrlPanel.style.display = 'block';
+      if (modalPosterUrlInput && modalPosterUrlInput.value.trim()) {
+        handleModalPosterUrlInput();
+      }
+    }
+    saveHostDraft();
+  }
+
+  if (modalPosterTabUpload) modalPosterTabUpload.addEventListener('click', function() { setModalPosterTab('upload'); });
+  if (modalPosterTabUrl) modalPosterTabUrl.addEventListener('click', function() { setModalPosterTab('url'); });
+
+  function handleModalPosterUrlInput() {
+    var url = (modalPosterUrlInput && modalPosterUrlInput.value.trim()) || '';
+    if (!url) {
+      if (modalPosterSource === 'url' && !selectedPosterFile && !uploadedPosterUrl) {
+        if (modalPosterPreviewBox) modalPosterPreviewBox.style.display = 'none';
+      }
+      return;
+    }
+    var isValidUrl = /^https?:\/\/.+/i.test(url) || /^\/\/.+/i.test(url);
+    if (!isValidUrl) {
+      if (modalPosterPreviewBox && modalPosterSource === 'url' && !selectedPosterFile) {
+        modalPosterPreviewBox.style.display = 'none';
+      }
+      return;
+    }
+    if (modalStep3Error) modalStep3Error.style.display = 'none';
+    if (modalHostPosterImg) {
+      modalHostPosterImg.onload = function() {
+        if (modalPosterFilename) {
+          var cleanName = url.split('?')[0].split('#')[0].split('/').pop();
+          modalPosterFilename.textContent = cleanName || 'Image URL';
+        }
+        if (modalPosterFilesize) modalPosterFilesize.textContent = 'Web Image Link';
+        if (modalPosterPreviewBox) modalPosterPreviewBox.style.display = 'block';
+      };
+      modalHostPosterImg.onerror = function() {
+        if (modalPosterPreviewBox && modalPosterSource === 'url' && !selectedPosterFile) {
+          modalPosterPreviewBox.style.display = 'none';
+        }
+      };
+      modalHostPosterImg.src = url;
+    }
+    saveHostDraft();
+  }
+
+  if (modalPosterUrlInput) {
+    modalPosterUrlInput.addEventListener('input', handleModalPosterUrlInput);
+    modalPosterUrlInput.addEventListener('change', handleModalPosterUrlInput);
+  }
+
   // Poster File Selection & Validation
   if (modalPosterFile) {
     modalPosterFile.addEventListener('change', function() {
@@ -1512,6 +1629,7 @@
           if (modalStep3ErrorText) modalStep3ErrorText.textContent = 'Unsupported file format. Please upload a PNG, JPG, or WEBP image.';
         }
         this.value = '';
+        selectedPosterFile = null;
         if (modalPosterPreviewBox) modalPosterPreviewBox.style.display = 'none';
         return;
       }
@@ -1522,6 +1640,7 @@
           if (modalStep3ErrorText) modalStep3ErrorText.textContent = 'Poster image size cannot exceed 5MB.';
         }
         this.value = '';
+        selectedPosterFile = null;
         if (modalPosterPreviewBox) modalPosterPreviewBox.style.display = 'none';
         return;
       }
@@ -1550,8 +1669,11 @@
       uploadedPosterUrl = '';
       if (modalPosterFile) {
         modalPosterFile.value = '';
-        modalPosterFile.click();
       }
+      if (modalPosterUrlInput) {
+        modalPosterUrlInput.value = '';
+      }
+      if (modalHostPosterImg) modalHostPosterImg.src = '';
       if (modalPosterPreviewBox) modalPosterPreviewBox.style.display = 'none';
       saveHostDraft();
     });
@@ -1590,12 +1712,24 @@
       }
 
       var file = selectedPosterFile || (modalPosterFile && modalPosterFile.files && modalPosterFile.files[0]);
-      if (!file && !uploadedPosterUrl) {
+      var directUrl = (modalPosterUrlInput && modalPosterUrlInput.value.trim()) || '';
+      if (!file && !uploadedPosterUrl && !directUrl) {
         if (modalStep3Error) {
           modalStep3Error.style.display = 'flex';
-          if (modalStep3ErrorText) modalStep3ErrorText.textContent = 'Event poster is required. Please upload an event poster.';
+          if (modalStep3ErrorText) modalStep3ErrorText.textContent = 'Event poster is required. Please upload an image or provide an image URL.';
         }
         return;
+      }
+
+      if (directUrl && !file && !uploadedPosterUrl) {
+        var isValidUrl = /^https?:\/\/.+/i.test(directUrl) || /^\/\/.+/i.test(directUrl);
+        if (!isValidUrl) {
+          if (modalStep3Error) {
+            modalStep3Error.style.display = 'flex';
+            if (modalStep3ErrorText) modalStep3ErrorText.textContent = 'Please provide a valid image URL starting with http:// or https://';
+          }
+          return;
+        }
       }
 
       if (modalStep3Error) modalStep3Error.style.display = 'none';
@@ -1603,6 +1737,14 @@
       if (isSubmittingHostProposal) return;
       isSubmittingHostProposal = true;
       if (modalSubmitErrorBox) modalSubmitErrorBox.style.display = 'none';
+
+      // If direct image URL provided and no local file selected, submit directly
+      if (directUrl && !file) {
+        modalStepSubmitBtn.disabled = true;
+        modalStepSubmitBtn.textContent = 'Submitting proposal...';
+        submitHostPayload(directUrl);
+        return;
+      }
 
       // If poster was already uploaded in this session and no new file selected, proceed directly
       if (uploadedPosterUrl && !file) {
@@ -1856,6 +1998,7 @@
     if (dateKey === selectedDateStr) cell.classList.add('is-selected');
 
     var dayEvents = calEventsByDate[dateKey] || [];
+    cell.setAttribute('aria-label', formatLongDate(dateKey) + ', ' + dayEvents.length + (dayEvents.length === 1 ? ' gathering' : ' gatherings'));
 
     var topRow = document.createElement('div');
     topRow.className = 'adda-cal-cell-top';
@@ -1872,6 +2015,22 @@
       topRow.appendChild(countBadge);
     }
     cell.appendChild(topRow);
+
+    var mobileIndicators = document.createElement('span');
+    mobileIndicators.className = 'adda-cal-mobile-indicators';
+    mobileIndicators.setAttribute('aria-hidden', 'true');
+    dayEvents.slice(0, 3).forEach(function(ev) {
+      var dot = document.createElement('span');
+      dot.className = 'adda-cal-mobile-dot ' + getCategoryClass(ev.type);
+      mobileIndicators.appendChild(dot);
+    });
+    if (dayEvents.length > 3) {
+      var overflowCount = document.createElement('span');
+      overflowCount.className = 'adda-cal-mobile-overflow';
+      overflowCount.textContent = '+' + (dayEvents.length - 3);
+      mobileIndicators.appendChild(overflowCount);
+    }
+    cell.appendChild(mobileIndicators);
 
     var pillsList = document.createElement('div');
     pillsList.className = 'adda-cal-events-list';
@@ -1925,7 +2084,9 @@
         return;
       }
       selectCalendarDay(dateKey);
-      if (dateKey >= istDateStr) {
+      if (window.matchMedia('(max-width: 640px)').matches) {
+        openMobileDayDrawer();
+      } else if (dateKey >= istDateStr) {
         openHostModal(dateKey);
       }
     });
@@ -1934,7 +2095,9 @@
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         selectCalendarDay(dateKey);
-        if (dateKey >= istDateStr) {
+        if (window.matchMedia('(max-width: 640px)').matches) {
+          openMobileDayDrawer();
+        } else if (dateKey >= istDateStr) {
           openHostModal(dateKey);
         }
       }
@@ -1953,9 +2116,19 @@
     updateDayDrawer(dateKey);
   }
 
+  function openMobileDayDrawer() {
+    if (!calDayDrawer) return;
+    calDayDrawer.classList.remove('is-open');
+    window.requestAnimationFrame(function() {
+      calDayDrawer.classList.add('is-open');
+      calDayDrawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  }
+
   function updateDayDrawer(dateKey) {
     if (!calDayDrawer) return;
     calDayDrawer.style.display = 'block';
+    calDayDrawer.classList.remove('is-open');
 
     if (calDrawerTitle) calDrawerTitle.textContent = formatLongDate(dateKey);
     if (calDrawerSubtitle) {
@@ -2032,7 +2205,7 @@
     var dateText = formatShortDate(event.start_date_time);
     var plainDesc = stripHtml(event.description || '');
     var safeDesc = escapeHtml(plainDesc);
-    var safeMode = escapeHtml(event.mode || 'In-Person');
+    var safeMode = escapeHtml(event.mode || 'Offline');
     var venueText = event.venue_details ? ' &bull; ' + escapeHtml(event.venue_details) : '';
     var roomText = event.room_name ? ' &bull; ' + escapeHtml(event.room_name) : '';
     var catClass = getCategoryClass(event.type);
@@ -2198,10 +2371,14 @@
     if (scopeUpcomingBtn && scopePastBtn) {
       if (currentScope === 'past') {
         scopePastBtn.classList.add('active');
+        scopePastBtn.setAttribute('aria-pressed', 'true');
         scopeUpcomingBtn.classList.remove('active');
+        scopeUpcomingBtn.setAttribute('aria-pressed', 'false');
       } else {
         scopeUpcomingBtn.classList.add('active');
+        scopeUpcomingBtn.setAttribute('aria-pressed', 'true');
         scopePastBtn.classList.remove('active');
+        scopePastBtn.setAttribute('aria-pressed', 'false');
       }
     }
 
