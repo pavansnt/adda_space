@@ -929,24 +929,6 @@ p.lead {
   margin-bottom: 2rem;
 }
 
-/* Events view controls live beside the city filter so they remain available
-   when the calendar itself is hidden in list view. */
-.adda-events-view-controls {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-left: auto;
-}
-
-@media (max-width: 640px) {
-  .adda-events-view-controls {
-    width: 100%;
-    justify-content: space-between;
-    margin-left: 0;
-  }
-}
-
 .adda-filter-group {
   display: flex;
   align-items: center;
@@ -3098,6 +3080,176 @@ p.lead {
   display: none;
 }
 
+.adda-cal-mobile-more-pill {
+  display: none;
+}
+
+.adda-list-view {
+  width: 100%;
+}
+
+.adda-list-day-group {
+  margin: 0 0 1.2rem;
+}
+
+.adda-list-day-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.55rem;
+  padding: 0 0.2rem;
+  color: var(--adda-text-subtle);
+  font-family: var(--font-headings);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.adda-list-day-heading h2 {
+  margin: 0;
+  color: inherit;
+  font: inherit;
+}
+
+.adda-list-day-heading > span {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.adda-list-day-cards {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.adda-list-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #E2E7EC;
+  border-left: 4px solid #0D9488;
+  border-radius: 12px;
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(19, 37, 51, 0.06);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.adda-list-card.cat-adda,
+.adda-list-card.cat-solver-adda { border-left-color: #1B8A5A; }
+.adda-list-card.cat-solver-jam { border-left-color: #F59E0B; }
+.adda-list-card.cat-custom-event,
+.adda-list-card.cat-pending-event { border-left-color: #0D9488; }
+
+.adda-list-card:hover {
+  border-color: #D2DAE1;
+  box-shadow: 0 3px 10px rgba(19, 37, 51, 0.09);
+  transform: translateY(-1px);
+}
+
+.adda-list-card-poster {
+  width: 90px;
+  height: 116px;
+  flex: 0 0 90px;
+  overflow: hidden;
+  border-radius: 7px;
+  background: #E8EEF3;
+}
+
+.adda-list-card-poster .adda-card-img,
+.adda-list-card-poster .adda-card-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.adda-list-card-poster .adda-card-placeholder {
+  padding: 0.2rem;
+  font-size: 0.45rem;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.adda-list-card-content {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.adda-list-card-time {
+  flex: 0 0 82px;
+  color: #17354A;
+  font-size: 0.875rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.adda-list-card-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin: 0 0 0.12rem;
+  color: #10243A;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.adda-list-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 0.15rem;
+  color: #68798A;
+  font-size: 0.68rem;
+  line-height: 1.25;
+}
+
+.adda-list-card-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin: 0;
+  color: #425466;
+  font-size: 0.7rem;
+  line-height: 1.35;
+}
+
+.adda-list-card-chevron {
+  flex: 0 0 auto;
+  color: #91A0AE;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .adda-list-card {
+    gap: 0.55rem;
+    padding: 0.55rem;
+  }
+
+  .adda-list-card-time {
+    flex-basis: auto;
+    font-size: 0.65rem;
+  }
+
+  .adda-list-card-poster {
+    width: 52px;
+    height: 70px;
+    flex-basis: 52px;
+  }
+
+  .adda-list-card-chevron {
+    font-size: 0.7rem;
+  }
+}
+
 @media (max-width: 768px) {
   .adda-container,
   .adda-container-narrow {
@@ -3181,15 +3333,20 @@ p.lead {
 @media (max-width: 640px) {
   .adda-cal-toolbar-compact {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.55rem 0.65rem;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.65rem;
+    margin-bottom: 0.75rem;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
   }
 
   .adda-cal-nav-group {
     gap: 0.35rem;
     min-width: 0;
+    justify-content: center;
   }
 
   .adda-cal-month-heading {
@@ -3205,7 +3362,25 @@ p.lead {
   }
 
   .adda-cal-controls-right {
-    justify-content: flex-end;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    width: 100%;
+    justify-content: initial;
+    gap: 0.45rem;
+  }
+
+  .adda-cal-controls-right > * {
+    flex: 0 0 auto;
+  }
+
+  .adda-cal-controls-right .adda-btn-today-pill {
+    grid-column: 2;
+    justify-self: center;
+  }
+
+  .adda-cal-controls-right .adda-view-switcher {
+    grid-column: 3;
+    justify-self: end;
   }
 
   .adda-btn-today-pill {
@@ -3229,19 +3404,20 @@ p.lead {
   }
 
   .adda-cal-cell {
-    min-height: 0;
-    height: auto;
-    aspect-ratio: 1.12 / 1;
-    padding: 0.2rem 0.15rem;
-    align-items: center;
+    min-height: 76px;
+    height: 76px;
+    aspect-ratio: auto;
+    padding: 0.2rem 0.12rem;
+    align-items: stretch;
     justify-content: flex-start;
     overflow: hidden;
   }
 
   .adda-cal-cell-top {
     width: 100%;
-    justify-content: center;
-    margin: 0;
+    justify-content: flex-end;
+    margin: 0 0 0.12rem;
+    min-height: 16px;
   }
 
   .adda-cal-day-num {
@@ -3255,39 +3431,62 @@ p.lead {
   }
 
   .adda-cal-badge-count,
-  .adda-cal-events-list {
+  .adda-cal-mobile-indicators {
     display: none;
   }
 
-  .adda-cal-mobile-indicators {
+  .adda-cal-events-list {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 8px;
-    gap: 3px;
-    width: 100%;
-    margin-top: 4px;
+    flex: 1 1 auto;
+    gap: 2px;
+    min-height: 0;
+    overflow: hidden;
   }
 
-  .adda-cal-mobile-dot {
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #00875A;
-    flex: 0 0 6px;
+  .adda-cal-event-pill {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 0.08rem 0.18rem;
+    border-radius: 4px;
+    font-size: 0.54rem;
+    line-height: 1.05;
+    white-space: normal;
+    text-overflow: clip;
+    text-align: left;
+    box-shadow: none;
   }
 
-  .adda-cal-mobile-dot.cat-solver-jam { background: #D97706; }
-  .adda-cal-mobile-dot.cat-custom-event,
-  .adda-cal-mobile-dot.cat-pending-event,
-  .adda-cal-mobile-dot.cat-default { background: #0D9488; }
+  .adda-cal-event-pill:nth-of-type(n + 3) {
+    display: none;
+  }
 
-  .adda-cal-mobile-overflow {
-    color: var(--adda-text-muted);
-    font-size: 0.5625rem;
+  .adda-cal-event-pill .adda-cal-event-time {
+    display: none;
+  }
+
+  .adda-cal-event-pill > span:last-child {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+
+  .adda-cal-more-pill {
+    flex: 0 0 auto;
+    padding: 0.08rem 0.12rem;
+    font-size: 0.5rem;
     line-height: 1;
-    font-weight: 700;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  .adda-cal-mobile-more-pill {
+    display: block;
+  }
+
+  .adda-cal-events-list > .adda-cal-more-pill:not(.adda-cal-mobile-more-pill) {
+    display: none;
   }
 
   .adda-cal-cell.is-selected {
@@ -3415,10 +3614,6 @@ p.lead {
   .adda-form-row {
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
-  }
-
-  .adda-events-view-controls {
-    gap: 0.4rem;
   }
 
   .adda-pill-toggle-btn,

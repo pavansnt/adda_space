@@ -198,7 +198,7 @@ def get_adda_events(
 	Args:
 		city: Optional city name (case-insensitive, matched against Samaaja Cities).
 		      If omitted or empty, events across all supported cities are returned.
-		time_scope: "upcoming" (start_date_time >= now) or "past" (start_date_time < now).
+		time_scope: "upcoming", "past", or "all". Used only when explicit date bounds are omitted.
 		            Only used when start_date and end_date are omitted.
 		start_date: Optional start date string (YYYY-MM-DD) for range queries.
 		end_date: Optional end date string (YYYY-MM-DD) for range queries.
@@ -215,12 +215,12 @@ def get_adda_events(
 		time_scope_clean = "upcoming"
 	else:
 		time_scope_clean = str(time_scope).strip().lower()
-		if time_scope_clean not in ("upcoming", "past"):
+		if time_scope_clean not in ("upcoming", "past", "all"):
 			if hasattr(frappe, "response"):
 				frappe.response["http_status_code"] = 400
 			return {
 				"success": False,
-				"error": _("Invalid 'time_scope' parameter '{0}'. Must be 'upcoming' or 'past'.").format(time_scope),
+				"error": _("Invalid 'time_scope' parameter '{0}'. Must be 'upcoming', 'past', or 'all'.").format(time_scope),
 				"events": [],
 				"pagination": None,
 				"filters": None,
@@ -419,8 +419,10 @@ def get_adda_events(
 		if time_scope_clean == "past":
 			filters["start_date_time"] = ["<", now]
 			order_by = "start_date_time desc"
-		else:
+		elif time_scope_clean == "upcoming":
 			filters["start_date_time"] = [">=", now]
+			order_by = "start_date_time asc"
+		else:
 			order_by = "start_date_time asc"
 
 	# Get total matching count

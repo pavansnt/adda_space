@@ -34,11 +34,17 @@
           <option value="" data-city="">All cities</option>
         </select>
       </div>
-      <div class="adda-events-view-controls">
-        <div class="adda-pill-toggle" id="adda-scope-filter-group" role="group" aria-label="Timeline scope">
-          <button type="button" class="adda-pill-toggle-btn active" id="scope-toggle-upcoming" data-scope="upcoming" aria-pressed="true">Upcoming</button>
-          <button type="button" class="adda-pill-toggle-btn" id="scope-toggle-past" data-scope="past" aria-pressed="false">Past</button>
-        </div>
+    </div>
+
+    <!-- Shared calendar/list toolbar; view and timeline controls stay visible in either view. -->
+    <div class="adda-cal-toolbar-compact" id="cal-toolbar">
+      <div class="adda-cal-nav-group">
+        <button type="button" class="adda-cal-arrow-btn" id="cal-prev-btn" aria-label="Previous Month">&lsaquo;</button>
+        <h2 class="adda-cal-month-heading"><span id="cal-month-title">October</span> <span id="cal-year-badge">2026</span></h2>
+        <button type="button" class="adda-cal-arrow-btn" id="cal-next-btn" aria-label="Next Month">&rsaquo;</button>
+      </div>
+      <div class="adda-cal-controls-right">
+        <button type="button" class="adda-btn-today-pill" id="cal-today-btn">Today</button>
         <div class="adda-view-switcher" role="radiogroup" aria-label="View format">
           <button type="button" class="adda-pill-toggle-btn adda-view-btn active" id="view-calendar-btn" data-view="calendar" aria-pressed="true">Cal</button>
           <button type="button" class="adda-pill-toggle-btn adda-view-btn" id="view-list-btn" data-view="list" aria-pressed="false">List</button>
@@ -50,20 +56,6 @@
          1. CALENDAR VIEW CONTAINER
          ==================================================================== -->
     <div id="events-calendar-section">
-      <!-- Calendar Navigation Toolbar -->
-      <div class="adda-cal-toolbar-compact" id="cal-toolbar">
-        <div class="adda-cal-nav-group">
-          <button type="button" class="adda-cal-arrow-btn" id="cal-prev-btn" aria-label="Previous Month">&lsaquo;</button>
-          <h2 class="adda-cal-month-heading"><span id="cal-month-title">October</span> <span id="cal-year-badge">2026</span></h2>
-          <button type="button" class="adda-cal-arrow-btn" id="cal-next-btn" aria-label="Next Month">&rsaquo;</button>
-        </div>
-
-        <div class="adda-cal-controls-right">
-          <!-- Today Button -->
-          <button type="button" class="adda-btn-today-pill" id="cal-today-btn">Today</button>
-        </div>
-      </div>
-
       <!-- Calendar Loading Shimmer -->
       <div id="cal-loading-indicator" style="display: none; padding: 2rem; text-align: center; color: var(--adda-text-muted); font-size: 0.9375rem;">
         <span class="adda-hero-badge-dot" style="display: inline-block; animation: pulse 1s infinite;"></span>
@@ -124,14 +116,14 @@
       </div>
 
       <!-- Dynamic List Results Grid -->
-      <div class="adda-events-grid" id="events-grid-container" style="display: none;"></div>
+      <div class="adda-list-view" id="events-grid-container" style="display: none;"></div>
 
       <!-- Empty State -->
       <div id="events-empty-state" class="adda-state-box" style="display: none;">
         <div class="adda-state-icon" aria-hidden="true">&bull;</div>
         <h3 class="adda-state-title" id="empty-state-title">No gatherings found</h3>
         <p class="adda-state-desc" id="empty-state-desc">
-          There are currently no scheduled gatherings matching your selected city or timeline.
+          There are currently no scheduled gatherings matching your selected city.
         </p>
         <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
           <button type="button" class="adda-btn adda-btn-secondary" id="reset-filters-btn">Reset Filters</button>
@@ -505,7 +497,6 @@
   // DOM Elements
   var filterBar = document.getElementById('adda-filter-bar');
   var cityFilterGroup = document.getElementById('adda-city-filter-group');
-  var scopeFilterGroup = document.getElementById('adda-scope-filter-group');
   var viewCalendarBtn = document.getElementById('view-calendar-btn');
   var viewListBtn = document.getElementById('view-list-btn');
 
@@ -569,8 +560,6 @@
   var coordGrid = document.getElementById('adda-coord-grid');
 
   // Toolbar & Scope Controls
-  var scopeUpcomingBtn = document.getElementById('scope-toggle-upcoming');
-  var scopePastBtn = document.getElementById('scope-toggle-past');
   var cityFilterSelect = document.getElementById('adda-city-filter-select');
 
   // Host at Adda Modal Elements
@@ -636,7 +625,6 @@
   // Shared State
   var currentCity = '';
   var currentView = 'calendar'; // 'calendar' or 'list'
-  var currentScope = 'upcoming'; // for list view
   var currentActiveEvent = null; // currently opened event in modal
 
   // Host Modal State
@@ -2076,6 +2064,18 @@
       pillsList.appendChild(morePill);
     }
 
+    if (dayEvents.length > 2) {
+      var mobileMorePill = document.createElement('div');
+      mobileMorePill.className = 'adda-cal-more-pill adda-cal-mobile-more-pill';
+      mobileMorePill.textContent = '+' + (dayEvents.length - 2) + ' more';
+      mobileMorePill.addEventListener('click', function(e) {
+        e.stopPropagation();
+        selectCalendarDay(dateKey);
+        if (window.matchMedia('(max-width: 640px)').matches) openMobileDayDrawer();
+      });
+      pillsList.appendChild(mobileMorePill);
+    }
+
     cell.appendChild(pillsList);
 
     // Free date click handler -> Opens Host Modal with date pre-selected
@@ -2188,10 +2188,10 @@
 
   function setListUIState(state, message) {
     if (loadingState) loadingState.style.display = (state === 'loading') ? 'grid' : 'none';
-    if (gridContainer) gridContainer.style.display = (state === 'results') ? 'grid' : 'none';
+    if (gridContainer) gridContainer.style.display = (state === 'results') ? 'block' : 'none';
     if (emptyState) emptyState.style.display = (state === 'empty') ? 'block' : 'none';
     if (errorState) errorState.style.display = (state === 'error') ? 'block' : 'none';
-    if (statusBar) statusBar.style.display = (state === 'results') ? 'block' : 'none';
+    if (statusBar) statusBar.style.display = 'none';
 
     if (state === 'error' && message && errorMessage) {
       errorMessage.textContent = message;
@@ -2202,13 +2202,10 @@
     var eventIdentifier = event.unique_id || event.name;
     var safeTitle = escapeHtml(event.title || 'Untitled Gathering');
     var safeCity = escapeHtml(event.city || 'Neighbourhood');
-    var dateText = formatShortDate(event.start_date_time);
     var plainDesc = stripHtml(event.description || '');
     var safeDesc = escapeHtml(plainDesc);
-    var safeMode = escapeHtml(event.mode || 'Offline');
-    var venueText = event.venue_details ? ' &bull; ' + escapeHtml(event.venue_details) : '';
-    var roomText = event.room_name ? ' &bull; ' + escapeHtml(event.room_name) : '';
     var catClass = getCategoryClass(event.type);
+    var timeText = formatEventTime(event.start_date_time);
 
     var mediaHtml = '';
     var cardImg = event.cover_image || event.image || '';
@@ -2228,42 +2225,69 @@
     }
 
     return [
-      '<article class="adda-card" data-event-id="' + escapeHtml(eventIdentifier) + '" style="cursor: pointer;">',
-      '  <div class="adda-card-media" aria-label="' + safeTitle + '">',
-      '    ' + mediaHtml,
+      '<article class="adda-list-card ' + catClass + '" data-event-id="' + escapeHtml(eventIdentifier) + '" tabindex="0" role="button" aria-label="View details for ' + safeTitle + '">',
+      '  <span class="adda-list-card-time">' + timeText + '</span>',
+      '  <div class="adda-list-card-poster" aria-hidden="true">' + mediaHtml + '</div>',
+      '  <div class="adda-list-card-content">',
+      '    <h3 class="adda-list-card-title">' + safeTitle + '</h3>',
+      '    <div class="adda-list-card-meta"><span>' + safeCity + '</span></div>',
+      '    <p class="adda-list-card-description">' + safeDesc + '</p>',
       '  </div>',
-      '  <div class="adda-card-body">',
-      '    <div class="adda-card-meta">',
-      '      <span class="adda-cat-badge ' + catClass + '">' + escapeHtml(getCategoryLabel(event.type)) + '</span>',
-      '      <span class="adda-tag adda-tag-city">' + safeCity + '</span>',
-      '      <span style="font-size: 0.8125rem; color: var(--adda-text-muted);">' + dateText + '</span>',
-      '    </div>',
-      '    <h2 class="adda-card-title">',
-      '      <a href="#" class="card-title-link">' + safeTitle + '</a>',
-      '    </h2>',
-      '    <p class="adda-card-desc">',
-      '      ' + safeDesc,
-      '    </p>',
-      '    <div class="adda-card-footer">',
-      '      <span>' + safeMode + roomText + venueText + '</span>',
-      '      <span class="adda-card-action">Details &rarr;</span>',
-      '    </div>',
-      '  </div>',
+      '  <span class="adda-list-card-chevron">View &rsaquo;</span>',
       '</article>'
     ].join('\n');
+  }
+
+  function getListDateKey(event) {
+    var dateValue = String(event.start_date_time || '').trim().replace('T', ' ');
+    return dateValue.slice(0, 10) || 'date-tbd';
+  }
+
+  function formatListDateHeading(dateKey) {
+    if (!dateKey || dateKey === 'date-tbd') return 'DATE TO BE ANNOUNCED';
+    var dateObj = new Date(dateKey + 'T12:00:00+05:30');
+    if (isNaN(dateObj.getTime())) return escapeHtml(dateKey);
+    var dateOptions = { timeZone: 'Asia/Kolkata' };
+    var weekday = dateObj.toLocaleDateString('en-IN', Object.assign({ weekday: 'short' }, dateOptions));
+    var month = dateObj.toLocaleDateString('en-IN', Object.assign({ month: 'short' }, dateOptions));
+    var day = dateObj.toLocaleDateString('en-IN', Object.assign({ day: 'numeric' }, dateOptions));
+    return (weekday + ' · ' + month + ' ' + day).toUpperCase();
+  }
+
+  function renderListDateGroups(events) {
+    var groups = [];
+    events.forEach(function(event) {
+      var key = getListDateKey(event);
+      var group = groups.find(function(item) { return item.key === key; });
+      if (!group) {
+        group = { key: key, events: [] };
+        groups.push(group);
+      }
+      group.events.push(event);
+    });
+
+    return groups.map(function(group) {
+      var eventWord = group.events.length === 1 ? 'event' : 'events';
+      return [
+        '<section class="adda-list-day-group" aria-label="' + formatListDateHeading(group.key) + '">',
+        '  <header class="adda-list-day-heading"><h2>' + formatListDateHeading(group.key) + '</h2><span>' + group.events.length + ' ' + eventWord + '</span></header>',
+        '  <div class="adda-list-day-cards">' + group.events.map(renderListCard).join('') + '</div>',
+        '</section>'
+      ].join('');
+    }).join('');
   }
 
   function fetchListEvents() {
     setListUIState('loading');
 
     var apiUrl = new URL('/api/method/adda_space.api.events.get_adda_events', window.location.origin);
-    apiUrl.searchParams.set('time_scope', currentScope);
+    apiUrl.searchParams.set('time_scope', 'all');
     apiUrl.searchParams.set('event_type', 'all');
     if (currentCity) {
       apiUrl.searchParams.set('city', currentCity);
     }
     apiUrl.searchParams.set('start', '0');
-    apiUrl.searchParams.set('page_length', '50');
+    apiUrl.searchParams.set('page_length', '100');
 
     fetch(apiUrl.toString(), {
       method: 'GET',
@@ -2281,26 +2305,30 @@
       var events = payload.events || [];
       if (events.length === 0) {
         var cityContext = currentCity ? (' in ' + currentCity) : '';
-        var scopeContext = currentScope === 'past' ? 'past' : 'upcoming';
-        emptyStateTitle.textContent = 'No ' + scopeContext + ' gatherings' + cityContext;
-        emptyStateDesc.textContent = 'There are currently no ' + scopeContext + ' Adda gatherings scheduled' + (currentCity ? (' for ' + currentCity) : '') + '. Explore another city or propose a community gathering.';
+        emptyStateTitle.textContent = 'No gatherings' + cityContext;
+        emptyStateDesc.textContent = 'There are currently no Adda gatherings scheduled' + (currentCity ? (' for ' + currentCity) : '') + '. Explore another city or propose a community gathering.';
         setListUIState('empty');
       } else {
-        var cardsHtml = events.map(renderListCard).join('\n');
-        gridContainer.innerHTML = cardsHtml;
+        gridContainer.innerHTML = renderListDateGroups(events);
 
         // Attach modal trigger to list cards
-        gridContainer.querySelectorAll('.adda-card').forEach(function(cardEl, idx) {
+        gridContainer.querySelectorAll('.adda-list-card').forEach(function(cardEl, idx) {
           cardEl.addEventListener('click', function(e) {
             e.preventDefault();
             var ev = events[idx];
             if (ev) openEventDetailModal(ev);
           });
+          cardEl.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              var ev = events[idx];
+              if (ev) openEventDetailModal(ev);
+            }
+          });
         });
 
         var cityLabel = currentCity || 'all cities';
-        var scopeLabel = currentScope === 'past' ? 'past' : 'upcoming';
-        countLabel.textContent = 'Showing ' + events.length + ' ' + scopeLabel + ' gathering' + (events.length === 1 ? '' : 's') + ' across ' + cityLabel + '.';
+        countLabel.textContent = 'Showing ' + events.length + ' gathering' + (events.length === 1 ? '' : 's') + ' across ' + cityLabel + '.';
         setListUIState('results');
       }
     })
@@ -2368,21 +2396,10 @@
       }
     });
 
-    if (scopeUpcomingBtn && scopePastBtn) {
-      if (currentScope === 'past') {
-        scopePastBtn.classList.add('active');
-        scopePastBtn.setAttribute('aria-pressed', 'true');
-        scopeUpcomingBtn.classList.remove('active');
-        scopeUpcomingBtn.setAttribute('aria-pressed', 'false');
-      } else {
-        scopeUpcomingBtn.classList.add('active');
-        scopeUpcomingBtn.setAttribute('aria-pressed', 'true');
-        scopePastBtn.classList.remove('active');
-        scopePastBtn.setAttribute('aria-pressed', 'false');
-      }
-    }
-
     if (viewCalendarBtn && viewListBtn) {
+      var calendarNavGroup = document.querySelector('#cal-toolbar .adda-cal-nav-group');
+      if (calendarNavGroup) calendarNavGroup.style.display = currentView === 'calendar' ? 'flex' : 'none';
+      if (calTodayBtn) calTodayBtn.style.display = currentView === 'calendar' ? '' : 'none';
       if (currentView === 'calendar') {
         viewCalendarBtn.classList.add('active');
         viewCalendarBtn.setAttribute('aria-pressed', 'true');
@@ -2400,16 +2417,6 @@
       }
     }
 
-    if (scopeFilterGroup) {
-      var scopeButtons = scopeFilterGroup.querySelectorAll('button[data-scope]');
-      scopeButtons.forEach(function(btn) {
-        if (btn.getAttribute('data-scope') === currentScope) {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
-        }
-      });
-    }
   }
 
   function syncUrlParams() {
@@ -2419,11 +2426,7 @@
 
     if (currentView) url.searchParams.set('view', currentView);
 
-    if (currentView === 'list' && currentScope && currentScope !== 'upcoming') {
-      url.searchParams.set('scope', currentScope);
-    } else {
-      url.searchParams.delete('scope');
-    }
+    url.searchParams.delete('scope');
 
     window.history.replaceState({}, '', url.toString());
   }
@@ -2478,28 +2481,6 @@
     });
   }
 
-  if (scopeUpcomingBtn) {
-    scopeUpcomingBtn.addEventListener('click', function() {
-      if (currentScope !== 'upcoming') {
-        currentScope = 'upcoming';
-        updateFilterUI();
-        syncUrlParams();
-        if (currentView === 'list') fetchListEvents();
-      }
-    });
-  }
-
-  if (scopePastBtn) {
-    scopePastBtn.addEventListener('click', function() {
-      if (currentScope !== 'past') {
-        currentScope = 'past';
-        updateFilterUI();
-        syncUrlParams();
-        if (currentView === 'list') fetchListEvents();
-      }
-    });
-  }
-
   if (filterBar) {
     filterBar.addEventListener('click', function(e) {
       var target = e.target;
@@ -2512,14 +2493,6 @@
           if (currentView === 'calendar') fetchCalendarEvents();
           else fetchListEvents();
         }
-      } else if (target.matches('button[data-scope]')) {
-        var scope = target.getAttribute('data-scope');
-        if (scope !== currentScope) {
-          currentScope = scope;
-          updateFilterUI();
-          syncUrlParams();
-          if (currentView === 'list') fetchListEvents();
-        }
       }
     });
   }
@@ -2527,7 +2500,6 @@
   if (resetBtn) {
     resetBtn.addEventListener('click', function() {
       currentCity = '';
-      currentScope = 'upcoming';
       updateFilterUI();
       syncUrlParams();
       fetchListEvents();
@@ -2582,11 +2554,6 @@
 
   var initialView = urlParams.get('view');
   if (initialView && (initialView === 'list' || initialView === 'calendar')) currentView = initialView;
-
-  var initialScope = urlParams.get('scope');
-  if (initialScope && (initialScope.toLowerCase() === 'upcoming' || initialScope.toLowerCase() === 'past')) {
-    currentScope = initialScope.toLowerCase();
-  }
 
   var shouldOpenHost = urlParams.get('open_host') === '1' || urlParams.get('action') === 'host';
 
