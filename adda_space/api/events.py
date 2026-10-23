@@ -25,6 +25,9 @@ PUBLIC_EVENT_FIELDS = [
 	"cover_image",
 ]
 
+EVENT_RECAP_DOCTYPE = "Event Recap"
+EVENT_RECAP_PHOTO_DOCTYPE = "Adda Event Recap Photo"
+
 
 def _is_mock_db() -> bool:
 	"""Check if current database handle is unbound or a unit-test mock."""
@@ -167,6 +170,72 @@ def _format_event_payload(event: Dict[str, Any]) -> Dict[str, Any]:
 			event["cover_image"] = cover_str
 
 	return event
+
+
+def _get_published_event_recaps(event_names: List[str]) -> Dict[str, Dict[str, Any]]:
+	"""Return published recap payloads keyed by Solve Event name.
+
+	Recaps are optional so this endpoint remains usable on sites where the recap
+	DocTypes have not yet been migrated.
+	"""
+	if not event_names:
+		return {}
+
+	try:
+		if not frappe.db.table_exists(EVENT_RECAP_DOCTYPE) or not frappe.db.exists("DocType", EVENT_RECAP_DOCTYPE):
+			return {}
+
+		recaps = frappe.get_all(
+			EVENT_RECAP_DOCTYPE,
+			filters={"event": ["in", event_names], "status": "Published"},
+			fields=["name", "event", "title", "summary", "key_outcomes", "attendees", "facilitator", "modified"],
+			order_by="modified desc",
+		)
+		if not recaps:
+			return {}
+
+		recap_names = [recap.get("name") for recap in recaps if recap.get("name")]
+		photos_by_recap: Dict[str, List[Dict[str, Any]]] = {name: [] for name in recap_names}
+		if recap_names and frappe.db.table_exists(EVENT_RECAP_PHOTO_DOCTYPE):
+			photos = frappe.get_all(
+				EVENT_RECAP_PHOTO_DOCTYPE,
+				filters={
+					"parent": ["in", recap_names],
+					"parenttype": EVENT_RECAP_DOCTYPE,
+					"parentfield": "gallery",
+				},
+				fields=["parent", "photo", "caption", "alt_text", "idx"],
+				order_by="parent asc, idx asc",
+			)
+			for photo in photos:
+				parent = photo.get("parent")
+				if parent in photos_by_recap and photo.get("photo"):
+					photo_url = _format_event_payload({"cover_image": photo.get("photo")}).get("cover_image")
+					if photo_url:
+						photos_by_recap[parent].append({
+							"photo": photo_url,
+							"caption": photo.get("caption"),
+							"alt_text": photo.get("alt_text"),
+						})
+
+		# If duplicate recap rows exist, the most recently modified published one wins.
+		by_event: Dict[str, Dict[str, Any]] = {}
+		for recap in recaps:
+			event_name = recap.get("event")
+			if not event_name or event_name in by_event:
+				continue
+			by_event[event_name] = {
+				"title": recap.get("title"),
+				"summary": recap.get("summary"),
+				"key_outcomes": recap.get("key_outcomes"),
+				"attendees": recap.get("attendees"),
+				"facilitator": recap.get("facilitator"),
+				"gallery": photos_by_recap.get(recap.get("name"), []),
+			}
+		return by_event
+	except Exception:
+		# A missing/unmigrated optional recap schema must not break event browsing.
+		return {}
 
 
 @frappe.whitelist(allow_guest=True)
@@ -442,7 +511,11 @@ def get_adda_events(
 		order_by=order_by,
 	)
 
-	formatted_events = [_format_event_payload(ev) for ev in events]
+	recaps_by_event = _get_published_event_recaps([ev.get("name") for ev in events if ev.get("name")])
+	formatted_events = []
+	for event in events:
+		event["recap"] = recaps_by_event.get(event.get("name"))
+		formatted_events.append(_format_event_payload(event))
 
 	return {
 		"success": True,
@@ -536,6 +609,7 @@ def get_adda_event_detail(event_id: str) -> Dict[str, Any]:
 			"event": None,
 		}
 
+	event["recap"] = _get_published_event_recaps([event.get("name")]).get(event.get("name"))
 	return {
 		"success": True,
 		"event": _format_event_payload(event),

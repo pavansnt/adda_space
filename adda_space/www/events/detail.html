@@ -75,6 +75,21 @@
           <h2 style="font-size: 1.75rem; margin-bottom: 1.25rem;">About This Gathering</h2>
           <div style="font-size: 1.05rem; line-height: 1.75; color: var(--adda-text-muted);" id="event-description-container">
           </div>
+
+          <section class="adda-event-recap adda-event-recap--detail" id="event-recap-section" style="display: none;">
+            <div class="adda-event-recap__eyebrow">What Happened</div>
+            <div id="event-recap-placeholder" style="display: none;">
+              <h2 class="adda-event-recap__title">Recap coming soon</h2>
+              <p class="adda-event-recap__summary">Details from this gathering will be shared here when they are available.</p>
+            </div>
+            <div id="event-recap-content" style="display: none;">
+              <h2 class="adda-event-recap__title" id="event-recap-title"></h2>
+              <div class="adda-event-recap__summary" id="event-recap-summary"></div>
+              <div class="adda-event-recap__outcomes" id="event-recap-outcomes" style="display: none;"></div>
+              <div class="adda-event-recap__meta" id="event-recap-meta"></div>
+              <div class="adda-event-recap__gallery" id="event-recap-gallery"></div>
+            </div>
+          </section>
         </div>
 
         <!-- Sticky Sidebar Information Card -->
@@ -273,6 +288,14 @@
   var eventModeSidebarVal = document.getElementById('event-mode-sidebar-val');
   var eventOrganizerRow = document.getElementById('event-organizer-row');
   var eventOrganizerVal = document.getElementById('event-organizer-val');
+  var eventRecapSection = document.getElementById('event-recap-section');
+  var eventRecapPlaceholder = document.getElementById('event-recap-placeholder');
+  var eventRecapContent = document.getElementById('event-recap-content');
+  var eventRecapTitle = document.getElementById('event-recap-title');
+  var eventRecapSummary = document.getElementById('event-recap-summary');
+  var eventRecapOutcomes = document.getElementById('event-recap-outcomes');
+  var eventRecapMeta = document.getElementById('event-recap-meta');
+  var eventRecapGallery = document.getElementById('event-recap-gallery');
 
   function escapeHtml(str) {
     if (!str) return '';
@@ -321,11 +344,60 @@
     return doc.body.innerHTML;
   }
 
+  function populateEventRecap(event, isPast) {
+    if (!eventRecapSection) return;
+    var recap = event && event.recap;
+    eventRecapSection.style.display = isPast ? 'block' : 'none';
+    if (!isPast) return;
+
+    if (!recap) {
+      eventRecapPlaceholder.style.display = 'block';
+      eventRecapContent.style.display = 'none';
+      return;
+    }
+
+    eventRecapPlaceholder.style.display = 'none';
+    eventRecapContent.style.display = 'block';
+    eventRecapTitle.textContent = recap.title || 'Event recap';
+    eventRecapSummary.innerHTML = recap.summary ? sanitizeHtml(recap.summary) : '';
+
+    var outcomes = String(recap.key_outcomes || '').trim();
+    if (outcomes) {
+      var outcomeItems = outcomes.split(/\r?\n/).map(function(item) { return item.trim(); }).filter(Boolean);
+      eventRecapOutcomes.style.display = 'block';
+      eventRecapOutcomes.innerHTML = '<h3>Key outcomes and community actions</h3><ul>' + outcomeItems.map(function(item) {
+        return '<li>' + escapeHtml(item.replace(/^[-*•]\s*/, '')) + '</li>';
+      }).join('') + '</ul>';
+    } else {
+      eventRecapOutcomes.style.display = 'none';
+      eventRecapOutcomes.innerHTML = '';
+    }
+
+    var meta = [];
+    if (recap.attendees !== null && recap.attendees !== undefined && recap.attendees !== '') {
+      var attendeeCount = parseInt(recap.attendees, 10);
+      if (!isNaN(attendeeCount) && attendeeCount >= 0) {
+        meta.push('<span class="adda-recap-status adda-recap-status--available">' + attendeeCount + ' attended</span>');
+      }
+    }
+    if (recap.facilitator) meta.push('<span>Facilitated by ' + escapeHtml(recap.facilitator) + '</span>');
+    eventRecapMeta.innerHTML = meta.join('');
+
+    var gallery = Array.isArray(recap.gallery) ? recap.gallery : [];
+    eventRecapGallery.innerHTML = gallery.map(function(photo) {
+      if (!photo || !photo.photo) return '';
+      var caption = photo.caption || '';
+      var altText = photo.alt_text || caption || recap.title || 'Gathering photo';
+      return '<figure><img src="' + escapeHtml(photo.photo) + '" alt="' + escapeHtml(altText) + '" loading="lazy"><figcaption>' + escapeHtml(caption) + '</figcaption></figure>';
+    }).join('');
+  }
+
   function parseDate(dateStr) {
     if (!dateStr) return null;
     var trimmed = String(dateStr).trim();
     if (!trimmed) return null;
     var normalized = trimmed.indexOf('T') !== -1 ? trimmed : trimmed.replace(' ', 'T');
+    normalized = normalized.replace(/(\.\d{3})\d+/, '$1');
     // Ensure strict IST (UTC+05:30) interpretation if no timezone offset is provided
     if (!/(?:Z|[+-]\d{2}(?::?\d{2})?)$/i.test(normalized)) {
       normalized += '+05:30';
@@ -447,8 +519,10 @@
 
     currentEvent = event;
 
-    // Check if event has concluded
-    if (startDate && startDate.getTime() < Date.now()) {
+    // Show a recap or a clear placeholder only after the gathering has ended.
+    var isPast = startDate && startDate.getTime() < Date.now();
+    populateEventRecap(event, Boolean(isPast));
+    if (isPast) {
       if (regPastView) regPastView.style.display = 'block';
       if (regFormView) regFormView.style.display = 'none';
       if (regSuccessView) regSuccessView.style.display = 'none';

@@ -1,0 +1,95 @@
+{
+ "actions": [],
+ "allow_bulk_edit": 1,
+ "allow_rename": 1,
+ "creation": "2026-10-23 14:36:29.866392",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "event",
+  "title",
+  "status",
+  "summary",
+  "key_outcomes",
+  "attendees",
+  "facilitator",
+  "gallery"
+ ],
+ "fields": [
+  {
+   "fieldname": "event",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Event ",
+   "options": "Solve Event",
+   "reqd": 1
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Recap Title"
+  },
+  {
+   "default": "Draft",
+   "description": "Only Published recaps are shown on the public website. Draft recaps are for internal editing",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nPublished",
+   "reqd": 1
+  },
+  {
+   "fieldname": "summary",
+   "fieldtype": "Text Editor",
+   "label": "Summary & Activities "
+  },
+  {
+   "fieldname": "key_outcomes",
+   "fieldtype": "Small Text",
+   "label": "Key Outcomes & Community"
+  },
+  {
+   "fieldname": "attendees",
+   "fieldtype": "Int",
+   "label": "Attendees"
+  },
+  {
+   "fieldname": "facilitator",
+   "fieldtype": "Data",
+   "label": "Facilitator"
+  },
+  {
+   "fieldname": "gallery",
+   "fieldtype": "Table",
+   "label": "Event Photos",
+   "options": "Adda Event Recap Photo"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-23 16:20:00.147975",
+ "modified_by": "Administrator",
+ "module": "Adda Space",
+ "name": "Event Recap",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}

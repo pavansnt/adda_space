@@ -221,6 +221,15 @@
       <!-- Description -->
       <div class="adda-detail-desc" id="modal-event-desc" style="font-size: 0.9375rem; line-height: 1.6; color: #4B5563; margin-bottom: 1.25rem; white-space: pre-wrap;"></div>
 
+      <section class="adda-event-recap adda-event-recap--compact" id="modal-event-recap" style="display: none;">
+        <div class="adda-event-recap__eyebrow">What Happened</div>
+        <h3 class="adda-event-recap__title" id="modal-recap-title"></h3>
+        <div class="adda-event-recap__summary" id="modal-recap-summary"></div>
+        <div class="adda-event-recap__outcomes" id="modal-recap-outcomes" style="display: none;"></div>
+        <div class="adda-event-recap__meta" id="modal-recap-meta"></div>
+        <div class="adda-event-recap__gallery" id="modal-recap-gallery"></div>
+      </section>
+
       <!-- Completely removed organized by section - hidden for compatibility -->
       <div id="modal-event-org" style="display: none;"></div>
     </div>
@@ -542,6 +551,12 @@
   var modalEventVenue = document.getElementById('modal-event-venue');
   var modalEventMode = document.getElementById('modal-event-mode');
   var modalEventDesc = document.getElementById('modal-event-desc');
+  var modalEventRecap = document.getElementById('modal-event-recap');
+  var modalRecapTitle = document.getElementById('modal-recap-title');
+  var modalRecapSummary = document.getElementById('modal-recap-summary');
+  var modalRecapOutcomes = document.getElementById('modal-recap-outcomes');
+  var modalRecapMeta = document.getElementById('modal-recap-meta');
+  var modalRecapGallery = document.getElementById('modal-recap-gallery');
   var modalPosterWrap = document.getElementById('modal-poster-wrap');
   var modalPosterImg = document.getElementById('modal-poster-img');
   var modalDetailCloseBtn = document.getElementById('modal-detail-close-btn');
@@ -680,6 +695,60 @@
     var tmp = document.createElement('div');
     tmp.innerHTML = html;
     return (tmp.textContent || tmp.innerText || '').trim();
+  }
+
+  function isPastEvent(event) {
+    if (!event || !event.start_date_time) return false;
+    var value = String(event.start_date_time).trim().replace(' ', 'T');
+    value = value.replace(/(\.\d{3})\d+/, '$1');
+    if (!/(?:Z|[+-]\d{2}(?::?\d{2})?)$/i.test(value)) value += '+05:30';
+    var date = new Date(value);
+    return !isNaN(date.getTime()) && date.getTime() < Date.now();
+  }
+
+  function recapStateHtml(event) {
+    if (!isPastEvent(event)) return '';
+    if (event.recap) return '<span class="adda-recap-status adda-recap-status--available">Event recap available</span>';
+    return '<span class="adda-recap-status adda-recap-status--pending">Recap coming soon</span>';
+  }
+
+  function renderModalRecap(event) {
+    if (!modalEventRecap) return;
+    var recap = event && event.recap;
+    var past = isPastEvent(event);
+    modalEventRecap.style.display = past ? 'block' : 'none';
+    if (!past) return;
+
+    if (!recap) {
+      modalRecapTitle.textContent = 'Recap coming soon';
+      modalRecapSummary.textContent = 'Details from this gathering will be shared here when they are available.';
+      modalRecapOutcomes.style.display = 'none';
+      modalRecapMeta.innerHTML = '';
+      modalRecapGallery.innerHTML = '';
+      return;
+    }
+
+    modalRecapTitle.textContent = recap.title || 'Event recap';
+    modalRecapSummary.textContent = stripHtml(recap.summary || '');
+    var outcomes = String(recap.key_outcomes || '').trim();
+    modalRecapOutcomes.style.display = outcomes ? 'block' : 'none';
+    modalRecapOutcomes.textContent = outcomes ? 'Key outcomes and community actions\n' + outcomes : '';
+
+    var meta = [];
+    if (recap.attendees !== null && recap.attendees !== undefined && recap.attendees !== '') {
+      var count = parseInt(recap.attendees, 10);
+      if (!isNaN(count) && count >= 0) meta.push('<span class="adda-recap-status adda-recap-status--available">' + count + ' attended</span>');
+    }
+    if (recap.facilitator) meta.push('<span>Facilitated by ' + escapeHtml(recap.facilitator) + '</span>');
+    modalRecapMeta.innerHTML = meta.join('');
+
+    var gallery = Array.isArray(recap.gallery) ? recap.gallery : [];
+    modalRecapGallery.innerHTML = gallery.map(function(photo) {
+      if (!photo || !photo.photo) return '';
+      var caption = photo.caption || '';
+      var alt = photo.alt_text || caption || recap.title || 'Gathering photo';
+      return '<figure><img src="' + escapeHtml(photo.photo) + '" alt="' + escapeHtml(alt) + '" loading="lazy"><figcaption>' + escapeHtml(caption) + '</figcaption></figure>';
+    }).join('');
   }
 
   function padZero(num) {
@@ -821,6 +890,7 @@
         modalEventDesc.style.display = 'none';
       }
     }
+    renderModalRecap(ev);
 
     // Image resolution: cover_image or image, normalize relative paths
     var rawImg = (ev.cover_image || ev.image || '');
@@ -2033,6 +2103,10 @@
       pill.setAttribute('data-category', ev.type || 'Adda');
       pill.href = '#';
       pill.title = ev.title + ' (' + (ev.city || '') + ')';
+      if (isPastEvent(ev)) {
+        pill.classList.add('is-past-event');
+        pill.setAttribute('aria-label', (ev.title || 'Gathering') + (ev.recap ? ' — event recap available' : ' — past gathering'));
+      }
 
       var timeSpan = document.createElement('span');
       timeSpan.className = 'adda-cal-event-time';
@@ -2043,6 +2117,12 @@
 
       pill.appendChild(timeSpan);
       pill.appendChild(titleSpan);
+      if (isPastEvent(ev) && ev.recap) {
+        var recapMark = document.createElement('span');
+        recapMark.className = 'adda-cal-recap-mark';
+        recapMark.textContent = 'Recap';
+        pill.appendChild(recapMark);
+      }
 
       pill.addEventListener('click', function(e) {
         e.preventDefault();
@@ -2167,6 +2247,7 @@
             '  <span style="font-size: 0.75rem; font-weight: 700; color: var(--adda-green);">' + timeStr + '</span>',
             '</div>',
             '<h4 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--adda-navy);">' + safeTitle + '</h4>',
+            '  ' + recapStateHtml(ev),
             '<div style="font-size: 0.8125rem; color: var(--adda-text-muted); margin-top: auto;">',
             '  <span>' + cityText + roomText + venueText + '</span>',
             '</div>'
@@ -2230,7 +2311,7 @@
       '  <div class="adda-list-card-poster" aria-hidden="true">' + mediaHtml + '</div>',
       '  <div class="adda-list-card-content">',
       '    <h3 class="adda-list-card-title">' + safeTitle + '</h3>',
-      '    <div class="adda-list-card-meta"><span>' + safeCity + '</span></div>',
+      '    <div class="adda-list-card-meta"><span>' + safeCity + '</span>' + recapStateHtml(event) + '</div>',
       '    <p class="adda-list-card-description">' + safeDesc + '</p>',
       '  </div>',
       '  <span class="adda-list-card-chevron">View &rsaquo;</span>',
