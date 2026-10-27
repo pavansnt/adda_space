@@ -201,6 +201,7 @@ def _is_event_past(event: Dict[str, Any], now_dt=None) -> bool:
 		or event.get("start_date_time")
 		or event.get("start")
 		or event.get("end_date")
+		or event.get("event_date")
 		or event.get("date")
 	)
 	if not raw_end:

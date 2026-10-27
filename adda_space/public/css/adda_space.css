@@ -106,28 +106,28 @@
 
 /* Past Events - Muted appearance in Calendar and List views */
 .adda-cal-event-pill.is-past-event {
-  opacity: 0.6 !important;
+  opacity: 0.42 !important;
   box-shadow: none !important;
 }
 
 .adda-cal-event-pill.is-past-event:hover {
-  opacity: 0.85 !important;
+  opacity: 0.75 !important;
 }
 
 .adda-cal-drawer-card.is-past-event {
-  opacity: 0.6 !important;
+  opacity: 0.42 !important;
 }
 
 .adda-cal-drawer-card.is-past-event:hover {
-  opacity: 0.85 !important;
+  opacity: 0.75 !important;
 }
 
 .adda-list-card.is-past-event {
-  opacity: 0.6 !important;
+  opacity: 0.42 !important;
 }
 
 .adda-list-card.is-past-event:hover {
-  opacity: 0.85 !important;
+  opacity: 0.75 !important;
 }
 
 .adda-cal-recap-mark {
@@ -1691,9 +1691,8 @@ p.lead {
 
 .adda-cal-cell {
   background-color: var(--adda-surface);
-  height: 105px !important;
-  min-height: 105px !important;
-  max-height: 105px !important;
+  min-height: 120px !important;
+  height: 100% !important;
   padding: 0.35rem 0.45rem !important;
   display: flex !important;
   flex-direction: column !important;
@@ -1765,7 +1764,7 @@ p.lead {
 .adda-cal-events-list {
   display: flex !important;
   flex-direction: column !important;
-  gap: 2px !important;
+  gap: 3px !important;
   overflow: hidden !important;
   flex: 1 1 auto !important;
   min-height: 0 !important;
@@ -1775,18 +1774,17 @@ p.lead {
 .adda-cal-event-pill {
   display: flex !important;
   align-items: center !important;
-  height: 22px !important;
-  min-height: 22px !important;
-  max-height: 22px !important;
-  padding: 2px 6px !important;
+  height: auto !important;
+  min-height: 24px !important;
+  max-height: none !important;
+  padding: 3px 6px !important;
   border-radius: 6px !important;
   color: #FFFFFF !important;
   font-size: 0.75rem !important;
-  line-height: 1.2 !important;
+  line-height: 1.25 !important;
   text-decoration: none !important;
   overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
+  white-space: normal !important;
   font-weight: 600 !important;
   border: none !important;
   margin-bottom: 2px !important;
@@ -1794,6 +1792,25 @@ p.lead {
   box-sizing: border-box !important;
   width: 100% !important;
   transition: all 0.15s ease;
+}
+
+.adda-cal-event-title-text,
+.adda-cal-event-pill > span:last-child {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  line-clamp: 2 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  text-align: left !important;
 }
 
 .adda-cal-event-pill:hover {
@@ -1811,22 +1828,17 @@ p.lead {
   font-size: 0.6875rem !important;
   font-weight: 700 !important;
   color: #334155 !important;
-  padding: 1px 6px !important;
+  padding: 2px 6px !important;
   background-color: #E2E8F0 !important;
   border-radius: 4px !important;
   text-align: center !important;
   cursor: pointer;
-  height: 18px !important;
+  height: auto !important;
+  min-height: 18px !important;
   display: inline-flex !important;
   align-items: center !important;
   width: fit-content !important;
   margin-top: 1px !important;
-}
-  padding: 0.15rem 0.35rem;
-  background-color: var(--adda-bg-alt);
-  border-radius: var(--radius-sm);
-  text-align: center;
-  cursor: pointer;
 }
 
 .adda-cal-more-pill:hover {
@@ -1886,22 +1898,40 @@ p.lead {
 /* Responsive adjustments for Calendar */
 @media (max-width: 768px) {
   .adda-cal-cell {
-    height: 76px !important;
-    min-height: 76px !important;
-    max-height: 76px !important;
-    padding: 0.2rem 0.25rem !important;
+    min-height: 72px !important;
+    height: 100% !important;
+    max-height: none !important;
+    padding: 2px 2px !important;
     overflow: hidden !important;
     box-sizing: border-box !important;
   }
   .adda-cal-event-pill {
-    height: 19px !important;
-    min-height: 19px !important;
-    max-height: 19px !important;
-    padding: 1px 4px !important;
-    font-size: 0.65rem !important;
-    white-space: nowrap !important;
+    height: auto !important;
+    min-height: 22px !important;
+    max-height: none !important;
+    padding: 2px 3px !important;
+    font-size: 0.56rem !important;
+    line-height: 1.12 !important;
+    white-space: normal !important;
+    overflow: hidden !important;
+  }
+  .adda-cal-event-pill .adda-cal-event-title-text,
+  .adda-cal-event-pill > span:last-child {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    white-space: normal !important;
+    word-break: break-all !important;
+    overflow-wrap: anywhere !important;
+    font-size: 0.56rem !important;
+    font-weight: 700 !important;
+    line-height: 1.12 !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    text-align: left !important;
   }
   .adda-cal-event-pill.cat-pending-event,
   .adda-cal-event-pill.is-pending-event {
@@ -1923,13 +1953,24 @@ p.lead {
     position: relative !important;
     z-index: 5 !important;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: normal !important;
+    word-break: break-all !important;
+    overflow-wrap: anywhere !important;
+    line-height: 1.12 !important;
+    font-size: 0.56rem !important;
   }
   .adda-cal-event-time {
     display: none !important;
   }
   .adda-cal-header-cell {
     font-size: 0.7rem;
-    padding: 0.5rem 0.2rem;
+    padding: 0.4rem 0.15rem;
   }
 }
 
@@ -2457,9 +2498,16 @@ p.lead {
   z-index: 5 !important;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
   letter-spacing: 0.01em !important;
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  line-clamp: 2 !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-  white-space: nowrap !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  line-height: 1.25 !important;
   flex: 1 1 auto !important;
   min-width: 0 !important;
 }
@@ -3717,11 +3765,11 @@ p.lead {
 }
 
 .adda-list-card.is-past-event {
-  opacity: 0.6 !important;
+  opacity: 0.42 !important;
 }
 
 .adda-list-card.is-past-event:hover {
-  opacity: 0.85 !important;
+  opacity: 0.75 !important;
 }
 
 .adda-list-card-time {
@@ -4051,10 +4099,10 @@ p.lead {
   }
 
   .adda-cal-cell {
-    height: 64px !important;
-    min-height: 64px !important;
-    max-height: 64px !important;
-    padding: 2px 3px !important;
+    min-height: 72px !important;
+    height: 100% !important;
+    max-height: none !important;
+    padding: 2px 2px !important;
     align-items: stretch !important;
     justify-content: flex-start !important;
     overflow: hidden !important;
@@ -4066,7 +4114,7 @@ p.lead {
     display: flex !important;
     justify-content: flex-end !important;
     align-items: center !important;
-    margin: 0 0 2px 0 !important;
+    margin: 0 0 1px 0 !important;
     min-height: 14px !important;
   }
 
@@ -4076,10 +4124,17 @@ p.lead {
     margin-left: auto !important;
   }
 
+  .adda-cal-cell.is-today {
+    background-color: #F2FAF5 !important;
+  }
+
   .adda-cal-cell.is-today .adda-cal-day-num {
-    width: 18px !important;
-    height: 18px !important;
-    font-size: 0.65rem !important;
+    background-color: transparent !important;
+    color: var(--adda-green) !important;
+    font-weight: 800 !important;
+    width: auto !important;
+    height: auto !important;
+    font-size: 0.7rem !important;
   }
 
   .adda-cal-badge-count,
@@ -4097,36 +4152,48 @@ p.lead {
     width: 100% !important;
   }
 
-  /* Mobile Event Pills - Clean 1 line with ellipsis, NO clipping, NO text spilling */
+  /* Mobile Event Pills - Multi-line wrapping matching Solve Ninja reference (Image 1) */
   .adda-cal-event-pill {
     flex: 0 0 auto !important;
     margin: 0 0 2px 0 !important;
-    padding: 2px 4px !important;
+    padding: 2px 3px !important;
     border-radius: 4px !important;
-    font-size: 0.625rem !important;
-    line-height: 1.2 !important;
-    white-space: nowrap !important;
+    font-size: 0.56rem !important;
+    line-height: 1.12 !important;
+    white-space: normal !important;
     overflow: hidden !important;
-    text-overflow: ellipsis !important;
     text-align: left !important;
     box-shadow: none !important;
     width: 100% !important;
     box-sizing: border-box !important;
     display: flex !important;
     align-items: center !important;
-    gap: 2px !important;
+    height: auto !important;
+    min-height: 22px !important;
+    max-height: none !important;
   }
 
   .adda-cal-event-pill .adda-cal-event-time {
     display: none !important;
   }
 
-  .adda-cal-event-pill .adda-cal-event-title-text {
+  .adda-cal-event-pill .adda-cal-event-title-text,
+  .adda-cal-event-pill > span:last-child {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    white-space: nowrap !important;
+    white-space: normal !important;
+    word-break: break-all !important;
+    overflow-wrap: anywhere !important;
+    font-size: 0.56rem !important;
+    font-weight: 700 !important;
+    line-height: 1.12 !important;
     flex: 1 1 auto !important;
     min-width: 0 !important;
+    text-align: left !important;
   }
 
   /* Mobile Pending Event Pill - Solve Ninja Exact Colors (Image 3) with text in front */
@@ -4151,6 +4218,17 @@ p.lead {
     position: relative !important;
     z-index: 5 !important;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: normal !important;
+    word-break: break-all !important;
+    overflow-wrap: anywhere !important;
+    line-height: 1.12 !important;
+    font-size: 0.56rem !important;
   }
 
   .adda-cal-event-pill:nth-of-type(n + 3) {
@@ -4160,10 +4238,15 @@ p.lead {
   .adda-cal-more-pill {
     flex: 0 0 auto !important;
     padding: 1px 3px !important;
-    font-size: 0.55rem !important;
-    line-height: 1.1 !important;
+    font-size: 0.5rem !important;
+    line-height: 1 !important;
     border-radius: 3px !important;
     white-space: nowrap !important;
+    background-color: #E2E8F0 !important;
+    color: #334155 !important;
+    font-weight: 700 !important;
+    width: fit-content !important;
+    margin-top: 1px !important;
   }
 
   .adda-cal-mobile-more-pill {

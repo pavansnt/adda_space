@@ -9,23 +9,146 @@
 <style>
   /* Ensure past events are visibly muted/faded across Calendar and List views */
   .adda-list-card.is-past-event {
-    opacity: 0.6 !important;
+    opacity: 0.42 !important;
   }
   .adda-list-card.is-past-event:hover {
-    opacity: 0.85 !important;
+    opacity: 0.75 !important;
   }
   .adda-cal-event-pill.is-past-event {
-    opacity: 0.6 !important;
+    opacity: 0.42 !important;
     box-shadow: none !important;
   }
   .adda-cal-event-pill.is-past-event:hover {
-    opacity: 0.85 !important;
+    opacity: 0.75 !important;
   }
   .adda-cal-drawer-card.is-past-event {
-    opacity: 0.6 !important;
+    opacity: 0.42 !important;
   }
   .adda-cal-drawer-card.is-past-event:hover {
-    opacity: 0.85 !important;
+    opacity: 0.75 !important;
+  }
+
+  /* Desktop Calendar styling (Image 1) */
+  @media (min-width: 769px) {
+    .adda-cal-cell {
+      min-height: 120px !important;
+      height: 100% !important;
+      max-height: none !important;
+    }
+    .adda-cal-event-pill {
+      height: auto !important;
+      min-height: 24px !important;
+      max-height: none !important;
+      padding: 3px 6px !important;
+      white-space: normal !important;
+      line-height: 1.25 !important;
+    }
+    .adda-cal-event-title-text,
+    .adda-cal-event-pill > span:last-child {
+      display: -webkit-box !important;
+      -webkit-box-orient: vertical !important;
+      -webkit-line-clamp: 2 !important;
+      line-clamp: 2 !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: normal !important;
+      word-break: break-word !important;
+      overflow-wrap: break-word !important;
+      font-size: 0.75rem !important;
+      font-weight: 600 !important;
+      line-height: 1.25 !important;
+      text-align: left !important;
+    }
+    .adda-cal-event-pill.cat-pending-event .adda-cal-event-title-text,
+    .adda-cal-event-pill.is-pending-event .adda-cal-event-title-text {
+      white-space: normal !important;
+      display: -webkit-box !important;
+      -webkit-box-orient: vertical !important;
+      -webkit-line-clamp: 2 !important;
+      line-clamp: 2 !important;
+      word-break: break-word !important;
+      overflow-wrap: break-word !important;
+    }
+  }
+
+  /* Mobile Calendar styling matching Solve Ninja reference (Image 1) */
+  @media (max-width: 768px) {
+    .adda-cal-cell {
+      min-height: 72px !important;
+      height: 100% !important;
+      max-height: none !important;
+      padding: 2px 2px !important;
+      box-sizing: border-box !important;
+    }
+    .adda-cal-cell-top {
+      min-height: 14px !important;
+      margin: 0 0 1px 0 !important;
+    }
+    .adda-cal-day-num {
+      font-size: 0.7rem !important;
+      line-height: 1 !important;
+    }
+    .adda-cal-cell.is-today {
+      background-color: #F2FAF5 !important;
+    }
+    .adda-cal-cell.is-today .adda-cal-day-num {
+      background-color: transparent !important;
+      color: var(--adda-green) !important;
+      font-weight: 800 !important;
+      width: auto !important;
+      height: auto !important;
+    }
+    .adda-cal-event-pill {
+      height: auto !important;
+      min-height: 22px !important;
+      max-height: none !important;
+      padding: 2px 3px !important;
+      border-radius: 4px !important;
+      margin: 0 0 2px 0 !important;
+      white-space: normal !important;
+      line-height: 1.12 !important;
+      box-shadow: none !important;
+    }
+    .adda-cal-event-title-text,
+    .adda-cal-event-pill > span:last-child {
+      display: -webkit-box !important;
+      -webkit-box-orient: vertical !important;
+      -webkit-line-clamp: 2 !important;
+      line-clamp: 2 !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: normal !important;
+      word-break: break-all !important;
+      overflow-wrap: anywhere !important;
+      font-size: 0.56rem !important;
+      font-weight: 700 !important;
+      line-height: 1.12 !important;
+      text-align: left !important;
+    }
+    .adda-cal-event-pill.cat-pending-event .adda-cal-event-title-text,
+    .adda-cal-event-pill.is-pending-event .adda-cal-event-title-text {
+      white-space: normal !important;
+      display: -webkit-box !important;
+      -webkit-box-orient: vertical !important;
+      -webkit-line-clamp: 2 !important;
+      line-clamp: 2 !important;
+      word-break: break-all !important;
+      overflow-wrap: anywhere !important;
+      line-height: 1.12 !important;
+      font-size: 0.56rem !important;
+    }
+    .adda-cal-more-pill {
+      font-size: 0.5rem !important;
+      line-height: 1 !important;
+      padding: 1px 3px !important;
+      border-radius: 3px !important;
+      white-space: nowrap !important;
+      background-color: #E2E8F0 !important;
+      color: #334155 !important;
+      font-weight: 700 !important;
+      width: fit-content !important;
+      margin-top: 1px !important;
+    }
   }
 </style>
 <section class="adda-page-header" id="adda-events-header">
@@ -2795,7 +2918,7 @@
 
     var calDrawerFooter = document.getElementById('cal-drawer-footer');
     if (calDrawerFooter) {
-      if (dateKey >= istDateStr) {
+      if (dateKey >= istDateStr && dayEvents.length > 0) {
         calDrawerFooter.style.display = 'flex';
       } else {
         calDrawerFooter.style.display = 'none';
