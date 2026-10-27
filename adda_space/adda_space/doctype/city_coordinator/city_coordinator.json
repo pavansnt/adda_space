@@ -1,0 +1,173 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{city}-{coordinator_name}",
+ "creation": "2026-10-27 12:00:00.000000",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "coordinator_name",
+  "city",
+  "column_break_1",
+  "is_active",
+  "role_title",
+  "section_contact",
+  "whatsapp_number",
+  "column_break_contact",
+  "email",
+  "user",
+  "section_hours",
+  "opening_time",
+  "column_break_hours",
+  "closing_time",
+  "section_notes",
+  "hours_note"
+ ],
+ "fields": [
+  {
+   "fieldname": "coordinator_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Coordinator Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "City",
+   "options": "Adda City",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Is Active"
+  },
+  {
+   "fieldname": "role_title",
+   "fieldtype": "Data",
+   "label": "Role / Title"
+  },
+  {
+   "fieldname": "section_contact",
+   "fieldtype": "Section Break",
+   "label": "Contact Details"
+  },
+  {
+   "fieldname": "whatsapp_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "WhatsApp Number",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_contact",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "Linked User",
+   "options": "User"
+  },
+  {
+   "fieldname": "section_hours",
+   "fieldtype": "Section Break",
+   "label": "Operating Hours"
+  },
+  {
+   "fieldname": "opening_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Opening Time"
+  },
+  {
+   "fieldname": "column_break_hours",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "closing_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Closing Time"
+  },
+  {
+   "fieldname": "section_notes",
+   "fieldtype": "Section Break",
+   "label": "Operating Hours Note"
+  },
+  {
+   "fieldname": "hours_note",
+   "fieldtype": "Small Text",
+   "label": "Hours Note"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-27 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Adda Space",
+ "name": "City Coordinator",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Adda Space Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 0,
+   "delete": 0,
+   "email": 1,
+   "export": 0,
+   "print": 1,
+   "read": 1,
+   "report": 0,
+   "role": "City Coordinator",
+   "share": 0,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": []
+}
+

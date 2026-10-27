@@ -3344,9 +3344,121 @@ p.lead {
   color: #111827;
 }
 
+.adda-coord-lead-role {
+  font-size: 0.8125rem;
+  color: #4B5563;
+  margin-top: 0.1rem;
+}
+
 .adda-coord-lead-phone {
   font-size: 0.8125rem;
   color: #6B7280;
+}
+
+.adda-coord-hours-box {
+  background: #F3F4F6;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  padding: 0.75rem 0.85rem;
+  margin-bottom: 0.85rem;
+  font-size: 0.8125rem;
+  color: #374151;
+}
+
+.adda-coord-hours-header {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #4B5563;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.adda-coord-hours-tz {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6B7280;
+  text-transform: none;
+}
+
+.adda-coord-hours-grid {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.adda-coord-hours-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.adda-coord-hours-label {
+  font-weight: 600;
+  color: #4B5563;
+}
+
+.adda-coord-hours-val {
+  font-weight: 700;
+  color: #111827;
+}
+
+.adda-coord-hours-note {
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  color: #4B5563;
+  line-height: 1.4;
+  border-top: 1px dashed #D1D5DB;
+  padding-top: 0.35rem;
+}
+
+.adda-coord-hours-missing {
+  color: #6B7280;
+  font-style: italic;
+  font-size: 0.8125rem;
+}
+
+.adda-coord-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0;
+  color: #6B7280;
+  font-size: 0.875rem;
+}
+
+.adda-coord-empty {
+  padding: 0.85rem 1rem;
+  background: #FFFBEB;
+  border: 1px solid #FCD34D;
+  border-radius: 8px;
+  color: #92400E;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.adda-coord-retry-btn {
+  background: none;
+  border: none;
+  color: #0F766E;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 0.5rem;
+  text-decoration: underline;
+  font-size: 0.875rem;
+}
+
+.adda-coord-retry-btn:hover {
+  color: #115E59;
+}
+
+.adda-coord-retry-btn:focus-visible {
+  outline: 2px solid #0F766E;
+  outline-offset: 2px;
 }
 
 .adda-coord-lead-wa-btn {
@@ -3367,6 +3479,20 @@ p.lead {
 .adda-coord-lead-wa-btn:hover {
   background-color: #1EBE5D;
   transform: translateY(-1px);
+}
+
+.adda-coord-lead-wa-btn:focus-visible {
+  outline: 2px solid #128C7E;
+  outline-offset: 2px;
+}
+
+.adda-coord-lead-wa-btn.disabled,
+.adda-coord-lead-wa-btn[aria-disabled="true"] {
+  background-color: #D1D5DB !important;
+  color: #6B7280 !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
 }
 
 .adda-duration-summary {

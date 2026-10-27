@@ -11,17 +11,17 @@ def setup_adda_space():
 
 
 def setup_roles():
-	"""Ensure 'Adda Space Admin' role exists with Desk access."""
-	role_name = "Adda Space Admin"
-	if not frappe.db.exists("Role", role_name):
-		role = frappe.get_doc({
-			"doctype": "Role",
-			"role_name": role_name,
-			"desk_access": 1,
-			"is_custom": 0,
-		})
-		role.insert(ignore_permissions=True)
-		frappe.db.commit()
+	"""Ensure 'Adda Space Admin' and 'City Coordinator' roles exist with Desk access."""
+	for role_name in ("Adda Space Admin", "City Coordinator"):
+		if not frappe.db.exists("Role", role_name):
+			role = frappe.get_doc({
+				"doctype": "Role",
+				"role_name": role_name,
+				"desk_access": 1,
+				"is_custom": 0,
+			})
+			role.insert(ignore_permissions=True)
+			frappe.db.commit()
 
 
 def setup_settings():
@@ -35,16 +35,3 @@ def setup_settings():
 				frappe.db.commit()
 		except Exception:
 			pass
-
-def setup_settings():
-	"""Ensure Adda Space Settings document is initialized with default values."""
-	if frappe.db.table_exists("Adda Space Settings"):
-		try:
-			settings = frappe.get_single("Adda Space Settings")
-			if settings.get("enable_public_registration") is None:
-				settings.enable_public_registration = 1
-				settings.save(ignore_permissions=True)
-				frappe.db.commit()
-		except Exception:
-			pass
-

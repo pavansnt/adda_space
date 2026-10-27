@@ -305,25 +305,10 @@
         <h3 class="adda-coord-title">Host your event at Adda</h3>
         <button type="button" class="adda-coord-toggle-btn" id="adda-coord-toggle-btn" aria-expanded="true" aria-label="Toggle coordinator details">&minus;</button>
       </div>
-      <p class="adda-coord-subtitle">Use Adda space in Bengaluru or Mysuru &mdash; talk to a coordinator</p>
+      <p class="adda-coord-subtitle" id="adda-coord-subtitle">Use Adda space &mdash; talk to a coordinator</p>
       <div class="adda-coord-grid" id="adda-coord-grid">
-        <!-- Bengaluru Card -->
-        <div class="adda-coord-card">
-          <span class="adda-coord-city-tag">BENGALURU</span>
-          <div class="adda-coord-name">Chiku Agarawal</div>
-          <div class="adda-coord-phone">90350 54940</div>
-          <a href="https://wa.me/919035054940?text=Hi%20Chiku%20Agarawal%2C%20I%E2%80%99d%20like%20to%20host%20an%20event%20at%20the%20Adda%20in%20Bengaluru.%20Could%20you%20help%20me%20plan%20it%3F" target="_blank" rel="noopener noreferrer" class="adda-coord-wa-btn" id="coord-wa-bengaluru">
-            <span>&#x1F4AC;</span> WhatsApp 90350 54940
-          </a>
-        </div>
-        <!-- Mysuru Card -->
-        <div class="adda-coord-card">
-          <span class="adda-coord-city-tag">MYSURU</span>
-          <div class="adda-coord-name">Sarah Misra</div>
-          <div class="adda-coord-phone">87929 65810</div>
-          <a href="https://wa.me/918792965810?text=Hi%20Sarah%20Misra%2C%20I%E2%80%99d%20like%20to%20host%20an%20event%20at%20the%20Adda%20in%20Mysuru.%20Could%20you%20help%20me%20plan%20it%3F" target="_blank" rel="noopener noreferrer" class="adda-coord-wa-btn" id="coord-wa-mysuru">
-            <span>&#x1F4AC;</span> WhatsApp 87929 65810
-          </a>
+        <div class="adda-coord-loading" id="adda-coord-grid-loading" style="padding: 1rem; color: #6B7280; font-size: 0.875rem;">
+          Loading coordinators...
         </div>
       </div>
     </div>
@@ -569,16 +554,55 @@
         <div id="modal-coordinator-card" class="adda-coordinator-lead-card">
           <div class="adda-coord-lead-header">
             <h4 class="adda-coord-lead-title">Prefer a human?</h4>
-            <p class="adda-coord-lead-desc">Talk to a coordinator to plan your gathering</p>
+            <p class="adda-coord-lead-desc"><span id="modal-coord-city-tag">Adda Space</span> &mdash; talk to a coordinator</p>
           </div>
-          <div class="adda-coord-lead-body">
-            <div class="adda-coord-lead-info">
-              <strong id="modal-coord-name" class="adda-coord-lead-name">Chiku Agarawal</strong>
-              <span id="modal-coord-contact" class="adda-coord-lead-phone">90350 54940</span>
+
+          <!-- Loading state -->
+          <div id="modal-coord-loading" class="adda-coord-loading" style="display: none;">
+            <span>Loading coordinator details...</span>
+          </div>
+
+          <!-- Empty / Error state -->
+          <div id="modal-coord-empty" class="adda-coord-empty" style="display: none;">
+            <span id="modal-coord-empty-msg">No active coordinator is assigned to this city yet.</span>
+            <button type="button" id="modal-coord-retry-btn" class="adda-coord-retry-btn" style="display: none;">Retry</button>
+          </div>
+
+          <!-- Coordinator details & Operating hours -->
+          <div id="modal-coord-content" style="display: none;">
+            <!-- Operating Hours Box -->
+            <div id="modal-coord-hours-box" class="adda-coord-hours-box">
+              <div class="adda-coord-hours-header">
+                <span>OPERATING HOURS</span>
+                <span id="modal-coord-timezone" class="adda-coord-hours-tz">Asia/Kolkata</span>
+              </div>
+              <div id="modal-coord-hours-grid" class="adda-coord-hours-grid">
+                <div class="adda-coord-hours-item">
+                  <span class="adda-coord-hours-label">Opens:</span>
+                  <span id="modal-coord-open-time" class="adda-coord-hours-val">10:00 AM</span>
+                </div>
+                <div class="adda-coord-hours-item">
+                  <span class="adda-coord-hours-label">Closes:</span>
+                  <span id="modal-coord-close-time" class="adda-coord-hours-val">6:00 PM</span>
+                </div>
+              </div>
+              <div id="modal-coord-hours-missing" class="adda-coord-hours-missing" style="display: none;">
+                Operating hours have not been configured yet.
+              </div>
+              <div id="modal-coord-hours-note" class="adda-coord-hours-note" style="display: none;"></div>
             </div>
-            <a href="https://wa.me/919035054940?text=Hi%20Chiku%20Agarawal%2C%20I%E2%80%99d%20like%20to%20host%20an%20event%20at%20the%20Adda%20in%20Bengaluru.%20Could%20you%20help%20me%20plan%20it%3F" id="modal-coord-wa-link" target="_blank" rel="noopener noreferrer" class="adda-coord-lead-wa-btn">
-              <span>&#x1F4AC;</span> WhatsApp 90350 54940
-            </a>
+
+            <!-- Coordinator Contact Body -->
+            <div class="adda-coord-lead-body">
+              <div class="adda-coord-lead-info">
+                <strong id="modal-coord-name" class="adda-coord-lead-name"></strong>
+                <span id="modal-coord-role" class="adda-coord-lead-role" style="display: none;"></span>
+                <span id="modal-coord-contact" class="adda-coord-lead-phone"></span>
+              </div>
+              <a href="#" id="modal-coord-wa-link" target="_blank" rel="noopener noreferrer" class="adda-coord-lead-wa-btn" style="display: none;">
+                <span>&#x1F4AC;</span> <span id="modal-coord-wa-text">WhatsApp</span>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -620,6 +644,10 @@
 
         <div id="modal-duration-display" class="adda-duration-summary">
           You’ll request 10:00 – 12:00 (2 hours)
+        </div>
+
+        <div id="modal-hours-warning" class="adda-avail-box adda-avail-warning" style="display: none; background: #FFFBEB; border: 1px solid #FCD34D; color: #92400E; margin-bottom: 1rem; font-size: 0.8125rem; padding: 0.65rem 0.85rem; border-radius: 6px;">
+          <span id="modal-hours-warning-text"></span>
         </div>
 
         <div class="adda-form-group" style="margin-top: 1rem;">
@@ -1588,29 +1616,254 @@
   // HOST AT ADDA MULTI-STEP MODAL LOGIC
   // ========================================================================
 
-  function updateCoordinatorInfo(cityName) {
-    var coordName = document.getElementById('modal-coord-name');
-    var coordContact = document.getElementById('modal-coord-contact');
+  var currentCoordinatorData = null;
+  var currentCoordinatorCity = '';
+  var currentCoordinatorTimezone = 'Asia/Kolkata';
+  var selectedHostDate = null;
+  var coordFetchSeq = 0;
+
+  function normalizePhoneNumber(phone, defaultCode) {
+    defaultCode = defaultCode || '91';
+    if (!phone) return '';
+    var raw = String(phone).trim();
+    var digits = raw.replace(/[^\d]/g, '');
+    if (raw.charAt(0) === '+') {
+      return digits;
+    }
+    if (digits.length === 10) {
+      return defaultCode + digits;
+    }
+    if (digits.length === 11 && digits.charAt(0) === '0') {
+      return defaultCode + digits.slice(1);
+    }
+    return digits;
+  }
+
+  function formatTime12hr(timeStr) {
+    if (!timeStr) return '';
+    var parts = String(timeStr).trim().split(':');
+    var hours = parseInt(parts[0], 10);
+    if (isNaN(hours)) return timeStr;
+    var minutes = parts.length > 1 ? parseInt(parts[1], 10) : 0;
+    if (isNaN(minutes)) minutes = 0;
+    var ampm = hours >= 12 ? 'PM' : 'AM';
+    var h12 = hours % 12;
+    if (h12 === 0) h12 = 12;
+    var mStr = minutes < 10 ? '0' + minutes : String(minutes);
+    return h12 + ':' + mStr + ' ' + ampm;
+  }
+
+  function generateWhatsAppUrl(coordName, cityName, phone, eventDate) {
+    var normPhone = normalizePhoneNumber(phone);
+    var dateVal = (eventDate && String(eventDate).trim()) ? String(eventDate).trim() : 'a date I’m still planning';
+    var msg = 'Hi ' + coordName + ', I’d like to host an event at the Adda in ' + cityName + '. I’m looking at ' + dateVal + '. Could you help me plan it?';
+    return 'https://wa.me/' + normPhone + '?text=' + encodeURIComponent(msg);
+  }
+
+  function updateWhatsAppLink() {
     var waLink = document.getElementById('modal-coord-wa-link');
-    var city = (cityName || '').trim().toLowerCase();
-    if (city === 'mysuru') {
-      if (coordName) coordName.textContent = 'Sarah Misra';
-      if (coordContact) coordContact.textContent = '87929 65810';
-      if (waLink) {
-        waLink.href = 'https://wa.me/918792965810?text=Hi%20Sarah%20Misra%2C%20I%E2%80%99d%20like%20to%20host%20an%20event%20at%20the%20Adda%20in%20Mysuru.%20Could%20you%20help%20me%20plan%20it%3F';
-        waLink.innerHTML = '<span>&#x1F4AC;</span> WhatsApp 87929 65810';
-      }
-    } else {
-      if (coordName) coordName.textContent = 'Chiku Agarawal';
-      if (coordContact) coordContact.textContent = '90350 54940';
-      if (waLink) {
-        waLink.href = 'https://wa.me/919035054940?text=Hi%20Chiku%20Agarawal%2C%20I%E2%80%99d%20like%20to%20host%20an%20event%20at%20the%20Adda%20in%20Bengaluru.%20Could%20you%20help%20me%20plan%20it%3F';
-        waLink.innerHTML = '<span>&#x1F4AC;</span> WhatsApp 90350 54940';
-      }
+    var waText = document.getElementById('modal-coord-wa-text');
+    if (!waLink) return;
+
+    if (!currentCoordinatorData || !currentCoordinatorData.whatsapp_number) {
+      waLink.style.display = 'none';
+      waLink.removeAttribute('href');
+      waLink.classList.add('disabled');
+      waLink.setAttribute('aria-disabled', 'true');
+      return;
+    }
+
+    var coordName = currentCoordinatorData.coordinator_name || 'Coordinator';
+    var cityName = currentCoordinatorCity || (modalCitySelect ? modalCitySelect.value : '') || 'Bengaluru';
+    var phone = currentCoordinatorData.whatsapp_number;
+    var dateToUse = selectedHostDate || (modalEventDate ? modalEventDate.value : null);
+
+    var url = generateWhatsAppUrl(coordName, cityName, phone, dateToUse);
+    waLink.href = url;
+    waLink.style.display = 'inline-flex';
+    waLink.classList.remove('disabled');
+    waLink.removeAttribute('aria-disabled');
+    if (waText) {
+      waText.textContent = 'WhatsApp ' + phone;
     }
   }
 
+  function checkOperatingHoursWarning() {
+    var warningBox = document.getElementById('modal-hours-warning');
+    var warningText = document.getElementById('modal-hours-warning-text');
+    if (!warningBox || !warningText) return;
+
+    if (!currentCoordinatorData || !currentCoordinatorData.opening_time || !currentCoordinatorData.closing_time) {
+      warningBox.style.display = 'none';
+      return;
+    }
+
+    var startTimeVal = modalStartTime ? modalStartTime.value : '';
+    var endTimeVal = modalEndTime ? modalEndTime.value : '';
+    if (!startTimeVal || !endTimeVal) {
+      warningBox.style.display = 'none';
+      return;
+    }
+
+    var openT = currentCoordinatorData.opening_time.slice(0, 5);
+    var closeT = currentCoordinatorData.closing_time.slice(0, 5);
+    var reqOpen = startTimeVal.slice(0, 5);
+    var reqClose = endTimeVal.slice(0, 5);
+
+    if (reqOpen < openT || reqClose > closeT) {
+      var openFmt = currentCoordinatorData.formatted_opening_time || formatTime12hr(openT);
+      var closeFmt = currentCoordinatorData.formatted_closing_time || formatTime12hr(closeT);
+      warningText.textContent = 'Note: Your requested time (' + formatTime12hr(reqOpen) + ' – ' + formatTime12hr(reqClose) + ') is outside this space’s regular operating hours (' + openFmt + ' – ' + closeFmt + '). Coordinators will review special requests during proposal approval.';
+      warningBox.style.display = 'block';
+    } else {
+      warningBox.style.display = 'none';
+    }
+  }
+
+  function updateCoordinatorInfo(cityName) {
+    var targetCity = (cityName || '').trim();
+    if (!targetCity) return;
+
+    var currentSeq = ++coordFetchSeq;
+
+    var coordLoading = document.getElementById('modal-coord-loading');
+    var coordEmpty = document.getElementById('modal-coord-empty');
+    var coordEmptyMsg = document.getElementById('modal-coord-empty-msg');
+    var coordRetryBtn = document.getElementById('modal-coord-retry-btn');
+    var coordContent = document.getElementById('modal-coord-content');
+    var coordCityTag = document.getElementById('modal-coord-city-tag');
+    var waLink = document.getElementById('modal-coord-wa-link');
+
+    if (coordCityTag) coordCityTag.textContent = targetCity + ' Adda Space';
+
+    // Set loading state
+    if (coordLoading) coordLoading.style.display = 'flex';
+    if (coordEmpty) coordEmpty.style.display = 'none';
+    if (coordContent) coordContent.style.display = 'none';
+    if (waLink) {
+      waLink.style.display = 'none';
+      waLink.removeAttribute('href');
+      waLink.classList.add('disabled');
+      waLink.setAttribute('aria-disabled', 'true');
+    }
+
+    fetch('/api/method/adda_space.api.events.get_city_coordinator?city=' + encodeURIComponent(targetCity), {
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-Frappe-CSRF-Token': getCsrfToken()
+      }
+    })
+    .then(function(res) {
+      return res.json().then(function(data) {
+        return { ok: res.ok, status: res.status, data: data };
+      });
+    })
+    .then(function(result) {
+      // Ignore stale response if user rapidly selected another city
+      if (currentSeq !== coordFetchSeq) return;
+
+      if (coordLoading) coordLoading.style.display = 'none';
+
+      var payload = result.data.message || result.data;
+      if (!result.ok || !payload || payload.coordinator === null || !payload.coordinator) {
+        currentCoordinatorData = null;
+        currentCoordinatorCity = targetCity;
+        currentCoordinatorTimezone = (payload && payload.timezone) || 'Asia/Kolkata';
+
+        var emptyMsg = (payload && payload.message) || 'No active coordinator is assigned to this city yet.';
+        if (coordEmptyMsg) coordEmptyMsg.textContent = emptyMsg;
+        if (coordRetryBtn) coordRetryBtn.style.display = 'none';
+        if (coordEmpty) coordEmpty.style.display = 'block';
+        if (coordContent) coordContent.style.display = 'none';
+        updateWhatsAppLink();
+        checkOperatingHoursWarning();
+        return;
+      }
+
+      var coord = payload.coordinator;
+      currentCoordinatorData = coord;
+      currentCoordinatorCity = payload.city || targetCity;
+      currentCoordinatorTimezone = payload.timezone || 'Asia/Kolkata';
+
+      if (coordEmpty) coordEmpty.style.display = 'none';
+      if (coordContent) coordContent.style.display = 'block';
+
+      // Update Coordinator Info
+      var coordNameEl = document.getElementById('modal-coord-name');
+      var coordRoleEl = document.getElementById('modal-coord-role');
+      var coordContactEl = document.getElementById('modal-coord-contact');
+
+      if (coordNameEl) coordNameEl.textContent = coord.coordinator_name || '';
+      if (coordRoleEl) {
+        if (coord.role_title) {
+          coordRoleEl.textContent = coord.role_title;
+          coordRoleEl.style.display = 'block';
+        } else {
+          coordRoleEl.style.display = 'none';
+        }
+      }
+      if (coordContactEl) coordContactEl.textContent = coord.whatsapp_number || '';
+
+      // Update Operating Hours Box
+      var tzEl = document.getElementById('modal-coord-timezone');
+      var hoursGrid = document.getElementById('modal-coord-hours-grid');
+      var hoursMissing = document.getElementById('modal-coord-hours-missing');
+      var openTimeEl = document.getElementById('modal-coord-open-time');
+      var closeTimeEl = document.getElementById('modal-coord-close-time');
+      var noteEl = document.getElementById('modal-coord-hours-note');
+
+      if (tzEl) tzEl.textContent = currentCoordinatorTimezone;
+
+      if (coord.opening_time && coord.closing_time) {
+        if (hoursGrid) hoursGrid.style.display = 'flex';
+        if (hoursMissing) hoursMissing.style.display = 'none';
+        if (openTimeEl) openTimeEl.textContent = coord.formatted_opening_time || formatTime12hr(coord.opening_time);
+        if (closeTimeEl) closeTimeEl.textContent = coord.formatted_closing_time || formatTime12hr(coord.closing_time);
+      } else {
+        if (hoursGrid) hoursGrid.style.display = 'none';
+        if (hoursMissing) hoursMissing.style.display = 'block';
+      }
+
+      if (noteEl) {
+        if (coord.hours_note) {
+          noteEl.textContent = coord.hours_note;
+          noteEl.style.display = 'block';
+        } else {
+          noteEl.style.display = 'none';
+        }
+      }
+
+      // Update WhatsApp link
+      updateWhatsAppLink();
+      checkOperatingHoursWarning();
+    })
+    .catch(function(err) {
+      if (currentSeq !== coordFetchSeq) return;
+
+      if (coordLoading) coordLoading.style.display = 'none';
+      if (coordContent) coordContent.style.display = 'none';
+      currentCoordinatorData = null;
+
+      if (coordEmptyMsg) coordEmptyMsg.textContent = 'Unable to load coordinator details. Please try again.';
+      if (coordRetryBtn) {
+        coordRetryBtn.style.display = 'inline';
+        coordRetryBtn.onclick = function() {
+          updateCoordinatorInfo(targetCity);
+        };
+      }
+      if (coordEmpty) coordEmpty.style.display = 'block';
+      updateWhatsAppLink();
+      checkOperatingHoursWarning();
+    });
+  }
+
   function resetHostModalForm() {
+    selectedHostDate = null;
+    currentCoordinatorData = null;
+    var hoursWarn = document.getElementById('modal-hours-warning');
+    if (hoursWarn) hoursWarn.style.display = 'none';
+
     try {
       sessionStorage.removeItem('adda_host_form_data');
     } catch(e) {}
@@ -1650,9 +1903,12 @@
   function openHostModal(prefilledDate) {
     if (!hostModalBackdrop) return;
 
+    selectedHostDate = prefilledDate || null;
+
     // Reset previous inputs if fresh proposal or prefilling date
     if (hostModalStep === 5 || prefilledDate) {
       resetHostModalForm();
+      selectedHostDate = prefilledDate || null;
     }
 
     if (prefilledDate && modalEventDate) {
@@ -1787,7 +2043,10 @@
         modalCitySelect.value = state.city;
         updateCoordinatorInfo(state.city);
       }
-      if (state.date && modalEventDate) modalEventDate.value = state.date;
+      if (state.date && modalEventDate) {
+        modalEventDate.value = state.date;
+        selectedHostDate = state.date;
+      }
       if (state.start_time && modalStartTime) modalStartTime.value = state.start_time;
       if (state.end_time && modalEndTime) modalEndTime.value = state.end_time;
       if (state.room_name && modalSelectedRoom) modalSelectedRoom.value = state.room_name;
@@ -2069,9 +2328,33 @@
     });
   }
 
-  if (modalEventDate) modalEventDate.addEventListener('change', checkModalRoomAvailability);
-  if (modalStartTime) modalStartTime.addEventListener('change', checkModalRoomAvailability);
-  if (modalEndTime) modalEndTime.addEventListener('change', checkModalRoomAvailability);
+  if (modalEventDate) {
+    modalEventDate.addEventListener('input', function() {
+      selectedHostDate = this.value;
+      updateWhatsAppLink();
+      checkOperatingHoursWarning();
+    });
+    modalEventDate.addEventListener('change', function() {
+      selectedHostDate = this.value;
+      updateWhatsAppLink();
+      checkOperatingHoursWarning();
+      checkModalRoomAvailability();
+    });
+  }
+  if (modalStartTime) {
+    modalStartTime.addEventListener('change', function() {
+      checkModalRoomAvailability();
+      checkOperatingHoursWarning();
+    });
+    modalStartTime.addEventListener('input', checkOperatingHoursWarning);
+  }
+  if (modalEndTime) {
+    modalEndTime.addEventListener('change', function() {
+      checkModalRoomAvailability();
+      checkOperatingHoursWarning();
+    });
+    modalEndTime.addEventListener('input', checkOperatingHoursWarning);
+  }
 
   // Poster Image Preview
   if (modalPosterFile) {
@@ -3256,6 +3539,65 @@
 
   if (retryBtn) retryBtn.addEventListener('click', fetchListEvents);
 
+  // Coordinator Section Dynamic Loading
+  function loadCoordinatorSection(cities) {
+    if (!coordGrid) return;
+    var subEl = document.getElementById('adda-coord-subtitle');
+    if (subEl && cities && cities.length) {
+      subEl.textContent = 'Use Adda space in ' + cities.join(' or ') + ' \u2014 talk to a coordinator';
+    }
+
+    coordGrid.innerHTML = '';
+    if (!cities || !cities.length) {
+      coordGrid.innerHTML = '<div style="color: #6B7280; font-size: 0.875rem; padding: 1rem;">No cities available.</div>';
+      return;
+    }
+
+    cities.forEach(function(cityName) {
+      var card = document.createElement('div');
+      card.className = 'adda-coord-card';
+      card.innerHTML = '<span class="adda-coord-city-tag">' + escapeHtml(cityName.toUpperCase()) + '</span>' +
+        '<div class="adda-coord-loading" style="padding: 0.5rem 0; font-size: 0.8125rem; color: #6B7280;">Loading...</div>';
+      coordGrid.appendChild(card);
+
+      fetch('/api/method/adda_space.api.events.get_city_coordinator?city=' + encodeURIComponent(cityName), {
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-Frappe-CSRF-Token': getCsrfToken()
+        }
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        var payload = d.message || d;
+        var coord = payload && payload.coordinator;
+        if (coord) {
+          var hoursHtml = '';
+          if (coord.formatted_opening_time && coord.formatted_closing_time) {
+            hoursHtml = '<div style="font-size: 0.75rem; color: #4B5563; margin-bottom: 0.35rem;">Opens: ' + escapeHtml(coord.formatted_opening_time) + ' &bull; Closes: ' + escapeHtml(coord.formatted_closing_time) + '</div>';
+          }
+          var roleHtml = coord.role_title ? '<div style="font-size: 0.75rem; color: #6B7280;">' + escapeHtml(coord.role_title) + '</div>' : '';
+          var waUrl = generateWhatsAppUrl(coord.coordinator_name || 'Coordinator', cityName, coord.whatsapp_number, selectedDateStr || null);
+
+          card.innerHTML = '<span class="adda-coord-city-tag">' + escapeHtml(cityName.toUpperCase()) + '</span>' +
+            '<div class="adda-coord-name">' + escapeHtml(coord.coordinator_name || '') + '</div>' +
+            roleHtml +
+            '<div class="adda-coord-phone">' + escapeHtml(coord.whatsapp_number || '') + '</div>' +
+            hoursHtml +
+            '<a href="' + escapeHtml(waUrl) + '" target="_blank" rel="noopener noreferrer" class="adda-coord-wa-btn" id="coord-wa-' + escapeHtml(cityName.toLowerCase()) + '">' +
+            '<span>&#x1F4AC;</span> WhatsApp ' + escapeHtml(coord.whatsapp_number || '') + '</a>';
+        } else {
+          card.innerHTML = '<span class="adda-coord-city-tag">' + escapeHtml(cityName.toUpperCase()) + '</span>' +
+            '<div style="font-size: 0.8125rem; color: #6B7280; margin-top: 0.5rem; font-style: italic;">No active coordinator assigned yet.</div>';
+        }
+      })
+      .catch(function() {
+        card.innerHTML = '<span class="adda-coord-city-tag">' + escapeHtml(cityName.toUpperCase()) + '</span>' +
+          '<div style="font-size: 0.8125rem; color: #9CA3AF; margin-top: 0.5rem;">Coordinator unavailable</div>';
+      });
+    });
+  }
+
   // Coordinator Section Expand / Collapse Toggle
   function toggleCoordSection() {
     if (!coordGrid || !coordToggleBtn) return;
@@ -3337,24 +3679,29 @@
     .then(function(data) {
       var cities = (data && data.message && Array.isArray(data.message.cities)) ? data.message.cities : ['Bengaluru', 'Mysuru'];
       if (cities.length > 0) renderCityFilterButtons(cities);
+      loadCoordinatorSection(cities);
 
       // Populate Host Modal City Select while preserving currently selected city
       if (modalCitySelect) {
-        var prevValue = modalCitySelect.value || currentCity || 'Bengaluru';
+        var prevValue = modalCitySelect.value || currentCity || (cities.length ? cities[0] : '');
         modalCitySelect.innerHTML = '';
         cities.forEach(function(c) {
           var opt = document.createElement('option');
           opt.value = c;
           opt.textContent = c;
-          if (c.toLowerCase() === prevValue.toLowerCase()) {
+          if (prevValue && c.toLowerCase() === prevValue.toLowerCase()) {
             opt.selected = true;
           }
           modalCitySelect.appendChild(opt);
         });
         if (prevValue) {
           modalCitySelect.value = prevValue;
+        } else if (cities.length) {
+          modalCitySelect.value = cities[0];
         }
-        updateCoordinatorInfo(modalCitySelect.value || 'Bengaluru');
+        if (modalCitySelect.value) {
+          updateCoordinatorInfo(modalCitySelect.value);
+        }
       }
 
       // Opening /events loads the calendar normally — NO modal automatically opened.

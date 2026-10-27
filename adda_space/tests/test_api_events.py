@@ -6,6 +6,7 @@ from frappe.tests import IntegrationTestCase
 from frappe.utils import add_to_date, get_datetime, now_datetime
 from adda_space.api.events import (
 	get_supported_cities,
+	get_city_coordinator,
 	get_adda_rooms,
 	get_adda_room_availability,
 	get_adda_events,
@@ -889,3 +890,43 @@ class TestApiEvents(IntegrationTestCase):
 			"approval_status": "Approved",
 		}
 		self.assertFalse(_is_event_past(oct28_event, now_dt=ref_now))
+
+	def test_get_city_coordinator_api(self):
+		# Clean up existing test coordinator
+		for c in frappe.get_all("City Coordinator", filters={"city": "Bengaluru"}, pluck="name"):
+			frappe.delete_doc("City Coordinator", c, force=True, ignore_permissions=True)
+
+		# No coordinator assigned yet
+		res = get_city_coordinator(city="Bengaluru")
+		self.assertTrue(res.get("success"))
+		self.assertIsNone(res.get("coordinator"))
+		self.assertIn("No active coordinator", res.get("message"))
+
+		# Insert active coordinator
+		coord = frappe.get_doc({
+			"doctype": "City Coordinator",
+			"coordinator_name": "API Test Coordinator",
+			"city": "Bengaluru",
+			"whatsapp_number": "90350 54940",
+			"role_title": "City Lead",
+			"is_active": 1,
+			"opening_time": "10:00:00",
+			"closing_time": "18:00:00",
+		}).insert(ignore_permissions=True)
+
+		try:
+			res2 = get_city_coordinator(city="Bengaluru")
+			self.assertTrue(res2.get("success"))
+			c_data = res2.get("coordinator")
+			self.assertIsNotNone(c_data)
+			self.assertEqual(c_data["coordinator_name"], "API Test Coordinator")
+			self.assertEqual(c_data["normalized_phone"], "919035054940")
+			self.assertEqual(c_data["formatted_opening_time"], "10:00 AM")
+			self.assertEqual(c_data["formatted_closing_time"], "6:00 PM")
+			self.assertNotIn("email", c_data)
+		finally:
+			frappe.delete_doc("City Coordinator", coord.name, force=True, ignore_permissions=True)
+
+	def test_get_city_coordinator_invalid_city(self):
+		with self.assertRaises(frappe.ValidationError):
+			get_city_coordinator(city="UnknownCity123")

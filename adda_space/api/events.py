@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Union
 import datetime
 import json
 import os
+import re
 import frappe
 from frappe import _
 from frappe.utils import get_datetime, get_url, now_datetime
@@ -32,6 +33,7 @@ EVENT_REQUEST_DOCTYPE = "Adda Event Request"
 EVENT_RECAP_DOCTYPE = "Event Recap"
 EVENT_RECAP_PHOTO_DOCTYPE = "Adda Event Recap Photo"
 CITY_DOCTYPE = "Adda City"
+COORDINATOR_DOCTYPE = "City Coordinator"
 ROOM_DOCTYPE = "Adda Room"
 REGISTRATION_DOCTYPE = "Adda Event Registration"
 
@@ -292,6 +294,160 @@ def get_supported_cities() -> Dict[str, Any]:
 	return {
 		"success": True,
 		"cities": cities,
+	}
+
+
+# In-memory mock store for test environments when live DB is unavailable
+_MOCK_COORDINATOR_STORE: Dict[str, Dict[str, Any]] = {}
+
+
+def normalize_phone_number(phone: Optional[str], default_country_code: str = "91") -> str:
+	"""
+	Normalize phone number into international digits without leading '+' or special chars.
+	Handles international format with explicit country code (e.g. '+1 (555) 123-4567' -> '15551234567'),
+	and standard 10-digit national numbers (e.g. '87929 65810' -> '918792965810').
+	"""
+	if not phone:
+		return ""
+	raw = str(phone).strip()
+	digits = re.sub(r"[^\d]", "", raw)
+	if raw.startswith("+"):
+		return digits
+	if len(digits) == 10:
+		return f"{default_country_code}{digits}"
+	if len(digits) == 11 and digits.startswith("0"):
+		return f"{default_country_code}{digits[1:]}"
+	return digits
+
+
+def format_time_12hr(time_val: Any) -> str:
+	"""Format time string or timedelta into '10:00 AM' format without timezone shifts."""
+	if not time_val:
+		return ""
+	if isinstance(time_val, datetime.timedelta):
+		total_seconds = int(time_val.total_seconds())
+		hours = (total_seconds // 3600) % 24
+		minutes = (total_seconds % 3600) // 60
+	else:
+		parts = str(time_val).strip().split(":")
+		try:
+			hours = int(parts[0])
+			minutes = int(parts[1]) if len(parts) > 1 else 0
+		except (ValueError, IndexError):
+			return str(time_val)
+	ampm = "AM" if hours < 12 else "PM"
+	h12 = hours % 12
+	if h12 == 0:
+		h12 = 12
+	return f"{h12}:{minutes:02d} {ampm}"
+
+
+@frappe.whitelist(allow_guest=True)
+def get_city_coordinator(city: Optional[str] = None) -> Dict[str, Any]:
+	"""
+	Public read-only API endpoint to retrieve the active City Coordinator
+	and space operating hours for a specific city.
+	Exposes only permitted public information.
+	"""
+	data = _parse_request_data()
+	city_param = str(city or data.get("city") or "").strip()
+	if not city_param:
+		frappe.throw(_("City parameter is required."))
+
+	matched_city = None
+	city_tz = "Asia/Kolkata"
+
+	if _is_mock_db():
+		mock_lower = city_param.lower()
+		supported = [c.lower() for c in fetch_supported_cities()]
+		if mock_lower in supported or mock_lower in _MOCK_COORDINATOR_STORE:
+			matched_city = city_param.title()
+			city_tz = "Asia/Kolkata"
+		else:
+			frappe.throw(_("City '{0}' does not exist.").format(city_param))
+	else:
+		if frappe.db.table_exists(CITY_DOCTYPE):
+			if frappe.db.exists(CITY_DOCTYPE, city_param):
+				c_row = frappe.db.get_value(
+					CITY_DOCTYPE,
+					city_param,
+					["name", "city_name", "timezone"],
+					as_dict=True,
+				)
+				if c_row:
+					matched_city = c_row.get("city_name") or c_row.get("name")
+					city_tz = c_row.get("timezone") or "Asia/Kolkata"
+			else:
+				# Case-insensitive lookup
+				all_cities = frappe.get_all(
+					CITY_DOCTYPE,
+					fields=["name", "city_name", "timezone"],
+				)
+				for c in all_cities:
+					c_name = (c.get("city_name") or c.get("name") or "").strip()
+					if c_name.lower() == city_param.lower():
+						matched_city = c_name
+						city_tz = c.get("timezone") or "Asia/Kolkata"
+						break
+
+	if not matched_city:
+		frappe.throw(_("City '{0}' does not exist.").format(city_param))
+
+	coord_doc = None
+	if not _is_mock_db() and frappe.db.table_exists(COORDINATOR_DOCTYPE):
+		coords = frappe.get_all(
+			COORDINATOR_DOCTYPE,
+			filters={
+				"city": matched_city,
+				"is_active": 1,
+			},
+			fields=[
+				"name",
+				"coordinator_name",
+				"role_title",
+				"whatsapp_number",
+				"opening_time",
+				"closing_time",
+				"hours_note",
+			],
+			limit=1,
+		)
+		if coords:
+			coord_doc = coords[0]
+	elif _is_mock_db():
+		coord_doc = _MOCK_COORDINATOR_STORE.get(matched_city.lower())
+
+	if not coord_doc:
+		return {
+			"status": "success",
+			"success": True,
+			"city": matched_city,
+			"timezone": city_tz,
+			"coordinator": None,
+			"message": _("No active coordinator is assigned to this city yet."),
+		}
+
+	formatted_open = format_time_12hr(coord_doc.get("opening_time")) if coord_doc.get("opening_time") else None
+	formatted_close = format_time_12hr(coord_doc.get("closing_time")) if coord_doc.get("closing_time") else None
+
+	return {
+		"status": "success",
+		"success": True,
+		"city": matched_city,
+		"timezone": city_tz,
+		"coordinator": {
+			"name": coord_doc.get("name"),
+			"coordinator_name": coord_doc.get("coordinator_name"),
+			"role_title": coord_doc.get("role_title") or "",
+			"whatsapp_number": coord_doc.get("whatsapp_number"),
+			"normalized_phone": normalize_phone_number(coord_doc.get("whatsapp_number")),
+			"opening_time": str(coord_doc.get("opening_time")) if coord_doc.get("opening_time") else None,
+			"closing_time": str(coord_doc.get("closing_time")) if coord_doc.get("closing_time") else None,
+			"formatted_opening_time": formatted_open,
+			"formatted_closing_time": formatted_close,
+			"hours_note": coord_doc.get("hours_note") or "",
+		},
+		"message": None,
 	}
 
 
