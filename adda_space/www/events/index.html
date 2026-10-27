@@ -539,14 +539,13 @@
       </div>
       <div class="adda-modal-body" style="padding: 1.5rem 1.75rem 1rem;">
         <p style="font-size: 0.9375rem; color: #4B5563; line-height: 1.5; margin-bottom: 1.25rem;">
-          We offer free space for gatherings, workshops, and civic meetups in Bengaluru and Mysuru. Propose your event below.
+          Choose the city where you want to host. The available spaces and coordinator hours will update for that city.
         </p>
 
         <div class="adda-form-group" style="margin-bottom: 1.25rem;">
           <label for="modal-city-select" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">City <span class="req" style="color: #EF4444;">*</span></label>
           <select id="modal-city-select" class="adda-select" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" required>
-            <option value="Bengaluru" selected>Bengaluru</option>
-            <option value="Mysuru">Mysuru</option>
+            <option value="" selected disabled>Select a city</option>
           </select>
         </div>
 
@@ -1987,14 +1986,28 @@
       modalEventDate.value = istDateStr;
     }
 
-    var targetCity = currentCity || (modalCitySelect && modalCitySelect.value) || 'Bengaluru';
+    var targetCity = currentCity || '';
     if (modalCitySelect) {
       modalCitySelect.value = targetCity;
     }
-    updateCoordinatorInfo(targetCity);
+    if (targetCity) {
+      updateCoordinatorInfo(targetCity);
+    } else {
+      coordFetchSeq++;
+      currentCoordinatorData = null;
+      pendingModalStartTime = '';
+      pendingModalEndTime = '';
+      checkOperatingHoursWarning();
+      var coordLoading = document.getElementById('modal-coord-loading');
+      var coordContent = document.getElementById('modal-coord-content');
+      var coordEmpty = document.getElementById('modal-coord-empty');
+      if (coordLoading) coordLoading.style.display = 'none';
+      if (coordContent) coordContent.style.display = 'none';
+      if (coordEmpty) coordEmpty.style.display = 'none';
+    }
 
     // If prefilledDate is given, advance directly to Step 2 with that date ready!
-    if (prefilledDate) {
+    if (prefilledDate && targetCity) {
       goToModalStep(2);
       loadModalRooms(targetCity, function() {
         checkModalRoomAvailability();
@@ -2003,6 +2016,10 @@
       goToModalStep(1);
       if (targetCity) {
         loadModalRooms(targetCity);
+      } else {
+        hostAvailableRooms = [];
+        if (modalRoomsGrid) modalRoomsGrid.innerHTML = '';
+        if (modalRoomsLoading) modalRoomsLoading.style.display = 'none';
       }
     }
 
@@ -3768,8 +3785,14 @@
 
       // Populate Host Modal City Select while preserving currently selected city
       if (modalCitySelect) {
-        var prevValue = modalCitySelect.value || currentCity || (cities.length ? cities[0] : '');
+        var prevValue = currentCity || '';
         modalCitySelect.innerHTML = '';
+        var placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = 'Select a city';
+        placeholder.disabled = true;
+        placeholder.selected = !prevValue;
+        modalCitySelect.appendChild(placeholder);
         cities.forEach(function(c) {
           var opt = document.createElement('option');
           opt.value = c;
@@ -3779,11 +3802,7 @@
           }
           modalCitySelect.appendChild(opt);
         });
-        if (prevValue) {
-          modalCitySelect.value = prevValue;
-        } else if (cities.length) {
-          modalCitySelect.value = cities[0];
-        }
+        modalCitySelect.value = prevValue;
         if (modalCitySelect.value) {
           updateCoordinatorInfo(modalCitySelect.value);
         }
@@ -3815,8 +3834,11 @@
     })
     .catch(function() {
       if (modalCitySelect && !modalCitySelect.options.length) {
-        modalCitySelect.innerHTML = '<option value="Bengaluru" selected>Bengaluru</option><option value="Mysuru">Mysuru</option>';
-        updateCoordinatorInfo(modalCitySelect.value || 'Bengaluru');
+        modalCitySelect.innerHTML = '<option value="" selected disabled>Select a city</option><option value="Bengaluru">Bengaluru</option><option value="Mysuru">Mysuru</option>';
+        if (currentCity) {
+          modalCitySelect.value = currentCity;
+          updateCoordinatorInfo(currentCity);
+        }
       }
     });
 
