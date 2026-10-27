@@ -38,6 +38,51 @@ ROOM_DOCTYPE = "Adda Room"
 REGISTRATION_DOCTYPE = "Adda Event Registration"
 
 
+def _validate_city_operating_hours(city: str, start_dt: str, end_dt: str) -> None:
+	"""Reject proposed events outside the active coordinator's city hours."""
+	if _is_mock_db() or not frappe.db.table_exists(COORDINATOR_DOCTYPE):
+		return
+
+	coordinator = frappe.db.get_value(
+		COORDINATOR_DOCTYPE,
+		{"city": city, "is_active": 1},
+		["opening_time", "closing_time"],
+		as_dict=True,
+	)
+	if not coordinator or not coordinator.get("opening_time") or not coordinator.get("closing_time"):
+		frappe.throw(_("Operating hours are not configured for {0}. Please contact the city coordinator.").format(city))
+
+	try:
+		start_time = get_datetime(start_dt).time()
+		end_time = get_datetime(end_dt).time()
+		opening_time = _coerce_time(coordinator.get("opening_time"))
+		closing_time = _coerce_time(coordinator.get("closing_time"))
+	except (TypeError, ValueError):
+		frappe.throw(_("Could not validate the event time against {0}'s operating hours.").format(city))
+
+	latest_start = (datetime.datetime.combine(datetime.date.today(), closing_time) - datetime.timedelta(hours=1)).time()
+	if start_time < opening_time or start_time > latest_start or end_time > closing_time:
+		frappe.throw(
+			_("Events in {0} must start between {1} and {2}, and finish by {3}.").format(
+				city, opening_time.strftime("%H:%M"), latest_start.strftime("%H:%M"), closing_time.strftime("%H:%M")
+			)
+		)
+
+
+def _coerce_time(value: Any) -> datetime.time:
+	if isinstance(value, datetime.datetime):
+		return value.time()
+	if isinstance(value, datetime.time):
+		return value
+	if isinstance(value, datetime.timedelta):
+		seconds = int(value.total_seconds()) % (24 * 60 * 60)
+		return datetime.time(seconds // 3600, (seconds % 3600) // 60, seconds % 60)
+	match = re.match(r"^(\d{1,2}):(\d{2})(?::(\d{2}))?", str(value).strip())
+	if not match:
+		raise ValueError("Invalid time value")
+	return datetime.time(int(match.group(1)), int(match.group(2)), int(match.group(3) or 0))
+
+
 def _is_mock_db() -> bool:
 	"""Check if current database handle is unbound or a unit-test mock."""
 	if not hasattr(frappe, "local") or not getattr(frappe.local, "db", None):
@@ -981,6 +1026,7 @@ def create_adda_event(**kwargs) -> Dict[str, Any]:
 	start_dt = str(mandatory["start_date_time"]).strip()
 	end_dt = str(mandatory["end_date_time"]).strip()
 	room_name = str(data.get("room_name") or "").strip()
+	_validate_city_operating_hours(str(mandatory["city"]).strip(), start_dt, end_dt)
 
 	# 3. Check existing event if modifying or submitting an existing draft/proposal
 	existing_id = (

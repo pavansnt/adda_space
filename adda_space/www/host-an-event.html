@@ -113,6 +113,8 @@
             </p>
           </div>
 
+          <p id="step-operating-hours-hint" class="adda-form-hint" style="display:none; margin-top: -0.5rem;"></p>
+
           <div class="adda-form-row">
             <div class="adda-form-group">
               <label for="step-event-date" class="adda-form-label">
@@ -125,14 +127,14 @@
               <label for="step-start-time" class="adda-form-label">
                 Start Time <span class="req">*</span>
               </label>
-              <input type="time" id="step-start-time" class="adda-input" value="10:00" required />
+              <select id="step-start-time" class="adda-input" required><option value="" selected disabled>Select a start time</option></select>
             </div>
 
             <div class="adda-form-group">
               <label for="step-end-time" class="adda-form-label">
                 End Time <span class="req">*</span>
               </label>
-              <input type="time" id="step-end-time" class="adda-input" value="12:00" required />
+              <select id="step-end-time" class="adda-input" required disabled><option value="" selected disabled>Select a start time first</option></select>
             </div>
           </div>
 
@@ -408,6 +410,12 @@
   var eventDateInput = document.getElementById('step-event-date');
   var startTimeInput = document.getElementById('step-start-time');
   var endTimeInput = document.getElementById('step-end-time');
+  var operatingHoursHint = document.getElementById('step-operating-hours-hint');
+  var cityOperatingHours = null;
+  var hoursRequestSeq = 0;
+  var hoursLoadedForCity = '';
+  var restoredStartTime = '';
+  var restoredEndTime = '';
   var roomsLoading = document.getElementById('step-rooms-loading');
   var roomsGrid = document.getElementById('step-rooms-grid');
   var selectedRoomInput = document.getElementById('step-selected-room');
@@ -506,8 +514,8 @@
 
       if (state.city) citySelect.value = state.city;
       if (state.date) eventDateInput.value = state.date;
-      if (state.start_time) startTimeInput.value = state.start_time;
-      if (state.end_time) endTimeInput.value = state.end_time;
+      restoredStartTime = state.start_time || '';
+      restoredEndTime = state.end_time || '';
       if (state.room_name) selectedRoomInput.value = state.room_name;
       if (state.title) titleInput.value = state.title;
       if (state.description) descInput.value = state.description;
@@ -635,6 +643,7 @@
       }
 
       var restored = restoreFormStateFromStorage();
+      if (citySelect.value) loadCityOperatingHours(citySelect.value);
       if (hasUrlDate) {
         var chosenCity = citySelect.value || 'Bengaluru';
         citySelect.value = chosenCity;
@@ -665,6 +674,101 @@
     loadRoomsForCity(city, function() {
       checkRoomAvailability();
     });
+  });
+
+  function applyCityOperatingHours() {
+    if (!startTimeInput || !endTimeInput) return;
+    var preferredStart = startTimeInput.value || restoredStartTime;
+    var preferredEnd = endTimeInput.value || restoredEndTime;
+    if (!cityOperatingHours) {
+      setTimeOptions(startTimeInput, [], 'Operating hours unavailable');
+      setTimeOptions(endTimeInput, [], 'Operating hours unavailable');
+      endTimeInput.disabled = true;
+      if (operatingHoursHint) operatingHoursHint.style.display = 'none';
+      return;
+    }
+    var latestStartMinutes = cityOperatingHours.closeMinutes - 60;
+    var latestStart = minutesToTime(latestStartMinutes);
+    var startOptions = timeChoices(cityOperatingHours.openMinutes, latestStartMinutes);
+    setTimeOptions(startTimeInput, startOptions, 'Select a start time', preferredStart);
+    updateEndTimeOptions(preferredEnd);
+    restoredStartTime = '';
+    restoredEndTime = '';
+    if (operatingHoursHint) {
+      operatingHoursHint.textContent = 'This city’s space is open ' + cityOperatingHours.open + '–' + cityOperatingHours.close + '. Events must finish by closing; the latest start time is ' + latestStart + '.';
+      operatingHoursHint.style.display = 'block';
+    }
+  }
+
+  function minutesToTime(minutes) {
+    return String(Math.floor(minutes / 60)).padStart(2, '0') + ':' + String(minutes % 60).padStart(2, '0');
+  }
+
+  function timeChoices(first, last) {
+    var values = [];
+    for (var minutes = first; minutes <= last; minutes += 15) values.push(minutesToTime(minutes));
+    if (values.indexOf(minutesToTime(last)) === -1) values.push(minutesToTime(last));
+    return values;
+  }
+
+  function setTimeOptions(select, values, placeholder, preferred) {
+    select.innerHTML = '';
+    var prompt = document.createElement('option');
+    prompt.value = '';
+    prompt.textContent = placeholder;
+    prompt.disabled = true;
+    prompt.selected = true;
+    select.appendChild(prompt);
+    values.forEach(function(value) {
+      var option = document.createElement('option');
+      option.value = value;
+      option.textContent = value;
+      select.appendChild(option);
+    });
+    if (preferred && values.indexOf(preferred.slice(0, 5)) !== -1) select.value = preferred.slice(0, 5);
+    else if (values.length) select.value = values[0];
+  }
+
+  function updateEndTimeOptions(preferred) {
+    if (!cityOperatingHours || !startTimeInput.value) {
+      setTimeOptions(endTimeInput, [], 'Select a start time first');
+      endTimeInput.disabled = true;
+      return;
+    }
+    var startMinutes = startTimeInput.value.split(':').map(Number)[0] * 60 + Number(startTimeInput.value.split(':')[1]);
+    var options = timeChoices(startMinutes + 15, cityOperatingHours.closeMinutes);
+    setTimeOptions(endTimeInput, options, 'Select an end time', preferred || minutesToTime(startMinutes + 60));
+    endTimeInput.disabled = false;
+  }
+
+  function loadCityOperatingHours(city) {
+    var seq = ++hoursRequestSeq;
+    cityOperatingHours = null;
+    hoursLoadedForCity = '';
+    applyCityOperatingHours();
+    if (!city) return;
+    fetch('/api/method/adda_space.api.events.get_city_coordinator?city=' + encodeURIComponent(city), { headers: { 'Accept': 'application/json' } })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (seq !== hoursRequestSeq) return;
+        var payload = data.message || data;
+        var coord = payload && payload.coordinator;
+        hoursLoadedForCity = city;
+        if (!coord || !coord.opening_time || !coord.closing_time) return;
+        var open = String(coord.opening_time).slice(0, 5);
+        var close = String(coord.closing_time).slice(0, 5);
+        var openParts = open.split(':').map(Number);
+        var closeParts = close.split(':').map(Number);
+        cityOperatingHours = { open: open, close: close, openMinutes: openParts[0] * 60 + openParts[1], closeMinutes: closeParts[0] * 60 + closeParts[1] };
+        applyCityOperatingHours();
+      })
+      .catch(function() { if (seq === hoursRequestSeq) hoursLoadedForCity = city; });
+  }
+
+  citySelect.addEventListener('change', function() { loadCityOperatingHours(this.value); });
+  startTimeInput.addEventListener('change', function() {
+    updateEndTimeOptions();
+    checkRoomAvailability();
   });
 
   function loadRoomsForCity(city, callback) {
@@ -834,6 +938,17 @@
     if (startTimeInput.value >= endTimeInput.value) {
       alert('End time must be after start time.');
       return;
+    }
+    if (hoursLoadedForCity !== citySelect.value || !cityOperatingHours) {
+      alert('Operating hours are not available for this city yet. Please contact the city coordinator.');
+      return;
+    }
+    if (cityOperatingHours) {
+      var latestStart = String(Math.floor((cityOperatingHours.closeMinutes - 60) / 60)).padStart(2, '0') + ':' + String((cityOperatingHours.closeMinutes - 60) % 60).padStart(2, '0');
+      if (startTimeInput.value < cityOperatingHours.open || startTimeInput.value > latestStart || endTimeInput.value > cityOperatingHours.close) {
+        alert('Choose a time between ' + cityOperatingHours.open + ' and ' + cityOperatingHours.close + '. The latest event start is ' + latestStart + '.');
+        return;
+      }
     }
     goToStep(3);
   });

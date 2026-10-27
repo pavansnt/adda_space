@@ -634,16 +634,16 @@
         <div class="adda-form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.35rem;">
           <div class="adda-form-group">
             <label for="modal-start-time" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">Start Time <span class="req" style="color: #EF4444;">*</span></label>
-            <input type="time" id="modal-start-time" class="adda-input" value="10:00" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" required />
+            <select id="modal-start-time" class="adda-input" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" required><option value="" selected disabled>Select a start time</option></select>
           </div>
           <div class="adda-form-group">
             <label for="modal-end-time" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">End Time <span class="req" style="color: #EF4444;">*</span></label>
-            <input type="time" id="modal-end-time" class="adda-input" value="12:00" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" required />
+            <select id="modal-end-time" class="adda-input" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" required disabled><option value="" selected disabled>Select a start time first</option></select>
           </div>
         </div>
 
         <div id="modal-duration-display" class="adda-duration-summary">
-          You’ll request 10:00 – 12:00 (2 hours)
+          Select a start and end time during the city’s operating hours.
         </div>
 
         <div id="modal-hours-warning" class="adda-avail-box adda-avail-warning" style="display: none; background: #FFFBEB; border: 1px solid #FCD34D; color: #92400E; margin-bottom: 1rem; font-size: 0.8125rem; padding: 0.65rem 0.85rem; border-radius: 6px;">
@@ -1617,6 +1617,8 @@
   // ========================================================================
 
   var currentCoordinatorData = null;
+  var pendingModalStartTime = '';
+  var pendingModalEndTime = '';
   var currentCoordinatorCity = '';
   var currentCoordinatorTimezone = 'Asia/Kolkata';
   var selectedHostDate = null;
@@ -1695,8 +1697,25 @@
 
     if (!currentCoordinatorData || !currentCoordinatorData.opening_time || !currentCoordinatorData.closing_time) {
       warningBox.style.display = 'none';
+      setTimeOptions(modalStartTime, [], 'Operating hours unavailable');
+      setTimeOptions(modalEndTime, [], 'Operating hours unavailable');
+      if (modalEndTime) modalEndTime.disabled = true;
       return;
     }
+
+    var openT = currentCoordinatorData.opening_time.slice(0, 5);
+    var closeT = currentCoordinatorData.closing_time.slice(0, 5);
+    var closeParts = closeT.split(':').map(Number);
+    var openParts = openT.split(':').map(Number);
+    var lastStartMinutes = closeParts[0] * 60 + closeParts[1] - 60;
+    var lastStart = String(Math.floor(lastStartMinutes / 60)).padStart(2, '0') + ':' + String(lastStartMinutes % 60).padStart(2, '0');
+    var preferredStart = modalStartTime.value || pendingModalStartTime;
+    var preferredEnd = modalEndTime.value || pendingModalEndTime;
+    setTimeOptions(modalStartTime, timeChoices(openParts[0] * 60 + openParts[1], lastStartMinutes), 'Select a start time', preferredStart);
+    updateModalEndTimeOptions(preferredEnd);
+    pendingModalStartTime = '';
+    pendingModalEndTime = '';
+    updateDurationDisplay();
 
     var startTimeVal = modalStartTime ? modalStartTime.value : '';
     var endTimeVal = modalEndTime ? modalEndTime.value : '';
@@ -1705,19 +1724,66 @@
       return;
     }
 
-    var openT = currentCoordinatorData.opening_time.slice(0, 5);
-    var closeT = currentCoordinatorData.closing_time.slice(0, 5);
     var reqOpen = startTimeVal.slice(0, 5);
     var reqClose = endTimeVal.slice(0, 5);
 
-    if (reqOpen < openT || reqClose > closeT) {
+    if (reqOpen < openT || reqOpen > lastStart || reqClose > closeT) {
       var openFmt = currentCoordinatorData.formatted_opening_time || formatTime12hr(openT);
       var closeFmt = currentCoordinatorData.formatted_closing_time || formatTime12hr(closeT);
-      warningText.textContent = 'Note: Your requested time (' + formatTime12hr(reqOpen) + ' – ' + formatTime12hr(reqClose) + ') is outside this space’s regular operating hours (' + openFmt + ' – ' + closeFmt + '). Coordinators will review special requests during proposal approval.';
+      warningText.textContent = 'Choose a start between ' + openFmt + ' and ' + formatTime12hr(lastStart) + ', and finish by ' + closeFmt + '.';
       warningBox.style.display = 'block';
+      warningBox.classList.remove('adda-avail-warning');
+      warningBox.classList.add('adda-avail-alert');
     } else {
       warningBox.style.display = 'none';
     }
+  }
+
+  function timeToMinutes(value) {
+    var parts = String(value || '').slice(0, 5).split(':').map(Number);
+    return parts[0] * 60 + parts[1];
+  }
+
+  function minutesToTime(minutes) {
+    return String(Math.floor(minutes / 60)).padStart(2, '0') + ':' + String(minutes % 60).padStart(2, '0');
+  }
+
+  function timeChoices(first, last) {
+    var values = [];
+    for (var minutes = first; minutes <= last; minutes += 15) values.push(minutesToTime(minutes));
+    if (values.indexOf(minutesToTime(last)) === -1) values.push(minutesToTime(last));
+    return values;
+  }
+
+  function setTimeOptions(select, values, placeholder, preferred) {
+    if (!select) return;
+    select.innerHTML = '';
+    var prompt = document.createElement('option');
+    prompt.value = '';
+    prompt.textContent = placeholder;
+    prompt.disabled = true;
+    prompt.selected = true;
+    select.appendChild(prompt);
+    values.forEach(function(value) {
+      var option = document.createElement('option');
+      option.value = value;
+      option.textContent = formatTime12hr(value);
+      select.appendChild(option);
+    });
+    if (preferred && values.indexOf(String(preferred).slice(0, 5)) !== -1) select.value = String(preferred).slice(0, 5);
+    else if (values.length) select.value = values[0];
+  }
+
+  function updateModalEndTimeOptions(preferred) {
+    if (!currentCoordinatorData || !modalStartTime || !modalStartTime.value) {
+      setTimeOptions(modalEndTime, [], 'Select a start time first');
+      if (modalEndTime) modalEndTime.disabled = true;
+      return;
+    }
+    var closing = timeToMinutes(currentCoordinatorData.closing_time);
+    var start = timeToMinutes(modalStartTime.value);
+    setTimeOptions(modalEndTime, timeChoices(start + 15, closing), 'Select an end time', preferred || minutesToTime(start + 60));
+    modalEndTime.disabled = false;
   }
 
   function updateCoordinatorInfo(cityName) {
@@ -1725,6 +1791,10 @@
     if (!targetCity) return;
 
     var currentSeq = ++coordFetchSeq;
+    pendingModalStartTime = (modalStartTime && modalStartTime.value) || pendingModalStartTime;
+    pendingModalEndTime = (modalEndTime && modalEndTime.value) || pendingModalEndTime;
+    currentCoordinatorData = null;
+    checkOperatingHoursWarning();
 
     var coordLoading = document.getElementById('modal-coord-loading');
     var coordEmpty = document.getElementById('modal-coord-empty');
@@ -2047,8 +2117,8 @@
         modalEventDate.value = state.date;
         selectedHostDate = state.date;
       }
-      if (state.start_time && modalStartTime) modalStartTime.value = state.start_time;
-      if (state.end_time && modalEndTime) modalEndTime.value = state.end_time;
+      pendingModalStartTime = state.start_time || '';
+      pendingModalEndTime = state.end_time || '';
       if (state.room_name && modalSelectedRoom) modalSelectedRoom.value = state.room_name;
       if (state.title && modalTitleInput) modalTitleInput.value = state.title;
       if (state.description && modalDescInput) modalDescInput.value = state.description;
@@ -2343,6 +2413,7 @@
   }
   if (modalStartTime) {
     modalStartTime.addEventListener('change', function() {
+      updateModalEndTimeOptions();
       checkModalRoomAvailability();
       checkOperatingHoursWarning();
     });
@@ -2447,6 +2518,20 @@
       if (modalStartTime.value >= modalEndTime.value) {
         showStep2Error('End time must be after start time.');
         return;
+      }
+      if (!currentCoordinatorData || !currentCoordinatorData.opening_time || !currentCoordinatorData.closing_time) {
+        showStep2Error('Operating hours are not available for this city yet. Please contact the city coordinator.');
+        return;
+      }
+      if (currentCoordinatorData && currentCoordinatorData.opening_time && currentCoordinatorData.closing_time) {
+        var op = currentCoordinatorData.opening_time.slice(0, 5);
+        var cl = currentCoordinatorData.closing_time.slice(0, 5);
+        var clp = cl.split(':').map(Number);
+        var latest = String(Math.floor((clp[0] * 60 + clp[1] - 60) / 60)).padStart(2, '0') + ':' + String((clp[0] * 60 + clp[1] - 60) % 60).padStart(2, '0');
+        if (modalStartTime.value < op || modalStartTime.value > latest || modalEndTime.value > cl) {
+          showStep2Error('Choose a start between ' + formatTime12hr(op) + ' and ' + formatTime12hr(latest) + ', and finish by ' + formatTime12hr(cl) + '.');
+          return;
+        }
       }
       if (!modalSelectedRoom || !modalSelectedRoom.value) {
         showStep2Error('Please select an Adda room.');
