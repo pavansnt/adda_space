@@ -90,6 +90,19 @@ def migrate_rooms():
 
 def migrate_events():
 	"""Migrate legacy Solve Event records into Adda Event and Adda Event Request."""
+	# Ensure any existing Adda Event records with Draft or NULL approval_status are updated to Pending Review
+	if frappe.db.table_exists("Adda Event"):
+		try:
+			frappe.db.sql(
+				"""
+				UPDATE "tabAdda Event"
+				SET approval_status = 'Pending Review'
+				WHERE approval_status IS NULL OR approval_status IN ('Draft', '')
+				"""
+			)
+		except Exception:
+			pass
+
 	if not frappe.db.table_exists("Solve Event"):
 		return
 

@@ -9,32 +9,9 @@ frappe.ui.form.on('Adda Event', {
 				roles.includes('Adda Space Admin') ||
 				frappe.session.user === 'Administrator';
 
-			var cur_status = frm.doc.status || frm.doc.approval_status || 'Draft';
+			var cur_status = frm.doc.approval_status || 'Pending Review';
 
-			if (cur_status === 'Draft') {
-				frm.add_custom_button(__('Submit'), function() {
-					frappe.confirm(
-						__('Are you sure you want to submit this event?'),
-						function() {
-							frappe.call({
-								method: 'submit',
-								doc: frm.doc,
-								freeze: true,
-								freeze_message: __('Submitting event...'),
-								callback: function(r) {
-									if (!r.exc) {
-										frm.reload_doc();
-										frappe.show_alert({
-											message: __('Event submitted successfully!'),
-											indicator: 'green'
-										});
-									}
-								}
-							});
-						}
-					);
-				}).addClass('btn-primary');
-			} else if (cur_status === 'Pending Review' && is_admin) {
+			if (cur_status === 'Pending Review' && is_admin) {
 				frm.add_custom_button(__('Approve Event'), function() {
 					frappe.confirm(
 						__('Are you sure you want to approve this event and publish it to the public calendar?'),

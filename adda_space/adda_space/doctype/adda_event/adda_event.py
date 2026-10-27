@@ -18,46 +18,14 @@ def is_adda_admin(user=None) -> bool:
 
 class AddaEvent(Document):
 	def validate(self):
-		self.sync_status()
+		if not self.approval_status:
+			self.approval_status = "Pending Review"
 		self.validate_dates()
 		self.validate_room_clash()
 		self.handle_unique_id()
 		self.update_checkin_url()
 		self.handle_qr_code()
 		self.sync_image_fields()
-
-	def sync_status(self):
-		cur_status = self.get("status")
-		cur_approval = self.get("approval_status")
-
-		doc_before = self.get_doc_before_save()
-		if doc_before:
-			before_appr = doc_before.get("approval_status")
-			before_stat = doc_before.get("status")
-			if cur_approval != before_appr and cur_approval:
-				cur_status = cur_approval
-			elif cur_status != before_stat and cur_status:
-				cur_approval = cur_status
-			else:
-				cur_status = cur_status or cur_approval or "Draft"
-				cur_approval = cur_status
-		else:
-			# New document insertion:
-			if cur_status == "Draft" and (not cur_approval or cur_approval in ("Draft", "Pending Review")):
-				cur_status = "Draft"
-				cur_approval = "Draft"
-			elif cur_approval and cur_approval not in ("Draft", "Pending Review"):
-				cur_status = cur_approval
-			elif cur_status and cur_status != "Draft":
-				cur_approval = cur_status
-			elif cur_approval and cur_approval != "Draft":
-				cur_status = cur_approval
-			else:
-				cur_status = cur_status or cur_approval or "Draft"
-				cur_approval = cur_status
-
-		self.status = cur_status
-		self.approval_status = cur_approval
 
 	def validate_dates(self):
 		if not self.start_date_time or not self.end_date_time:
@@ -75,7 +43,7 @@ class AddaEvent(Document):
 	def validate_room_clash(self):
 		if not self.room_name:
 			return
-		if self.get("approval_status") not in ("Approved", "Pending Review") and self.get("status") not in ("Approved", "Pending Review"):
+		if self.get("approval_status") not in ("Approved", "Pending Review"):
 			return
 
 		start = str(self.start_date_time)[:19]
@@ -219,12 +187,10 @@ class AddaEvent(Document):
 
 	@frappe.whitelist()
 	def submit(self):
-		"""Transition event from Draft to Pending Review (or Approved for Admins)."""
+		"""Ensure event is Pending Review (or Approved for Admins)."""
 		if is_adda_admin():
-			self.status = "Approved"
 			self.approval_status = "Approved"
 		else:
-			self.status = "Pending Review"
 			self.approval_status = "Pending Review"
 		self.save()
 		return self
@@ -238,7 +204,6 @@ class AddaEvent(Document):
 		"""Admin action to approve event and publish it to the calendar."""
 		if not is_adda_admin():
 			frappe.throw(_("Only Adda Space administrators can approve events."), frappe.PermissionError)
-		self.status = "Approved"
 		self.approval_status = "Approved"
 		self.save()
 		return self
@@ -252,7 +217,6 @@ class AddaEvent(Document):
 		"""Admin action to reject event."""
 		if not is_adda_admin():
 			frappe.throw(_("Only Adda Space administrators can reject events."), frappe.PermissionError)
-		self.status = "Rejected"
 		self.approval_status = "Rejected"
 		self.save()
 		return self

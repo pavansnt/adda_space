@@ -11,7 +11,6 @@
   "title",
   "column_break_1",
   "type",
-  "status",
   "approval_status",
   "unique_id",
   "event_request",
@@ -73,24 +72,13 @@
    "reqd": 1
   },
   {
-   "default": "Draft",
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Status",
-   "options": "Draft\nPending Review\nApproved\nRejected",
-   "reqd": 1
-  },
-  {
-   "default": "Draft",
+   "default": "Pending Review",
    "fieldname": "approval_status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Approval Status",
-   "options": "Draft\nPending Review\nApproved\nRejected",
-   "reqd": 1
+   "options": "Pending Review\nApproved\nRejected"
   },
   {
    "fieldname": "unique_id",
@@ -319,24 +307,7 @@
  "show_title_field_in_link": 1,
  "sort_field": "start_date_time",
  "sort_order": "DESC",
- "states": [
-  {
-   "color": "Gray",
-   "title": "Draft"
-  },
-  {
-   "color": "Orange",
-   "title": "Pending Review"
-  },
-  {
-   "color": "Green",
-   "title": "Approved"
-  },
-  {
-   "color": "Red",
-   "title": "Rejected"
-  }
- ],
+ "states": [],
  "title_field": "title"
 }
 

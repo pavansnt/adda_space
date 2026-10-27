@@ -6,6 +6,28 @@
 {% block title %}Gatherings &amp; Events — Adda Space{% endblock %}
 
 {% block adda_content %}
+<style>
+  /* Ensure past events are visibly muted/faded across Calendar and List views */
+  .adda-list-card.is-past-event {
+    opacity: 0.6 !important;
+  }
+  .adda-list-card.is-past-event:hover {
+    opacity: 0.85 !important;
+  }
+  .adda-cal-event-pill.is-past-event {
+    opacity: 0.6 !important;
+    box-shadow: none !important;
+  }
+  .adda-cal-event-pill.is-past-event:hover {
+    opacity: 0.85 !important;
+  }
+  .adda-cal-drawer-card.is-past-event {
+    opacity: 0.6 !important;
+  }
+  .adda-cal-drawer-card.is-past-event:hover {
+    opacity: 0.85 !important;
+  }
+</style>
 <section class="adda-page-header" id="adda-events-header">
   <div class="adda-container" style="max-width: 58rem; margin: 0 auto; width: 100%; box-sizing: border-box;">
     <!-- Top Header Row -->
@@ -858,17 +880,62 @@
 
   function isPendingEvent(event) {
     if (!event) return false;
-    var status = String(event.approval_status || event.status || '').trim().toLowerCase();
+    var status = String(event.approval_status || '').trim().toLowerCase();
     return status === 'pending review' || status === 'pending';
   }
 
   function isPastEvent(event) {
-    if (!event || !event.start_date_time) return false;
-    var value = String(event.start_date_time).trim().replace(' ', 'T');
-    value = value.replace(/(\.\d{3})\d+/, '$1');
-    if (!/(?:Z|[+-]\d{2}(?::?\d{2})?)$/i.test(value)) value += '+05:30';
-    var date = new Date(value);
-    return !isNaN(date.getTime()) && date.getTime() < Date.now();
+    if (!event) return false;
+
+    // 1. Prefer the backend's trustworthy past-event flag if available
+    if (typeof event.is_past === 'boolean') {
+      return event.is_past;
+    }
+    if (typeof event.is_past === 'number') {
+      return event.is_past === 1;
+    }
+    if (typeof event.is_past === 'string') {
+      var s = event.is_past.trim().toLowerCase();
+      if (s === 'true' || s === '1') return true;
+      if (s === 'false' || s === '0') return false;
+    }
+
+    // 2. Determine effective raw end datetime or fallback to start datetime
+    var raw = event.end_date_time || event.end || event.start_date_time || event.start;
+    var rawDate = event.end_date || event.date || event.start_date;
+    var rawTime = event.end_time || event.start_time;
+
+    if (!raw && rawDate) {
+      raw = String(rawDate).trim() + (rawTime ? (' ' + String(rawTime).trim()) : ' 23:59:59');
+    }
+    if (!raw) return false;
+
+    var str = String(raw).trim();
+    // Normalize DD-MM-YYYY to YYYY-MM-DD
+    var dmyMatch = str.match(/^(\d{2})-(\d{2})-(\d{4})(.*)$/);
+    if (dmyMatch) {
+      str = dmyMatch[3] + '-' + dmyMatch[2] + '-' + dmyMatch[1] + dmyMatch[4];
+    }
+    str = str.replace(' ', 'T');
+    // Trim sub-second precision to 3 digits
+    str = str.replace(/(\.\d{3})\d+/, '$1');
+
+    // If date-only (YYYY-MM-DD), default to end of day if end date, else start of day
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+      str += (event.end_date_time || event.end || event.end_date) ? 'T23:59:59' : 'T00:00:00';
+    }
+
+    // Check if timezone offset is already present after the time component (Z or [+-]HH:MM)
+    var hasTz = /T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}(?::?\d{2})?)$/i.test(str);
+    if (!hasTz) {
+      str += '+05:30';
+    }
+
+    var d = new Date(str);
+    if (!isNaN(d.getTime())) {
+      return d.getTime() < Date.now();
+    }
+    return Boolean(event.is_past);
   }
 
   function recapStateHtml(event) {
@@ -2697,17 +2764,19 @@
           var roomText = ev.room_name ? ' &bull; ' + escapeHtml(ev.room_name) : '';
           var venueText = ev.venue_details ? ' &bull; ' + escapeHtml(ev.venue_details) : '';
           var cityText = escapeHtml(ev.city || 'Neighbourhood');
-          var catClass = getCategoryClass(ev.type);
+          var isPending = isPendingEvent(ev);
+          var catClass = isPending ? 'cat-pending-event' : getCategoryClass(ev.type);
 
+          var isPast = isPastEvent(ev);
           var card = document.createElement('div');
-          card.className = 'adda-cal-drawer-card';
+          card.className = 'adda-cal-drawer-card' + (isPast ? ' is-past-event' : '');
           card.style.cursor = 'pointer';
           card.innerHTML = [
             '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">',
-            '  <span class="adda-cat-badge ' + catClass + '">' + escapeHtml(getCategoryLabel(ev.type)) + '</span>',
+            '  <span class="adda-cat-badge ' + catClass + '">' + escapeHtml(isPending ? 'Pending Review' : getCategoryLabel(ev.type)) + '</span>',
             '  <span style="font-size: 0.75rem; font-weight: 700; color: var(--adda-green);">' + timeStr + '</span>',
             '</div>',
-            '<h4 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--adda-navy);">' + safeTitle + '</h4>',
+            '<h4 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--adda-navy);">' + (isPending ? (safeTitle + ' · Pending') : safeTitle) + '</h4>',
             '  ' + recapStateHtml(ev),
             '<div style="font-size: 0.8125rem; color: var(--adda-text-muted); margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">',
             '  <span>' + cityText + roomText + venueText + '</span>',
@@ -2756,7 +2825,10 @@
     var safeCity = escapeHtml(event.city || 'Neighbourhood');
     var plainDesc = stripHtml(event.description || '');
     var safeDesc = escapeHtml(plainDesc);
-    var catClass = getCategoryClass(event.type, event.title);
+    var isPending = isPendingEvent(event);
+    var catClass = isPending ? 'cat-pending-event is-pending-card' : getCategoryClass(event.type, event.title);
+    var isPast = isPastEvent(event);
+    var pastClass = isPast ? ' is-past-event' : '';
     var timeText = formatEventTime(event.start_date_time);
 
     var mediaHtml = '';
@@ -2775,12 +2847,12 @@
     }
 
     return [
-      '<article class="adda-list-card ' + catClass + '" data-event-id="' + escapeHtml(eventIdentifier) + '" tabindex="0" role="button" aria-label="View details for ' + safeTitle + '">',
+      '<article class="adda-list-card ' + catClass + pastClass + '" data-event-id="' + escapeHtml(eventIdentifier) + '" tabindex="0" role="button" aria-label="View details for ' + safeTitle + '">',
       '  <span class="adda-list-card-time">' + timeText + '</span>',
       mediaHtml,
       '  <div class="adda-list-card-content">',
-      '    <h3 class="adda-list-card-title">' + safeTitle + '</h3>',
-      '    <div class="adda-list-card-meta">' + safeCity + '</div>',
+      '    <h3 class="adda-list-card-title">' + (isPending ? (safeTitle + ' · Pending') : safeTitle) + '</h3>',
+      '    <div class="adda-list-card-meta"><span>' + safeCity + '</span>' + (isPending ? ' · Pending Review' : '') + recapStateHtml(event) + '</div>',
       (safeDesc ? '    <p class="adda-list-card-description">' + safeDesc + '</p>' : ''),
       '  </div>',
       '  <div class="adda-list-card-action">',

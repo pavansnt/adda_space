@@ -3,15 +3,14 @@
 
 import frappe
 from frappe.tests import IntegrationTestCase
-from frappe.utils import add_to_date, now_datetime
+from frappe.utils import add_to_date, get_datetime, now_datetime
 from adda_space.api.events import (
 	get_supported_cities,
 	get_adda_rooms,
 	get_adda_room_availability,
 	get_adda_events,
 	get_adda_event_detail,
-
-	
+	_is_event_past,
 	create_adda_event,
 	register_adda_event,
 	get_backend_health,
@@ -157,7 +156,6 @@ class TestApiEvents(IntegrationTestCase):
 
 		# Verify event created in DB as authoritative Adda Event
 		event_doc = frappe.get_doc("Adda Event", res["name"])
-		self.assertEqual(event_doc.status, "Pending Review")
 		self.assertEqual(event_doc.approval_status, "Pending Review")
 
 	def test_register_adda_event_api(self):
@@ -346,7 +344,7 @@ class TestApiEvents(IntegrationTestCase):
 		desk_event = frappe.get_doc("Adda Event", ref_id)
 		self.assertEqual(desk_event.name, ref_id)
 		self.assertEqual(desk_event.title, "API Test Website Proposal")
-		self.assertEqual(desk_event.status, "Pending Review")
+		self.assertEqual(desk_event.approval_status, "Pending Review")
 
 		# 3. Confirm no duplicate event was created
 		count = frappe.db.count("Adda Event", filters={"name": ref_id})
@@ -361,7 +359,7 @@ class TestApiEvents(IntegrationTestCase):
 		desk_event.approve()
 		desk_event.reload()
 		self.assertEqual(desk_event.name, ref_id)
-		self.assertEqual(desk_event.status, "Approved")
+		self.assertEqual(desk_event.approval_status, "Approved")
 
 		# 6. Check calendar without include_pending -> now visible as Approved
 		cal_pub = get_adda_events(time_scope="upcoming")
@@ -369,35 +367,31 @@ class TestApiEvents(IntegrationTestCase):
 
 		frappe.delete_doc("Adda Event", ref_id, force=True, ignore_permissions=True)
 
-	def test_website_save_draft_then_submit_preserves_identity(self):
+	def test_website_submit_then_update_preserves_identity(self):
 		frappe.set_user("Guest")
 		now = now_datetime()
 		start = add_to_date(now, days=22, hours=14).strftime("%Y-%m-%d %H:%M:%S")
 		end = add_to_date(now, days=22, hours=16).strftime("%Y-%m-%d %H:%M:%S")
 
-		# 1. Save draft
-		draft_res = create_adda_event(
-			title="API Test Initial Draft",
+		# 1. Submit initial event proposal
+		initial_res = create_adda_event(
+			title="API Test Initial Proposal",
 			type="Adda",
-			description="Initial draft content.",
+			description="Initial proposal content.",
 			start_date_time=start,
 			end_date_time=end,
 			city="Bengaluru",
 			cover_image="/assets/adda_space/images/adda_space_logo.png",
-			status="Draft",
+			approval_status="Pending Review",
 		)
-		self.assertTrue(draft_res.get("success"))
-		draft_id = draft_res["name"]
-		self.assertEqual(draft_res.get("status"), "Draft")
+		self.assertTrue(initial_res.get("success"))
+		event_id = initial_res["name"]
+		self.assertEqual(initial_res.get("approval_status"), "Pending Review")
 
-		# Draft must NOT be on public calendar
-		cal = get_adda_events(time_scope="upcoming", include_pending="1")
-		self.assertNotIn(draft_id, [e["name"] for e in cal.get("events", [])])
-
-		# 2. Submit the event passing existing event_id
-		submit_res = create_adda_event(
-			event_id=draft_id,
-			title="API Test Updated and Submitted",
+		# 2. Update the event passing existing event_id
+		update_res = create_adda_event(
+			event_id=event_id,
+			title="API Test Updated Proposal",
 			type="Adda",
 			description="Updated final description.",
 			start_date_time=start,
@@ -405,22 +399,22 @@ class TestApiEvents(IntegrationTestCase):
 			city="Bengaluru",
 			room_name="Main Room Bengaluru",
 			cover_image="/assets/adda_space/images/adda_space_logo.png",
-			status="Pending Review",
+			approval_status="Pending Review",
 		)
-		self.assertTrue(submit_res.get("success"))
-		self.assertEqual(submit_res["name"], draft_id)
-		self.assertEqual(submit_res["status"], "Pending Review")
+		self.assertTrue(update_res.get("success"))
+		self.assertEqual(update_res["name"], event_id)
+		self.assertEqual(update_res.get("approval_status"), "Pending Review")
 
 		# Confirm only ONE document exists with this ID
 		frappe.set_user("Administrator")
-		count = frappe.db.count("Adda Event", filters={"name": draft_id})
+		count = frappe.db.count("Adda Event", filters={"name": event_id})
 		self.assertEqual(count, 1)
 
-		# Event now appears on calendar with include_pending=1
+		# Event appears on calendar with include_pending=1
 		cal_submitted = get_adda_events(time_scope="upcoming", include_pending="1")
-		self.assertIn(draft_id, [e["name"] for e in cal_submitted.get("events", [])])
+		self.assertIn(event_id, [e["name"] for e in cal_submitted.get("events", [])])
 
-		frappe.delete_doc("Adda Event", draft_id, force=True, ignore_permissions=True)
+		frappe.delete_doc("Adda Event", event_id, force=True, ignore_permissions=True)
 
 	def test_consecutive_event_creations_do_not_replace_previous_event(self):
 		"""
@@ -486,14 +480,14 @@ class TestApiEvents(IntegrationTestCase):
 			self.assertEqual(doc_a.title, "Event A on Oct 28")
 			self.assertEqual(str(doc_a.start_date_time)[:19], "2026-10-28 10:00:00")
 			self.assertEqual(str(doc_a.end_date_time)[:19], "2026-10-28 12:00:00")
-			self.assertEqual(doc_a.status, "Pending Review")
+			self.assertEqual(doc_a.approval_status, "Pending Review")
 
 			# Verify Event B has its own correct values
 			doc_b = frappe.get_doc("Adda Event", id_b)
 			self.assertEqual(doc_b.title, "Event B on Oct 30")
 			self.assertEqual(str(doc_b.start_date_time)[:19], "2026-10-30 14:00:00")
 			self.assertEqual(str(doc_b.end_date_time)[:19], "2026-10-30 16:00:00")
-			self.assertEqual(doc_b.status, "Pending Review")
+			self.assertEqual(doc_b.approval_status, "Pending Review")
 
 			# Verify both events appear simultaneously in calendar
 			cal_both = get_adda_events(start_date="2026-10-28", end_date="2026-10-30", include_pending="1")
@@ -523,7 +517,7 @@ class TestApiEvents(IntegrationTestCase):
 			# 4. Verify approval workflow
 			doc_a_updated.approve()
 			doc_a_updated.reload()
-			self.assertEqual(doc_a_updated.status, "Approved")
+			self.assertEqual(doc_a_updated.approval_status, "Approved")
 			self.assertEqual(doc_a_updated.name, id_a)
 
 		finally:
@@ -557,7 +551,7 @@ class TestApiEvents(IntegrationTestCase):
 			self.assertEqual(frappe.db.count("Adda Event"), events_before + 1)
 			doc = frappe.get_doc("Adda Event", event_id)
 			self.assertEqual(doc.title, "Community Gardening Workshop")
-			self.assertEqual(doc.status, "Pending Review")
+			self.assertEqual(doc.approval_status, "Pending Review")
 
 			# Verify ZERO registrations were created during hosting
 			self.assertEqual(frappe.db.count("Adda Event Registration"), regs_before)
@@ -584,7 +578,6 @@ class TestApiEvents(IntegrationTestCase):
 			"end_date_time": "2026-11-10 12:00:00",
 			"city": "Bengaluru",
 			"cover_image": "/assets/adda_space/images/adda_space_logo.png",
-			"status": "Approved",
 			"approval_status": "Approved",
 			"capacity": 50,
 		}).insert(ignore_permissions=True)
@@ -610,7 +603,7 @@ class TestApiEvents(IntegrationTestCase):
 			# Verify target event document was NOT modified
 			event_reloaded = frappe.get_doc("Adda Event", event_id)
 			self.assertEqual(event_reloaded.title, "Clean Water Circle")
-			self.assertEqual(event_reloaded.status, "Approved")
+			self.assertEqual(event_reloaded.approval_status, "Approved")
 			self.assertEqual(event_reloaded.name, event_id)
 
 			# Verify Adda Event Registration was created and properly linked
@@ -696,7 +689,7 @@ class TestApiEvents(IntegrationTestCase):
 			doc = frappe.get_doc("Adda Event", event_id)
 			self.assertEqual(doc.title, "Future Date Solar Hackathon")
 			self.assertTrue(str(doc.start_date_time).startswith(future_date))
-			self.assertEqual(doc.status, "Pending Review")
+			self.assertEqual(doc.approval_status, "Pending Review")
 
 			# Zero registrations created as side-effect
 			self.assertEqual(frappe.db.count("Adda Event Registration"), regs_before)
@@ -812,3 +805,87 @@ class TestApiEvents(IntegrationTestCase):
 
 		# Cleanup
 		frappe.db.delete("Adda Event Registration", {"event": self.upcoming_event.name})
+
+	def test_past_event_detection_and_multi_day_scenarios(self):
+		"""Verify past event detection for:
+		1. Event that ended yesterday -> is_past is True
+		2. Event that ends later today -> is_past is False
+		3. Upcoming event -> is_past is False
+		4. Pending event -> status preserved and is_past accurately reflects actual date/time
+		5. Multi-day event whose end date is in the future -> is_past is False
+		"""
+		now = now_datetime()
+
+		# 1. Event that ended yesterday
+		ended_yesterday = {
+			"start_date_time": add_to_date(now, days=-1, hours=-2),
+			"end_date_time": add_to_date(now, days=-1),
+			"title": "Ended Yesterday Gathering",
+			"approval_status": "Approved",
+		}
+		self.assertTrue(_is_event_past(ended_yesterday, now_dt=now))
+
+		# 2. Event that ends later today (started earlier, ends in future today)
+		ends_later_today = {
+			"start_date_time": add_to_date(now, hours=-1),
+			"end_date_time": add_to_date(now, hours=2),
+			"title": "Active Today Gathering",
+			"approval_status": "Approved",
+		}
+		self.assertFalse(_is_event_past(ends_later_today, now_dt=now))
+
+		# 3. Upcoming event (starts and ends tomorrow)
+		upcoming_event = {
+			"start_date_time": add_to_date(now, days=1),
+			"end_date_time": add_to_date(now, days=1, hours=2),
+			"title": "Tomorrow Gathering",
+			"approval_status": "Approved",
+		}
+		self.assertFalse(_is_event_past(upcoming_event, now_dt=now))
+
+		# 4. Pending event (pending review preserves approval_status and accurately reports is_past)
+		pending_future = {
+			"start_date_time": add_to_date(now, days=2),
+			"end_date_time": add_to_date(now, days=2, hours=2),
+			"title": "Pending Future Gathering",
+			"approval_status": "Pending Review",
+		}
+		self.assertFalse(_is_event_past(pending_future, now_dt=now))
+
+		pending_past = {
+			"start_date_time": add_to_date(now, days=-3),
+			"end_date_time": add_to_date(now, days=-2),
+			"title": "Pending Past Gathering",
+			"approval_status": "Pending Review",
+		}
+		self.assertTrue(_is_event_past(pending_past, now_dt=now))
+
+		# 5. Multi-day event whose end date is still in the future
+		multi_day_future = {
+			"start_date_time": add_to_date(now, days=-2),
+			"end_date_time": add_to_date(now, days=2),
+			"title": "Multi-Day Festival",
+			"approval_status": "Approved",
+		}
+		self.assertFalse(
+			_is_event_past(multi_day_future, now_dt=now),
+			"Multi-day event whose end date is in future must NOT be marked past"
+		)
+
+		# 6. Specific verification for October 7 (past) and October 28 (upcoming) relative to 2026-10-27
+		ref_now = get_datetime("2026-10-27 12:00:00")
+		oct7_event = {
+			"start_date_time": "2026-10-07 10:00:00",
+			"end_date_time": "2026-10-07 12:00:00",
+			"title": "October 7 Gathering",
+			"approval_status": "Approved",
+		}
+		self.assertTrue(_is_event_past(oct7_event, now_dt=ref_now))
+
+		oct28_event = {
+			"start_date_time": "2026-10-28 10:00:00",
+			"end_date_time": "2026-10-28 12:00:00",
+			"title": "October 28 Gathering",
+			"approval_status": "Approved",
+		}
+		self.assertFalse(_is_event_past(oct28_event, now_dt=ref_now))

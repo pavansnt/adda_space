@@ -241,43 +241,41 @@ class TestAddaEvent(IntegrationTestCase):
 		start = add_to_date(now, days=14, hours=10)
 		end = add_to_date(now, days=14, hours=12)
 
-		# 1. Create event through Desk and save as draft
+		# 1. Create event through Desk (defaults to Pending Review)
 		ev = frappe.get_doc({
 			"doctype": "Adda Event",
 			"title": "Test Event Desk Lifecycle",
 			"type": "Adda",
-			"description": "Desk event created as draft.",
+			"description": "Desk event created for review.",
 			"start_date_time": start,
 			"end_date_time": end,
 			"city": "Bengaluru",
 			"room_name": "Test Event Room",
 			"cover_image": "/assets/adda_space/images/adda_space_logo.png",
-			"status": "Draft",
+			"approval_status": "Pending Review",
 		}).insert(ignore_permissions=True)
 
-		# Verify status is Draft and record reference ID
-		self.assertEqual(ev.status, "Draft")
+		# Verify approval_status is Pending Review and record reference ID
+		self.assertEqual(ev.approval_status, "Pending Review")
 		initial_ref_id = ev.name
 		self.assertTrue(initial_ref_id)
 
-		# Draft events must NOT appear on public calendar
+		# Pending events must NOT appear on public calendar without include_pending
 		cal_before = get_adda_events(time_scope="upcoming")
 		self.assertNotIn(initial_ref_id, [e["name"] for e in cal_before.get("events", [])])
 
-		# 2. Submit the event
-		ev.submit()
+		# 2. Approve the event
+		ev.approve()
 		ev.reload()
 
 		# Verify reference ID has NOT changed
 		self.assertEqual(ev.name, initial_ref_id)
 
-		# Verify status transitions to expected state (not back to Draft)
-		self.assertNotEqual(ev.status, "Draft")
-		self.assertIn(ev.status, ("Approved", "Pending Review"))
-		self.assertEqual(ev.approval_status, ev.status)
+		# Verify approval_status transitions to Approved
+		self.assertEqual(ev.approval_status, "Approved")
 
 		# Check Adda Space calendar and confirm event appears
-		cal_after = get_adda_events(time_scope="upcoming", include_pending="1")
+		cal_after = get_adda_events(time_scope="upcoming")
 		event_names_after = [e["name"] for e in cal_after.get("events", [])]
 		self.assertIn(initial_ref_id, event_names_after)
 
@@ -298,14 +296,13 @@ class TestAddaEvent(IntegrationTestCase):
 			"approval_status": "Approved",
 		}).insert(ignore_permissions=True)
 
-		self.assertEqual(ev.status, "Approved")
+		self.assertEqual(ev.approval_status, "Approved")
 
-		# Modifying and saving must NOT revert status back to Draft
+		# Modifying and saving must NOT change approval_status
 		ev.description = "Updated text."
 		ev.save(ignore_permissions=True)
 		ev.reload()
 
-		self.assertEqual(ev.status, "Approved")
 		self.assertEqual(ev.approval_status, "Approved")
 		self.assertEqual(ev.description, "Updated text.")
 

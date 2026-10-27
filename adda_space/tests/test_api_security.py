@@ -120,7 +120,6 @@ class TestApiSecurityAndPermissions(IntegrationTestCase):
 		self.assertEqual(res.get("approval_status"), "Pending Review")
 
 		event_doc = frappe.get_doc("Adda Event", res["name"])
-		self.assertEqual(event_doc.status, "Pending Review")
 		self.assertEqual(event_doc.approval_status, "Pending Review")
 
 	def test_guest_cannot_execute_approve_method(self):

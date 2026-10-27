@@ -104,8 +104,30 @@
   border-color: #CBD5E1;
 }
 
+/* Past Events - Muted appearance in Calendar and List views */
 .adda-cal-event-pill.is-past-event {
-  opacity: 0.82;
+  opacity: 0.6 !important;
+  box-shadow: none !important;
+}
+
+.adda-cal-event-pill.is-past-event:hover {
+  opacity: 0.85 !important;
+}
+
+.adda-cal-drawer-card.is-past-event {
+  opacity: 0.6 !important;
+}
+
+.adda-cal-drawer-card.is-past-event:hover {
+  opacity: 0.85 !important;
+}
+
+.adda-list-card.is-past-event {
+  opacity: 0.6 !important;
+}
+
+.adda-list-card.is-past-event:hover {
+  opacity: 0.85 !important;
 }
 
 .adda-cal-recap-mark {
@@ -3692,6 +3714,14 @@ p.lead {
 .adda-list-card:hover {
   border-color: #D1D5DB;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.adda-list-card.is-past-event {
+  opacity: 0.6 !important;
+}
+
+.adda-list-card.is-past-event:hover {
+  opacity: 0.85 !important;
 }
 
 .adda-list-card-time {

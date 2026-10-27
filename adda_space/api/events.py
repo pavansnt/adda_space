@@ -24,7 +24,6 @@ PUBLIC_EVENT_FIELDS = [
 	"room_name",
 	"mode",
 	"cover_image",
-	"status",
 	"approval_status",
 ]
 
@@ -172,17 +171,10 @@ def _format_event_payload(event: Dict[str, Any]) -> Dict[str, Any]:
 		else:
 			event["cover_image"] = None
 
-	if "status" in event and event["status"]:
-		event["status"] = str(event["status"]).strip()
-	elif "approval_status" in event and event["approval_status"]:
-		event["status"] = str(event["approval_status"]).strip()
-	else:
-		event["status"] = "Approved"
-
 	if "approval_status" in event and event["approval_status"]:
 		event["approval_status"] = str(event["approval_status"]).strip()
 	else:
-		event["approval_status"] = event["status"]
+		event["approval_status"] = APPROVAL_STATUS
 
 	event["is_past"] = _is_event_past(event)
 
@@ -198,12 +190,33 @@ def _is_event_past(event: Dict[str, Any], now_dt=None) -> bool:
 		try:
 			now_dt = now_datetime()
 		except Exception:
-			now_dt = datetime.datetime.now()
-	now_str = str(now_dt)[:19]
-	end_dt = event.get("end_date_time") or event.get("start_date_time")
-	if not end_dt:
+			try:
+				import zoneinfo
+				now_dt = datetime.datetime.now(zoneinfo.ZoneInfo("Asia/Kolkata")).replace(tzinfo=None)
+			except Exception:
+				now_dt = datetime.datetime.now()
+	raw_end = (
+		event.get("end_date_time")
+		or event.get("end")
+		or event.get("start_date_time")
+		or event.get("start")
+		or event.get("end_date")
+		or event.get("date")
+	)
+	if not raw_end:
 		return False
-	return str(end_dt)[:19] < now_str
+	raw_str = str(raw_end).strip()
+	if len(raw_str) == 10 and raw_str.count("-") == 2:
+		raw_end = f"{raw_str} 23:59:59"
+	try:
+		end_dt = get_datetime(raw_end)
+		if getattr(now_dt, "tzinfo", None) and not getattr(end_dt, "tzinfo", None):
+			end_dt = end_dt.replace(tzinfo=now_dt.tzinfo)
+		elif getattr(end_dt, "tzinfo", None) and not getattr(now_dt, "tzinfo", None):
+			now_dt = now_dt.replace(tzinfo=end_dt.tzinfo)
+		return end_dt < now_dt
+	except Exception:
+		return str(raw_end)[:19] < str(now_dt)[:19]
 
 
 def _is_event_upcoming(event: Dict[str, Any], now_dt=None) -> bool:
@@ -417,6 +430,7 @@ def get_adda_events(
 	event_type: Optional[Union[str, List[str]]] = None,
 	include_pending: Union[bool, int, str] = False,
 	approval_status: Optional[str] = None,
+	status: Optional[str] = None,
 ) -> Dict[str, Any]:
 	"""
 	Retrieve approved Adda events across all supported cities or for a specified city,
@@ -482,8 +496,9 @@ def get_adda_events(
 		include_pending_flag = True
 
 	filters: Dict[str, Any] = {}
-	if approval_status is not None and str(approval_status).strip():
-		astat_clean = str(approval_status).strip()
+	effective_approval_status = approval_status if approval_status is not None else status
+	if effective_approval_status is not None and str(effective_approval_status).strip():
+		astat_clean = str(effective_approval_status).strip()
 		if astat_clean.lower() in ("all", "all_statuses", "*"):
 			filters["approval_status"] = ["in", ["Approved", "Pending Review"]]
 		elif astat_clean.lower() in ("pending", "pending review"):
@@ -827,33 +842,28 @@ def create_adda_event(**kwargs) -> Dict[str, Any]:
 		is_admin = "System Manager" in roles or "Adda Space Admin" in roles or user == "Administrator"
 
 	req_action = str(data.get("action") or "").strip().lower()
-	req_status = str(data.get("status") or data.get("approval_status") or "").strip()
+	req_status = str(data.get("approval_status") or data.get("status") or "").strip()
 
 	event_doc = None
 	if existing_id and frappe.db.table_exists(EVENT_DOCTYPE) and frappe.db.exists(EVENT_DOCTYPE, existing_id):
 		candidate = frappe.get_doc(EVENT_DOCTYPE, existing_id)
-		# Allow modifying in-place only if:
-		# a) Candidate document is currently a Draft (saving updates to draft or submitting draft), OR
-		# b) Explicit edit action is requested ("action": "edit") by an authorized user (admin or owner).
-		# Never silently overwrite an already submitted/approved event when submitting another event.
-		if candidate.status == "Draft":
+		# Allow modifying in-place only if explicit edit action is requested or pending event by authorized user:
+		if req_action == "edit" and (is_admin or candidate.owner == user):
 			event_doc = candidate
-		elif req_action == "edit" and (is_admin or candidate.owner == user):
+		elif candidate.approval_status == "Pending Review" and (is_admin or candidate.owner == user):
 			event_doc = candidate
 		else:
 			event_doc = None
 
-	if req_action == "draft" or req_status == "Draft":
-		final_status = "Draft"
-	elif is_admin and req_status == "Approved":
-		final_status = "Approved"
+	if is_admin and req_status == "Approved":
+		final_approval_status = "Approved"
 	elif is_admin and req_status == "Rejected":
-		final_status = "Rejected"
+		final_approval_status = "Rejected"
 	else:
-		final_status = "Pending Review"
+		final_approval_status = "Pending Review"
 
-	# 5. Room conflict check for non-draft events
-	if room_name and final_status in ("Approved", "Pending Review") and frappe.db.table_exists(EVENT_DOCTYPE):
+	# 5. Room conflict check for non-rejected events
+	if room_name and final_approval_status in ("Approved", "Pending Review") and frappe.db.table_exists(EVENT_DOCTYPE):
 		clashes = frappe.get_all(
 			EVENT_DOCTYPE,
 			filters={
@@ -894,8 +904,7 @@ def create_adda_event(**kwargs) -> Dict[str, Any]:
 	event_doc.organizer_name = str(data.get("organizer_name") or "").strip() or None
 	event_doc.organizer_email = str(data.get("organizer_email") or (user if user != "Guest" else "")).strip() or None
 	event_doc.organizer_mobile = str(data.get("organizer_mobile") or "").strip() or None
-	event_doc.status = final_status
-	event_doc.approval_status = final_status
+	event_doc.approval_status = final_approval_status
 
 	event_doc.flags.ignore_permissions = True
 	if event_doc.is_new():
@@ -908,7 +917,6 @@ def create_adda_event(**kwargs) -> Dict[str, Any]:
 		"success": True,
 		"name": event_doc.name,
 		"title": event_doc.title,
-		"status": event_doc.status,
 		"approval_status": event_doc.approval_status,
 		"unique_id": event_doc.unique_id,
 		"event": event_doc.name,
