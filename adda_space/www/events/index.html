@@ -92,6 +92,13 @@
             Host a Gathering on this Date
           </button>
         </div>
+        <!-- Persistent host action for the selected date -->
+        <div class="adda-cal-drawer-footer" id="cal-drawer-footer" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--adda-border-light); display: none; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+          <span style="font-size: 0.8125rem; color: var(--adda-text-muted);">Want to organize a session on this date?</span>
+          <button type="button" class="adda-btn adda-btn-secondary" id="cal-drawer-host-active-btn" style="font-size: 0.8125rem;">
+            Host a Gathering on this Date
+          </button>
+        </div>
       </div>
     </div>
 
@@ -235,13 +242,137 @@
     </div>
 
     <!-- Modal Footer: Green Share event button & Centered text Close button -->
-    <div class="adda-modal-footer" style="flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; border-top: none; padding: 0.5rem 1.75rem 1.5rem; gap: 0.5rem;">
+    <div class="adda-modal-footer adda-detail-modal-footer" style="flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; border-top: none; padding: 0.5rem 1.75rem 1.5rem; gap: 0.5rem;">
+      <button type="button" id="modal-register-btn" style="display: none !important;" aria-hidden="true"></button>
       <button type="button" class="adda-btn-share-full" id="modal-share-btn">
         <span aria-hidden="true">&#x1F517;</span> Share event
       </button>
       <button type="button" class="adda-btn-text-close" id="modal-detail-action-close">
         Close
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================
+     3B. EVENT REGISTRATION POPUP MODAL
+     ======================================================================== -->
+<div class="adda-modal-backdrop" id="event-reg-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-reg-event-title" style="display: none;">
+  <div class="adda-modal-container adda-detail-modal-container" id="adda-reg-modal-container" style="max-width: 520px;">
+    <!-- Top row with Circular Close Button -->
+    <div class="adda-modal-top-bar adda-detail-modal-top">
+      <button type="button" class="adda-modal-close-btn" id="modal-reg-close-btn" aria-label="Close registration">&times;</button>
+    </div>
+
+    <!-- Scrollable Modal Body -->
+    <div class="adda-modal-body" style="padding: 1.5rem 1.75rem;">
+      <h2 style="font-size: 1.35rem; font-weight: 800; color: #111827; margin: 0 0 0.5rem;">Register for Gathering</h2>
+      
+      <!-- Event Summary Mini-Card -->
+      <div style="background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.25rem;">
+        <h3 id="modal-reg-event-title" style="font-size: 1.1rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem;"></h3>
+        <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.875rem; color: #4B5563;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span aria-hidden="true">&#x1F5D3;&#xFE0F;</span>
+            <span id="modal-reg-event-time"></span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span aria-hidden="true">&#x1F4CD;</span>
+            <span id="modal-reg-event-venue"></span>
+          </div>
+        </div>
+        <div style="margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid #E5E7EB; display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 0.8125rem; font-weight: 700; color: #047857;">100% Free Admission</span>
+          <span style="font-size: 0.75rem; color: #6B7280;">No tickets or fees required</span>
+        </div>
+      </div>
+
+      <!-- A. Registration Form View -->
+      <div id="modal-reg-form-view">
+        <p style="font-size: 0.875rem; color: #4B5563; margin-bottom: 1rem;">
+          Reserve your spot by providing your WhatsApp number. Admission is free for all attendees.
+        </p>
+
+        <div id="modal-reg-error-box" class="adda-alert-error" style="display: none; margin-bottom: 1rem;" role="alert">
+          <span id="modal-reg-error-text"></span>
+        </div>
+
+        <form id="modal-event-reg-form" novalidate>
+          <div style="margin-bottom: 0.875rem;">
+            <label for="modal-reg-name" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">
+              Full Name <span style="font-weight: 400; color: #6B7280; font-size: 0.75rem;">(Optional)</span>
+            </label>
+            <input type="text" id="modal-reg-name" name="full_name" class="adda-input" placeholder="e.g. Priya Sharma" autocomplete="name" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" />
+          </div>
+
+          <div style="margin-bottom: 1.25rem;">
+            <label for="modal-reg-mobile" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">
+              WhatsApp Number <span style="color: #EF4444; font-weight: 700;">*</span>
+            </label>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="adda-input-prefix" style="padding: 0.65rem 0.85rem; background: #F3F4F6; border: 1px solid #D1D5DB; border-radius: 8px; font-weight: 600; color: #374151;">+91</span>
+              <input type="tel" id="modal-reg-mobile" name="mobile" class="adda-input" placeholder="9876543210" maxlength="10" inputmode="numeric" required autocomplete="tel" style="flex: 1; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" />
+            </div>
+            <div id="modal-reg-mobile-error" class="adda-field-error" style="display: none; color: #DC2626; font-size: 0.75rem; margin-top: 0.25rem;" role="alert"></div>
+          </div>
+
+          <button type="submit" id="modal-reg-submit-btn" class="adda-btn adda-btn-primary" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 700; font-size: 0.9375rem;">
+            Confirm Free RSVP
+          </button>
+        </form>
+      </div>
+
+      <!-- B. Success View -->
+      <div id="modal-reg-success-view" class="adda-reg-result adda-reg-success" style="display: none; text-align: center; padding: 1.5rem 0.5rem;">
+        <div style="font-size: 2.5rem; color: #10B981; margin-bottom: 0.5rem;">&check;</div>
+        <div class="adda-reg-badge" style="display: inline-block; background-color: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; padding: 0.25rem 0.75rem; border-radius: 999px; font-weight: 700; font-size: 0.8125rem; margin-bottom: 0.75rem;">
+          Spot Confirmed
+        </div>
+        <h4 style="font-size: 1.35rem; font-weight: 800; color: #111827; margin: 0 0 0.5rem;">
+          You're registered!
+        </h4>
+        <p style="font-size: 0.875rem; color: #4B5563; line-height: 1.5; margin-bottom: 1rem;">
+          Admission is completely free. We look forward to seeing you at the gathering!
+        </p>
+        <div style="font-size: 0.8125rem; background-color: #F9FAFB; padding: 0.65rem 1rem; border-radius: 8px; border: 1px solid #E5E7EB; margin-bottom: 1.25rem; text-align: left;">
+          <span style="color: #6B7280; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 0.15rem;">Registration Reference</span>
+          <code id="modal-reg-success-id" style="font-family: monospace; font-size: 1rem; font-weight: 700; color: #111827;"></code>
+        </div>
+        <button type="button" class="adda-btn adda-btn-secondary" id="modal-reg-success-close-btn" style="width: 100%; padding: 0.65rem; border-radius: 8px;">
+          Done
+        </button>
+      </div>
+
+      <!-- C. Duplicate View -->
+      <div id="modal-reg-duplicate-view" class="adda-reg-result adda-reg-duplicate" style="display: none; text-align: center; padding: 1.5rem 0.5rem;">
+        <div class="adda-reg-badge" style="display: inline-block; background-color: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; padding: 0.25rem 0.75rem; border-radius: 999px; font-weight: 700; font-size: 0.8125rem; margin-bottom: 0.75rem;">
+          &bull; Already Registered
+        </div>
+        <h4 style="font-size: 1.35rem; font-weight: 800; color: #111827; margin: 0 0 0.5rem;">
+          Spot already reserved
+        </h4>
+        <p style="font-size: 0.875rem; color: #4B5563; line-height: 1.5; margin-bottom: 1rem;">
+          You have already registered for this gathering with this mobile number. Your spot remains confirmed.
+        </p>
+        <div style="font-size: 0.8125rem; background-color: #F9FAFB; padding: 0.65rem 1rem; border-radius: 8px; border: 1px solid #BFDBFE; margin-bottom: 1.25rem; text-align: left;">
+          <span style="color: #6B7280; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 0.15rem;">Registration Reference</span>
+          <code id="modal-reg-duplicate-id" style="font-family: monospace; font-size: 1rem; font-weight: 700; color: #111827;"></code>
+        </div>
+        <button type="button" class="adda-btn adda-btn-secondary" id="modal-reg-duplicate-close-btn" style="width: 100%; padding: 0.65rem; border-radius: 8px;">
+          Done
+        </button>
+      </div>
+
+      <!-- D. Past Event View -->
+      <div id="modal-reg-past-view" style="display: none; text-align: center; padding: 2rem 1rem;">
+        <span class="adda-tag" style="margin-bottom: 0.75rem;">Gathering Concluded</span>
+        <p style="font-size: 0.9375rem; color: #4B5563; margin-bottom: 1.25rem;">
+          This gathering has already taken place. Registrations are closed.
+        </p>
+        <button type="button" class="adda-btn adda-btn-secondary" id="modal-reg-past-close-btn" style="padding: 0.65rem 1.5rem; border-radius: 8px;">
+          Close
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -527,6 +658,7 @@
   var calDrawerCards = document.getElementById('cal-drawer-cards');
   var calDrawerEmpty = document.getElementById('cal-drawer-empty');
   var calDrawerHostBtn = document.getElementById('cal-drawer-host-btn');
+  var calDrawerHostActiveBtn = document.getElementById('cal-drawer-host-active-btn');
 
   // List View Elements
   var loadingState = document.getElementById('events-loading-state');
@@ -562,6 +694,33 @@
   var modalDetailCloseBtn = document.getElementById('modal-detail-close-btn');
   var modalDetailActionClose = document.getElementById('modal-detail-action-close');
   var modalShareBtn = document.getElementById('modal-share-btn');
+  var modalRegisterBtn = document.getElementById('modal-register-btn');
+
+  // Registration Modal Elements
+  var regModalBackdrop = document.getElementById('event-reg-modal-backdrop');
+  var modalRegCloseBtn = document.getElementById('modal-reg-close-btn');
+  var modalRegEventTitle = document.getElementById('modal-reg-event-title');
+  var modalRegEventTime = document.getElementById('modal-reg-event-time');
+  var modalRegEventVenue = document.getElementById('modal-reg-event-venue');
+  var modalRegFormView = document.getElementById('modal-reg-form-view');
+  var modalEventRegForm = document.getElementById('modal-event-reg-form');
+  var modalRegNameInput = document.getElementById('modal-reg-name');
+  var modalRegMobileInput = document.getElementById('modal-reg-mobile');
+  var modalRegSubmitBtn = document.getElementById('modal-reg-submit-btn');
+  var modalRegMobileError = document.getElementById('modal-reg-mobile-error');
+  var modalRegErrorBox = document.getElementById('modal-reg-error-box');
+  var modalRegErrorText = document.getElementById('modal-reg-error-text');
+  var modalRegSuccessView = document.getElementById('modal-reg-success-view');
+  var modalRegSuccessId = document.getElementById('modal-reg-success-id');
+  var modalRegSuccessCloseBtn = document.getElementById('modal-reg-success-close-btn');
+  var modalRegDuplicateView = document.getElementById('modal-reg-duplicate-view');
+  var modalRegDuplicateId = document.getElementById('modal-reg-duplicate-id');
+  var modalRegDuplicateCloseBtn = document.getElementById('modal-reg-duplicate-close-btn');
+  var modalRegPastView = document.getElementById('modal-reg-past-view');
+  var modalRegPastCloseBtn = document.getElementById('modal-reg-past-close-btn');
+
+  var currentRegisteringEvent = null;
+  var isSubmittingRegistration = false;
 
   // Lightbox & Toast
   var posterLightboxOverlay = document.getElementById('poster-lightbox-overlay');
@@ -697,6 +856,12 @@
     return (tmp.textContent || tmp.innerText || '').trim();
   }
 
+  function isPendingEvent(event) {
+    if (!event) return false;
+    var status = String(event.approval_status || event.status || '').trim().toLowerCase();
+    return status === 'pending review' || status === 'pending';
+  }
+
   function isPastEvent(event) {
     if (!event || !event.start_date_time) return false;
     var value = String(event.start_date_time).trim().replace(' ', 'T');
@@ -755,9 +920,12 @@
     return num < 10 ? '0' + num : '' + num;
   }
 
-  function getCategoryClass(type) {
-    if (!type) return 'cat-adda';
-    var t = String(type).trim().toLowerCase();
+  function getCategoryClass(type, title) {
+    var t = String(type || '').trim().toLowerCase();
+    var titleStr = String(title || '').trim().toLowerCase();
+    if (t.indexOf('connection') !== -1 || titleStr.indexOf('connection corner') !== -1 || t.indexOf('workshop') !== -1) {
+      return 'cat-connection-corner';
+    }
     if (t.indexOf('jam') !== -1) return 'cat-solver-jam';
     if (t.indexOf('custom') !== -1) return 'cat-custom-event';
     if (t.indexOf('adda') !== -1) return 'cat-adda';
@@ -811,12 +979,13 @@
     }
     var d = new Date(normalized);
     if (isNaN(d.getTime())) return '';
-    return d.toLocaleTimeString('en-IN', {
+    var t = d.toLocaleTimeString('en-IN', {
       timeZone: 'Asia/Kolkata',
       hour: 'numeric',
       minute: '2-digit',
       hour12: true
     });
+    return t.toUpperCase();
   }
 
   function formatLongDate(dateKey) {
@@ -926,6 +1095,10 @@
       modalPosterWrap.style.display = 'none';
     }
 
+    if (modalRegisterBtn) {
+      modalRegisterBtn.style.display = 'none';
+    }
+
     detailModalBackdrop.style.display = 'flex';
     setTimeout(function() {
       detailModalBackdrop.classList.add('is-open');
@@ -1000,6 +1173,228 @@
   }
 
   // ========================================================================
+  // EVENT REGISTRATION MODAL LOGIC
+  // ========================================================================
+
+  function openEventRegistrationModal(ev) {
+    if (!ev || !regModalBackdrop) return;
+    currentRegisteringEvent = ev;
+    isSubmittingRegistration = false;
+
+    // Reset views
+    if (modalRegFormView) modalRegFormView.style.display = 'block';
+    if (modalRegSuccessView) modalRegSuccessView.style.display = 'none';
+    if (modalRegDuplicateView) modalRegDuplicateView.style.display = 'none';
+    if (modalRegPastView) modalRegPastView.style.display = 'none';
+    if (modalRegErrorBox) modalRegErrorBox.style.display = 'none';
+    if (modalRegMobileError) modalRegMobileError.style.display = 'none';
+    if (modalRegNameInput) modalRegNameInput.value = '';
+    if (modalRegMobileInput) modalRegMobileInput.value = '';
+    if (modalRegSubmitBtn) {
+      modalRegSubmitBtn.disabled = false;
+      modalRegSubmitBtn.textContent = 'Confirm Free RSVP';
+    }
+
+    if (modalRegEventTitle) {
+      modalRegEventTitle.textContent = ev.title || 'Untitled Gathering';
+    }
+    if (modalRegEventTime) {
+      modalRegEventTime.innerHTML = formatShortDate(ev.start_date_time);
+    }
+    var venueParts = [];
+    if (ev.room_name) venueParts.push(ev.room_name);
+    if (ev.venue_details) venueParts.push(ev.venue_details);
+    if (ev.city && venueParts.length === 0) venueParts.push(ev.city);
+    if (modalRegEventVenue) {
+      modalRegEventVenue.textContent = venueParts.join(' • ') || (ev.city || 'Neighbourhood');
+    }
+
+    if (isPastEvent(ev)) {
+      if (modalRegFormView) modalRegFormView.style.display = 'none';
+      if (modalRegPastView) modalRegPastView.style.display = 'block';
+    }
+
+    // Close detail modal if open
+    if (detailModalBackdrop && detailModalBackdrop.classList.contains('is-open')) {
+      detailModalBackdrop.classList.remove('is-open');
+      detailModalBackdrop.style.display = 'none';
+    }
+
+    regModalBackdrop.style.display = 'flex';
+    setTimeout(function() {
+      regModalBackdrop.classList.add('is-open');
+    }, 10);
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeEventRegistrationModal() {
+    if (!regModalBackdrop) return;
+    regModalBackdrop.classList.remove('is-open');
+    setTimeout(function() {
+      regModalBackdrop.style.display = 'none';
+      currentRegisteringEvent = null;
+      document.body.style.overflow = '';
+    }, 200);
+  }
+
+  if (modalRegCloseBtn) modalRegCloseBtn.addEventListener('click', closeEventRegistrationModal);
+  if (modalRegSuccessCloseBtn) modalRegSuccessCloseBtn.addEventListener('click', closeEventRegistrationModal);
+  if (modalRegDuplicateCloseBtn) modalRegDuplicateCloseBtn.addEventListener('click', closeEventRegistrationModal);
+  if (modalRegPastCloseBtn) modalRegPastCloseBtn.addEventListener('click', closeEventRegistrationModal);
+
+  if (regModalBackdrop) {
+    regModalBackdrop.addEventListener('click', function(e) {
+      if (e.target === regModalBackdrop) {
+        closeEventRegistrationModal();
+      }
+    });
+  }
+
+  if (modalRegisterBtn) {
+    modalRegisterBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (currentActiveEvent) {
+        openEventRegistrationModal(currentActiveEvent);
+      }
+    });
+  }
+
+  if (modalEventRegForm) {
+    modalEventRegForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      if (isSubmittingRegistration) return;
+
+      if (modalRegErrorBox) modalRegErrorBox.style.display = 'none';
+      if (modalRegMobileError) modalRegMobileError.style.display = 'none';
+
+      var rawMob = modalRegMobileInput ? modalRegMobileInput.value.trim() : '';
+      var cleanMob = rawMob.replace(/\D/g, '');
+      if (cleanMob.length === 11 && cleanMob.charAt(0) === '0') cleanMob = cleanMob.slice(1);
+      else if (cleanMob.length === 12 && cleanMob.slice(0, 2) === '91') cleanMob = cleanMob.slice(2);
+
+      if (!cleanMob) {
+        if (modalRegMobileError) {
+          modalRegMobileError.textContent = 'Mobile number is required.';
+          modalRegMobileError.style.display = 'block';
+        }
+        if (modalRegMobileInput) modalRegMobileInput.focus();
+        return;
+      }
+      if (cleanMob.length !== 10) {
+        if (modalRegMobileError) {
+          modalRegMobileError.textContent = 'Please enter a valid 10-digit mobile number.';
+          modalRegMobileError.style.display = 'block';
+        }
+        if (modalRegMobileInput) modalRegMobileInput.focus();
+        return;
+      }
+      if (!/^[6-9]/.test(cleanMob)) {
+        if (modalRegMobileError) {
+          modalRegMobileError.textContent = 'Mobile number must start with 6, 7, 8, or 9.';
+          modalRegMobileError.style.display = 'block';
+        }
+        if (modalRegMobileInput) modalRegMobileInput.focus();
+        return;
+      }
+
+      if (!currentRegisteringEvent) {
+        if (modalRegErrorBox && modalRegErrorText) {
+          modalRegErrorText.textContent = 'No event selected for registration.';
+          modalRegErrorBox.style.display = 'block';
+        }
+        return;
+      }
+
+      isSubmittingRegistration = true;
+      if (modalRegSubmitBtn) {
+        modalRegSubmitBtn.disabled = true;
+        modalRegSubmitBtn.textContent = 'Reserving your spot...';
+      }
+
+      var eventIdentifier = currentRegisteringEvent.name || currentRegisteringEvent.unique_id;
+      var fullName = modalRegNameInput ? modalRegNameInput.value.trim() : '';
+
+      fetch('/api/method/adda_space.api.events.register_adda_event', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-Frappe-CSRF-Token': getCsrfToken()
+        },
+        body: JSON.stringify({
+          event: eventIdentifier,
+          solve_event: eventIdentifier,
+          mobile: cleanMob,
+          whatsapp_name: fullName || cleanMob,
+          full_name: fullName,
+          source: 'Web Form'
+        })
+      })
+      .then(function(res) {
+        return res.json().then(function(data) {
+          if (!res.ok) {
+            var msg = (data && data.message && (data.message.error || data.message)) ||
+                      (data && data.error) ||
+                      'Registration failed (' + res.status + ')';
+            throw new Error(msg);
+          }
+          return data;
+        });
+      })
+      .then(function(data) {
+        var payload = (data && data.message) ? data.message : data;
+        if (!payload || typeof payload !== 'object') {
+          throw new Error('Received an invalid response from registration server.');
+        }
+
+        if (payload.status === 'Rejected') {
+          var reason = (payload.reason || '').toLowerCase();
+          if (reason.indexOf('duplicate') !== -1 || reason.indexOf('already registered') !== -1 || payload.already_registered === true) {
+            var refCode = payload.registration_name || (payload.doc && payload.doc.name) || 'Existing Registration';
+            if (modalRegDuplicateId) modalRegDuplicateId.textContent = refCode;
+            if (modalRegFormView) modalRegFormView.style.display = 'none';
+            if (modalRegDuplicateView) modalRegDuplicateView.style.display = 'block';
+            return;
+          }
+          throw new Error(payload.reason || 'Your registration could not be accepted.');
+        }
+
+        var isDuplicate = payload.already_registered === true || payload.is_new === false;
+        var regRef = payload.registration_name || (payload.doc && payload.doc.name);
+
+        if (isDuplicate) {
+          if (modalRegDuplicateId) modalRegDuplicateId.textContent = regRef || 'Existing Registration';
+          if (modalRegFormView) modalRegFormView.style.display = 'none';
+          if (modalRegDuplicateView) modalRegDuplicateView.style.display = 'block';
+        } else {
+          if (modalRegSuccessId) modalRegSuccessId.textContent = regRef || 'Confirmed';
+          if (modalRegFormView) modalRegFormView.style.display = 'none';
+          if (modalRegSuccessView) modalRegSuccessView.style.display = 'block';
+        }
+      })
+      .catch(function(err) {
+        var errMsg = err ? (err.message || String(err)) : 'Unable to complete registration.';
+        if (errMsg.toLowerCase().indexOf('duplicate') !== -1 || errMsg.toLowerCase().indexOf('already registered') !== -1) {
+          if (modalRegDuplicateId) modalRegDuplicateId.textContent = 'Existing Registration';
+          if (modalRegFormView) modalRegFormView.style.display = 'none';
+          if (modalRegDuplicateView) modalRegDuplicateView.style.display = 'block';
+        } else {
+          if (modalRegErrorBox && modalRegErrorText) {
+            modalRegErrorText.textContent = errMsg;
+            modalRegErrorBox.style.display = 'block';
+          }
+          if (modalRegSubmitBtn) {
+            modalRegSubmitBtn.disabled = false;
+            modalRegSubmitBtn.textContent = 'Confirm Free RSVP';
+          }
+          isSubmittingRegistration = false;
+        }
+      });
+    });
+  }
+
+  // ========================================================================
   // HOST AT ADDA MULTI-STEP MODAL LOGIC
   // ========================================================================
 
@@ -1025,8 +1420,50 @@
     }
   }
 
+  function resetHostModalForm() {
+    try {
+      sessionStorage.removeItem('adda_host_form_data');
+    } catch(e) {}
+
+    if (modalTitleInput) modalTitleInput.value = '';
+    if (modalDescInput) modalDescInput.value = '';
+    if (modalPeopleInput) modalPeopleInput.value = '20';
+    if (modalModeSelect) modalModeSelect.value = 'Offline';
+    if (modalSelectedRoom) modalSelectedRoom.value = '';
+    if (modalRoomsGrid) {
+      modalRoomsGrid.querySelectorAll('.adda-room-card').forEach(function(c) { c.classList.remove('selected'); });
+    }
+
+    selectedPosterFile = null;
+    selectedPosterDataUrl = '';
+    uploadedPosterUrl = '';
+    if (modalPosterFile) modalPosterFile.value = '';
+    if (modalPosterUrlInput) modalPosterUrlInput.value = '';
+    if (modalHostPosterImg) modalHostPosterImg.src = '';
+    if (modalPosterFilename) modalPosterFilename.textContent = '';
+    if (modalPosterFilesize) modalPosterFilesize.textContent = '';
+    if (modalPosterPreviewBox) modalPosterPreviewBox.style.display = 'none';
+
+    if (modalStep1Error) modalStep1Error.style.display = 'none';
+    var step2Err = document.getElementById('modal-step-2-error');
+    if (step2Err) step2Err.style.display = 'none';
+    if (modalStep3Error) modalStep3Error.style.display = 'none';
+    if (modalSubmitErrorBox) modalSubmitErrorBox.style.display = 'none';
+    if (modalAvailBanner) modalAvailBanner.style.display = 'none';
+
+    if (modalStepSubmitBtn) {
+      modalStepSubmitBtn.disabled = false;
+      modalStepSubmitBtn.textContent = 'Submit Gathering Proposal';
+    }
+  }
+
   function openHostModal(prefilledDate) {
     if (!hostModalBackdrop) return;
+
+    // Reset previous inputs if fresh proposal or prefilling date
+    if (hostModalStep === 5 || prefilledDate) {
+      resetHostModalForm();
+    }
 
     if (prefilledDate && modalEventDate) {
       modalEventDate.value = prefilledDate;
@@ -1040,32 +1477,43 @@
     }
     updateCoordinatorInfo(targetCity);
 
-    // ALWAYS open on Screen 1 so the "Prefer a human?" section is displayed immediately
-    goToModalStep(1);
+    // If prefilledDate is given, advance directly to Step 2 with that date ready!
+    if (prefilledDate) {
+      goToModalStep(2);
+      loadModalRooms(targetCity, function() {
+        checkModalRoomAvailability();
+      });
+    } else {
+      goToModalStep(1);
+      if (targetCity) {
+        loadModalRooms(targetCity);
+      }
+    }
 
     hostModalBackdrop.style.display = 'flex';
     setTimeout(function() {
       hostModalBackdrop.classList.add('is-open');
     }, 10);
     document.body.style.overflow = 'hidden';
-
-    // Pre-load rooms for chosen city in background for Step 2
-    if (targetCity) {
-      loadModalRooms(targetCity);
-    }
   }
 
   function closeHostModal() {
     if (!hostModalBackdrop) return;
+    var wasSubmitted = (hostModalStep === 5);
     hostModalBackdrop.classList.remove('is-open');
     setTimeout(function() {
       hostModalBackdrop.style.display = 'none';
       document.body.style.overflow = '';
+      if (wasSubmitted) {
+        resetHostModalForm();
+        fetchCalendarEvents();
+      }
     }, 200);
   }
 
   if (openHostModalBtn) openHostModalBtn.addEventListener('click', function() { openHostModal(); });
   if (calDrawerHostBtn) calDrawerHostBtn.addEventListener('click', function() { openHostModal(selectedDateStr); });
+  if (calDrawerHostActiveBtn) calDrawerHostActiveBtn.addEventListener('click', function() { openHostModal(selectedDateStr); });
   if (emptyHostBtn) emptyHostBtn.addEventListener('click', function() { openHostModal(); });
   if (hostModalCloseBtn) hostModalCloseBtn.addEventListener('click', closeHostModal);
   if (modalConfCloseBtn) modalConfCloseBtn.addEventListener('click', closeHostModal);
@@ -1979,6 +2427,7 @@
     apiUrl.searchParams.set('start_date', startDateKey);
     apiUrl.searchParams.set('end_date', endDateKey);
     apiUrl.searchParams.set('event_type', 'all');
+    apiUrl.searchParams.set('include_pending', '1');
     if (currentCity) {
       apiUrl.searchParams.set('city', currentCity);
     }
@@ -2098,11 +2547,16 @@
 
     displayEvents.forEach(function(ev) {
       var pill = document.createElement('a');
-      var catClass = getCategoryClass(ev.type);
+      var isPending = isPendingEvent(ev);
+      var catClass = isPending ? 'cat-pending-event' : getCategoryClass(ev.type);
       pill.className = 'adda-cal-event-pill ' + catClass;
+      if (isPending) {
+        pill.classList.add('is-pending-event');
+        pill.setAttribute('data-status', 'Pending Review');
+      }
       pill.setAttribute('data-category', ev.type || 'Adda');
       pill.href = '#';
-      pill.title = ev.title + ' (' + (ev.city || '') + ')';
+      pill.title = (ev.title || 'Gathering') + ' (' + (ev.city || '') + ')' + (isPending ? ' - Pending confirmation' : '');
       if (isPastEvent(ev)) {
         pill.classList.add('is-past-event');
         pill.setAttribute('aria-label', (ev.title || 'Gathering') + (ev.recap ? ' — event recap available' : ' — past gathering'));
@@ -2113,7 +2567,8 @@
       timeSpan.textContent = formatEventTime(ev.start_date_time);
 
       var titleSpan = document.createElement('span');
-      titleSpan.textContent = ev.title || 'Gathering';
+      titleSpan.className = 'adda-cal-event-title-text';
+      titleSpan.textContent = isPending ? ((ev.title || 'Gathering') + ' · Pending') : (ev.title || 'Gathering');
 
       pill.appendChild(timeSpan);
       pill.appendChild(titleSpan);
@@ -2164,10 +2619,13 @@
         return;
       }
       selectCalendarDay(dateKey);
-      if (window.matchMedia('(max-width: 640px)').matches) {
-        openMobileDayDrawer();
-      } else if (dateKey >= istDateStr) {
+      if (dateKey >= istDateStr) {
         openHostModal(dateKey);
+      } else {
+        if (window.matchMedia('(max-width: 640px)').matches) {
+          openMobileDayDrawer();
+        }
+        showToast('This date is in the past. To host an Adda, please select an upcoming date.');
       }
     });
 
@@ -2175,10 +2633,13 @@
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         selectCalendarDay(dateKey);
-        if (window.matchMedia('(max-width: 640px)').matches) {
-          openMobileDayDrawer();
-        } else if (dateKey >= istDateStr) {
+        if (dateKey >= istDateStr) {
           openHostModal(dateKey);
+        } else {
+          if (window.matchMedia('(max-width: 640px)').matches) {
+            openMobileDayDrawer();
+          }
+          showToast('This date is in the past. To host an Adda, please select an upcoming date.');
         }
       }
     });
@@ -2248,17 +2709,27 @@
             '</div>',
             '<h4 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--adda-navy);">' + safeTitle + '</h4>',
             '  ' + recapStateHtml(ev),
-            '<div style="font-size: 0.8125rem; color: var(--adda-text-muted); margin-top: auto;">',
+            '<div style="font-size: 0.8125rem; color: var(--adda-text-muted); margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">',
             '  <span>' + cityText + roomText + venueText + '</span>',
             '</div>'
           ].join('\n');
 
-          card.addEventListener('click', function() {
+          card.addEventListener('click', function(e) {
+            e.preventDefault();
             openEventDetailModal(ev);
           });
 
           calDrawerCards.appendChild(card);
         });
+      }
+    }
+
+    var calDrawerFooter = document.getElementById('cal-drawer-footer');
+    if (calDrawerFooter) {
+      if (dateKey >= istDateStr) {
+        calDrawerFooter.style.display = 'flex';
+      } else {
+        calDrawerFooter.style.display = 'none';
       }
     }
   }
@@ -2285,7 +2756,7 @@
     var safeCity = escapeHtml(event.city || 'Neighbourhood');
     var plainDesc = stripHtml(event.description || '');
     var safeDesc = escapeHtml(plainDesc);
-    var catClass = getCategoryClass(event.type);
+    var catClass = getCategoryClass(event.type, event.title);
     var timeText = formatEventTime(event.start_date_time);
 
     var mediaHtml = '';
@@ -2297,26 +2768,26 @@
         if (cImgStr.startsWith('/private/files/')) {
           cImgStr = cImgStr.replace('/private/files/', '/files/');
         }
-        var placeholderHtml = '<div class="adda-card-placeholder">Adda &bull; ' + safeCity + '</div>';
-        mediaHtml = '<img src="' + escapeHtml(cImgStr) + '" alt="' + safeTitle + '" class="adda-card-img" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML=\'' + placeholderHtml + '\';" />';
+        mediaHtml = '  <div class="adda-list-card-poster" aria-hidden="true">' +
+          '<img src="' + escapeHtml(cImgStr) + '" alt="' + safeTitle + '" class="adda-card-img" loading="lazy" onerror="var p=this.closest(\'.adda-list-card-poster\');if(p)p.style.display=\'none\';" />' +
+          '</div>';
       }
-    }
-    if (!mediaHtml) {
-      mediaHtml = '<div class="adda-card-placeholder">Adda &bull; ' + safeCity + '</div>';
     }
 
     return [
       '<article class="adda-list-card ' + catClass + '" data-event-id="' + escapeHtml(eventIdentifier) + '" tabindex="0" role="button" aria-label="View details for ' + safeTitle + '">',
       '  <span class="adda-list-card-time">' + timeText + '</span>',
-      '  <div class="adda-list-card-poster" aria-hidden="true">' + mediaHtml + '</div>',
+      mediaHtml,
       '  <div class="adda-list-card-content">',
       '    <h3 class="adda-list-card-title">' + safeTitle + '</h3>',
-      '    <div class="adda-list-card-meta"><span>' + safeCity + '</span>' + recapStateHtml(event) + '</div>',
-      '    <p class="adda-list-card-description">' + safeDesc + '</p>',
+      '    <div class="adda-list-card-meta">' + safeCity + '</div>',
+      (safeDesc ? '    <p class="adda-list-card-description">' + safeDesc + '</p>' : ''),
       '  </div>',
-      '  <span class="adda-list-card-chevron">View &rsaquo;</span>',
+      '  <div class="adda-list-card-action">',
+      '    <span class="adda-list-card-chevron">View &rsaquo;</span>',
+      '  </div>',
       '</article>'
-    ].join('\n');
+    ].filter(Boolean).join('\n');
   }
 
   function getListDateKey(event) {
@@ -2364,6 +2835,7 @@
     var apiUrl = new URL('/api/method/adda_space.api.events.get_adda_events', window.location.origin);
     apiUrl.searchParams.set('time_scope', 'all');
     apiUrl.searchParams.set('event_type', 'all');
+    apiUrl.searchParams.set('include_pending', '1');
     if (currentCity) {
       apiUrl.searchParams.set('city', currentCity);
     }
@@ -2393,16 +2865,16 @@
         gridContainer.innerHTML = renderListDateGroups(events);
 
         // Attach modal trigger to list cards
-        gridContainer.querySelectorAll('.adda-list-card').forEach(function(cardEl, idx) {
+        gridContainer.querySelectorAll('.adda-list-card').forEach(function(cardEl) {
+          var eventId = cardEl.getAttribute('data-event-id');
+          var ev = events.find(function(e) { return (e.unique_id || e.name) === eventId; });
           cardEl.addEventListener('click', function(e) {
             e.preventDefault();
-            var ev = events[idx];
             if (ev) openEventDetailModal(ev);
           });
           cardEl.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
-              var ev = events[idx];
               if (ev) openEventDetailModal(ev);
             }
           });
@@ -2620,6 +3092,8 @@
       if (posterLightboxOverlay && posterLightboxOverlay.classList.contains('is-open')) {
         posterLightboxOverlay.classList.remove('is-open');
         posterLightboxOverlay.style.display = 'none';
+      } else if (regModalBackdrop && regModalBackdrop.classList.contains('is-open')) {
+        closeEventRegistrationModal();
       } else if (detailModalBackdrop && detailModalBackdrop.classList.contains('is-open')) {
         closeEventDetailModal();
       } else if (hostModalBackdrop && hostModalBackdrop.classList.contains('is-open')) {
@@ -2628,6 +3102,16 @@
     }
   });
 
+  function normalizeDateStr(dStr) {
+    if (!dStr) return '';
+    var s = String(dStr).trim();
+    if (/^\d{2}-\d{2}-\d{4}$/.test(s)) {
+      var p = s.split('-');
+      return p[2] + '-' + p[1] + '-' + p[0];
+    }
+    return s.slice(0, 10);
+  }
+
   // URL State Initialization
   var urlParams = new URLSearchParams(window.location.search);
   var initialCity = urlParams.get('city');
@@ -2635,6 +3119,20 @@
 
   var initialView = urlParams.get('view');
   if (initialView && (initialView === 'list' || initialView === 'calendar')) currentView = initialView;
+
+  var initialDate = urlParams.get('date');
+  if (initialDate && (/^\d{4}-\d{2}-\d{2}$/.test(initialDate.trim()) || /^\d{2}-\d{2}-\d{4}$/.test(initialDate.trim()))) {
+    initialDate = normalizeDateStr(initialDate.trim());
+    selectedDateStr = initialDate;
+    var dParts = initialDate.split('-').map(Number);
+    if (dParts.length === 3 && !isNaN(dParts[0]) && !isNaN(dParts[1])) {
+      calYear = dParts[0];
+      calMonth = dParts[1] - 1;
+      updateCalHeader();
+    }
+  } else {
+    initialDate = null;
+  }
 
   var shouldOpenHost = urlParams.get('open_host') === '1' || urlParams.get('action') === 'host';
 
@@ -2677,7 +3175,7 @@
           sessionStorage.setItem('adda_host_modal_auto_opened', '1');
         } catch(e) {}
         if (hostModalBackdrop) {
-          openHostModal();
+          openHostModal(initialDate || (hasDraft ? (modalEventDate ? modalEventDate.value : null) : null));
           if (modalCitySelect && modalCitySelect.value) {
             loadModalRooms(modalCitySelect.value, function() {
               if (hasDraft) {

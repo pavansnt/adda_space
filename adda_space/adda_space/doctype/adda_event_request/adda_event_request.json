@@ -1,0 +1,249 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2026-10-26 12:00:00.000000",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "event_details_section",
+  "title",
+  "column_break_1",
+  "event_type",
+  "status",
+  "event",
+  "schedule_location_section",
+  "start_date_time",
+  "column_break_2",
+  "end_date_time",
+  "city",
+  "room_name",
+  "column_break_3",
+  "mode",
+  "venue_details",
+  "description_poster_section",
+  "description",
+  "cover_image",
+  "people_expected",
+  "wa_group_link",
+  "organizer_section",
+  "organizer_name",
+  "organizer_email",
+  "column_break_org",
+  "organizer_mobile",
+  "admin_review_section",
+  "admin_notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "event_details_section",
+   "fieldtype": "Section Break",
+   "label": "Event Proposal Details"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Adda",
+   "fieldname": "event_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Event Type",
+   "options": "Adda\nSolver Jam\nCustom Event\nSolve Con",
+   "reqd": 1
+  },
+  {
+   "default": "Pending Review",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Pending Review\nApproved\nRejected",
+   "reqd": 1
+  },
+  {
+   "fieldname": "event",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Created Event",
+   "options": "Adda Event",
+   "read_only": 1
+  },
+  {
+   "fieldname": "schedule_location_section",
+   "fieldtype": "Section Break",
+   "label": "Schedule & Space"
+  },
+  {
+   "fieldname": "start_date_time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Start Date Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "end_date_time",
+   "fieldtype": "Datetime",
+   "label": "End Date Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "City",
+   "options": "Adda City",
+   "reqd": 1
+  },
+  {
+   "fieldname": "room_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Requested Room",
+   "options": "Adda Room"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Offline",
+   "fieldname": "mode",
+   "fieldtype": "Select",
+   "label": "Mode",
+   "options": "Offline\nOnline"
+  },
+  {
+   "fieldname": "venue_details",
+   "fieldtype": "Data",
+   "label": "Venue Details / Equipment Notes"
+  },
+  {
+   "fieldname": "description_poster_section",
+   "fieldtype": "Section Break",
+   "label": "Description & Poster"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "label": "Description",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cover_image",
+   "fieldtype": "Attach Image",
+   "label": "Event Poster",
+   "reqd": 1
+  },
+  {
+   "default": "20",
+   "fieldname": "people_expected",
+   "fieldtype": "Int",
+   "label": "People Expected"
+  },
+  {
+   "fieldname": "wa_group_link",
+   "fieldtype": "Data",
+   "label": "WA Group Link"
+  },
+  {
+   "fieldname": "organizer_section",
+   "fieldtype": "Section Break",
+   "label": "Organizer Information (Private)"
+  },
+  {
+   "fieldname": "organizer_name",
+   "fieldtype": "Data",
+   "label": "Organizer Name"
+  },
+  {
+   "fieldname": "organizer_email",
+   "fieldtype": "Data",
+   "label": "Organizer Email"
+  },
+  {
+   "fieldname": "column_break_org",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "organizer_mobile",
+   "fieldtype": "Data",
+   "label": "Organizer Mobile"
+  },
+  {
+   "fieldname": "admin_review_section",
+   "fieldtype": "Section Break",
+   "label": "Admin Review"
+  },
+  {
+   "fieldname": "admin_notes",
+   "fieldtype": "Small Text",
+   "label": "Admin Review Notes"
+  }
+ ],
+ "image_field": "cover_image",
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-26 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Adda Space",
+ "name": "Adda Event Request",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Adda Space Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "role": "Guest"
+  },
+  {
+   "create": 1,
+   "role": "All"
+  }
+ ],
+ "show_title_field_in_link": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "title"
+}
+

@@ -92,7 +92,8 @@ website_route_rules = [
 # ------------
 
 # before_install = "adda_space.install.before_install"
-# after_install = "adda_space.install.after_install"
+after_install = "adda_space.setup.setup_adda_space"
+after_migrate = "adda_space.setup.setup_adda_space"
 
 # Uninstallation
 # ------------

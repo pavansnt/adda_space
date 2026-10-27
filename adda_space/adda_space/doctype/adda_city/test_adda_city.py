@@ -1,22 +1,47 @@
 # Copyright (c) 2026, reap_benefit and Contributors
 # See license.txt
 
-# import frappe
+import frappe
 from frappe.tests import IntegrationTestCase
 
 
-# On IntegrationTestCase, the doctype test records and all
-# link-field test record dependencies are recursively loaded
-# Use these module variables to add/remove to/from that list
-EXTRA_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
-IGNORE_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
+class TestAddaCity(IntegrationTestCase):
+	def tearDown(self):
+		# Clean up any test cities created
+		for c in ["Testville", "testville", "Newcity"]:
+			if frappe.db.exists("Adda City", c):
+				frappe.delete_doc("Adda City", c, force=True, ignore_permissions=True)
 
+	def test_create_valid_city(self):
+		city = frappe.get_doc({
+			"doctype": "Adda City",
+			"city_name": "Testville",
+			"is_active": 1,
+			"state": "Karnataka",
+			"country": "India",
+		}).insert(ignore_permissions=True)
 
+		self.assertEqual(city.name, "Testville")
+		self.assertEqual(city.is_active, 1)
 
-class IntegrationTestAddaCity(IntegrationTestCase):
-	"""
-	Integration tests for AddaCity.
-	Use this class for testing interactions between multiple components.
-	"""
+	def test_duplicate_city_prevented(self):
+		frappe.get_doc({
+			"doctype": "Adda City",
+			"city_name": "Testville",
+		}).insert(ignore_permissions=True)
 
-	pass
+		# Case-insensitive duplicate test
+		dup = frappe.get_doc({
+			"doctype": "Adda City",
+			"city_name": "testville",
+		})
+		with self.assertRaises(frappe.ValidationError):
+			dup.insert(ignore_permissions=True)
+
+	def test_empty_city_disallowed(self):
+		invalid = frappe.get_doc({
+			"doctype": "Adda City",
+			"city_name": "   ",
+		})
+		with self.assertRaises(frappe.ValidationError):
+			invalid.insert(ignore_permissions=True)

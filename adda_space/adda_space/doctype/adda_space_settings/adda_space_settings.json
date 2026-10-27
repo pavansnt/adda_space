@@ -1,0 +1,108 @@
+{
+ "actions": [],
+ "creation": "2026-10-26 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "general_section",
+  "default_city",
+  "checkin_base_url",
+  "enable_public_registration",
+  "glific_section",
+  "enable_glific",
+  "glific_checkin_flow_id",
+  "column_break_glific",
+  "glific_api_url",
+  "glific_api_token"
+ ],
+ "fields": [
+  {
+   "fieldname": "general_section",
+   "fieldtype": "Section Break",
+   "label": "General Settings"
+  },
+  {
+   "fieldname": "default_city",
+   "fieldtype": "Link",
+   "label": "Default City",
+   "options": "Adda City"
+  },
+  {
+   "fieldname": "checkin_base_url",
+   "fieldtype": "Data",
+   "label": "Checkin Base URL"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_public_registration",
+   "fieldtype": "Check",
+   "label": "Enable Public Registration"
+  },
+  {
+   "fieldname": "glific_section",
+   "fieldtype": "Section Break",
+   "label": "Glific WhatsApp Integration (Optional)"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_glific",
+   "fieldtype": "Check",
+   "label": "Enable Glific Integration"
+  },
+  {
+   "fieldname": "glific_checkin_flow_id",
+   "fieldtype": "Data",
+   "label": "Event Checkin Flow ID"
+  },
+  {
+   "fieldname": "column_break_glific",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "glific_api_url",
+   "fieldtype": "Data",
+   "label": "Glific API URL"
+  },
+  {
+   "fieldname": "glific_api_token",
+   "fieldtype": "Password",
+   "label": "Glific API Token"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-10-26 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Adda Space",
+ "name": "Adda Space Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Adda Space Admin",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "states": []
+}
+

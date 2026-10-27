@@ -1,0 +1,342 @@
+{
+ "actions": [],
+ "autoname": "hash",
+ "creation": "2026-10-26 12:00:00.000000",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_information_section",
+  "title",
+  "column_break_1",
+  "type",
+  "status",
+  "approval_status",
+  "unique_id",
+  "event_request",
+  "date_time_section",
+  "start_date_time",
+  "column_break_2",
+  "end_date_time",
+  "location_details_section",
+  "city",
+  "room_name",
+  "column_break_3",
+  "mode",
+  "venue_details",
+  "description_section",
+  "description",
+  "cover_image",
+  "image",
+  "participation_section",
+  "capacity",
+  "people_expected",
+  "column_break_4",
+  "wa_group_link",
+  "additional_notification_emails",
+  "checkin_section",
+  "checkin_url",
+  "column_break_checkin",
+  "checkin_qr",
+  "organizer_section",
+  "organizer_name",
+  "organizer_email",
+  "column_break_org",
+  "organizer_mobile"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_information_section",
+   "fieldtype": "Section Break",
+   "label": "Basic Information"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Adda",
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Type",
+   "options": "Adda\nSolver Jam\nCustom Event\nSolve Con",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nPending Review\nApproved\nRejected",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "approval_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Approval Status",
+   "options": "Draft\nPending Review\nApproved\nRejected",
+   "reqd": 1
+  },
+  {
+   "fieldname": "unique_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Unique ID",
+   "read_only": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "event_request",
+   "fieldtype": "Link",
+   "label": "Source Request",
+   "options": "Adda Event Request",
+   "read_only": 1
+  },
+  {
+   "fieldname": "date_time_section",
+   "fieldtype": "Section Break",
+   "label": "Date & Time"
+  },
+  {
+   "fieldname": "start_date_time",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Start Date Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "end_date_time",
+   "fieldtype": "Datetime",
+   "label": "End Date Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "location_details_section",
+   "fieldtype": "Section Break",
+   "label": "Location & Space"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "City",
+   "options": "Adda City",
+   "reqd": 1
+  },
+  {
+   "fieldname": "room_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Room",
+   "options": "Adda Room"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Offline",
+   "fieldname": "mode",
+   "fieldtype": "Select",
+   "label": "Mode",
+   "options": "Offline\nOnline"
+  },
+  {
+   "fieldname": "venue_details",
+   "fieldtype": "Data",
+   "label": "Venue Details"
+  },
+  {
+   "fieldname": "description_section",
+   "fieldtype": "Section Break",
+   "label": "Description & Media"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "label": "Description",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cover_image",
+   "fieldtype": "Attach Image",
+   "label": "Cover Image",
+   "reqd": 1
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Data",
+   "label": "Image URL"
+  },
+  {
+   "fieldname": "participation_section",
+   "fieldtype": "Section Break",
+   "label": "Capacity & Coordination"
+  },
+  {
+   "fieldname": "capacity",
+   "fieldtype": "Int",
+   "label": "Max Capacity",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "people_expected",
+   "fieldtype": "Int",
+   "label": "People Expected"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "wa_group_link",
+   "fieldtype": "Data",
+   "label": "WA Group Link"
+  },
+  {
+   "fieldname": "additional_notification_emails",
+   "fieldtype": "Data",
+   "label": "Notify Emails"
+  },
+  {
+   "fieldname": "checkin_section",
+   "fieldtype": "Section Break",
+   "label": "Checkin & QR"
+  },
+  {
+   "fieldname": "checkin_url",
+   "fieldtype": "Small Text",
+   "label": "Checkin URL",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_checkin",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "checkin_qr",
+   "fieldtype": "Attach Image",
+   "label": "QR Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "organizer_section",
+   "fieldtype": "Section Break",
+   "label": "Organizer (Private)"
+  },
+  {
+   "fieldname": "organizer_name",
+   "fieldtype": "Data",
+   "label": "Organizer Name"
+  },
+  {
+   "fieldname": "organizer_email",
+   "fieldtype": "Data",
+   "label": "Organizer Email"
+  },
+  {
+   "fieldname": "column_break_org",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "organizer_mobile",
+   "fieldtype": "Data",
+   "label": "Organizer Mobile"
+  }
+ ],
+ "image_field": "cover_image",
+ "index_web_pages_for_search": 1,
+ "links": [
+  {
+   "link_doctype": "Event Recap",
+   "link_fieldname": "event"
+  },
+  {
+   "link_doctype": "Adda Event Registration",
+   "link_fieldname": "event"
+  }
+ ],
+ "modified": "2026-10-26 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Adda Space",
+ "name": "Adda Event",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Adda Space Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "All"
+  },
+  {
+   "read": 1,
+   "role": "Guest"
+  }
+ ],
+ "show_title_field_in_link": 1,
+ "sort_field": "start_date_time",
+ "sort_order": "DESC",
+ "states": [
+  {
+   "color": "Gray",
+   "title": "Draft"
+  },
+  {
+   "color": "Orange",
+   "title": "Pending Review"
+  },
+  {
+   "color": "Green",
+   "title": "Approved"
+  },
+  {
+   "color": "Red",
+   "title": "Rejected"
+  }
+ ],
+ "title_field": "title"
+}
+

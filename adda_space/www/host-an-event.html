@@ -240,7 +240,7 @@
 
             <!-- Tab A: Upload File -->
             <div id="step-poster-upload-panel">
-              <input type="file" id="step-poster-file" class="adda-input" accept="image/png, image/jpeg, image/webp" aria-required="true" />
+              <input type="file" id="step-poster-file" class="adda-input" accept="image/png, image/jpeg, image/webp" required aria-required="true" />
               <p class="adda-form-hint">Supported formats: PNG, JPG, WebP (Max 5MB). Dimensions recommended: 1200 &times; 630px.</p>
             </div>
 
@@ -397,6 +397,7 @@
   var currentStep = 1;
   var availableRooms = [];
   var isSubmitting = false;
+  var savedEventId = '';
 
   // Step 1 Elements
   var citySelect = document.getElementById('step-city-select');
@@ -486,7 +487,8 @@
       wa_group_link: waGroupInput.value || '',
       poster_filename: posterFilename ? posterFilename.textContent : '',
       poster_url: (posterUrlInput && posterUrlInput.value.trim()) || uploadedPosterUrl || '',
-      poster_source: posterSource || 'upload'
+      poster_source: posterSource || 'upload',
+      saved_event_id: savedEventId || ''
     };
     try {
       sessionStorage.setItem('adda_host_form_data', JSON.stringify(state));
@@ -499,6 +501,8 @@
       if (!raw) return false;
       var state = JSON.parse(raw);
       if (!state) return false;
+
+      if (state.saved_event_id) savedEventId = state.saved_event_id;
 
       if (state.city) citySelect.value = state.city;
       if (state.date) eventDateInput.value = state.date;
@@ -529,9 +533,49 @@
     }
   }
 
+  function resetHostForm() {
+    savedEventId = '';
+    try {
+      sessionStorage.removeItem('adda_host_form_data');
+    } catch(e) {}
+
+    if (titleInput) titleInput.value = '';
+    if (descInput) descInput.value = '';
+    if (peopleInput) peopleInput.value = '20';
+    if (modeSelect) modeSelect.value = 'Offline';
+    if (venueNotesInput) venueNotesInput.value = '';
+    if (waGroupInput) waGroupInput.value = '';
+    if (selectedRoomInput) selectedRoomInput.value = '';
+    if (roomsGrid) {
+      roomsGrid.querySelectorAll('.adda-room-card').forEach(function(c) { c.classList.remove('selected'); });
+    }
+
+    selectedPosterFile = null;
+    selectedPosterDataUrl = '';
+    uploadedPosterUrl = '';
+    if (posterFileInput) posterFileInput.value = '';
+    if (posterUrlInput) posterUrlInput.value = '';
+    if (posterImg) posterImg.src = '';
+    if (posterFilename) posterFilename.textContent = '';
+    if (posterFilesize) posterFilesize.textContent = '';
+    if (posterPreviewBox) posterPreviewBox.style.display = 'none';
+
+    if (step1Error) step1Error.style.display = 'none';
+    if (step3Error) step3Error.style.display = 'none';
+    if (submitErrorBox) submitErrorBox.style.display = 'none';
+    if (availBanner) availBanner.style.display = 'none';
+
+    if (stepSubmitBtn) {
+      stepSubmitBtn.disabled = false;
+      stepSubmitBtn.textContent = 'Submit Gathering Proposal';
+    }
+  }
+
   function goToStep(step) {
     currentStep = step;
-    saveFormStateToStorage();
+    if (step !== 5) {
+      saveFormStateToStorage();
+    }
 
     // Update nav indicators
     for (var i = 1; i <= 4; i++) {
@@ -575,8 +619,30 @@
         citySelect.appendChild(opt);
       });
 
+      var urlParams = new URLSearchParams(window.location.search);
+      var urlCity = urlParams.get('city');
+      var urlDate = urlParams.get('date');
+      if (urlCity) {
+        citySelect.value = urlCity;
+      }
+      var hasUrlDate = false;
+      if (urlDate && (/^\d{4}-\d{2}-\d{2}$/.test(urlDate.trim()) || /^\d{2}-\d{2}-\d{4}$/.test(urlDate.trim()))) {
+        var cleanDate = normalizeDateStr(urlDate.trim());
+        if (eventDateInput) {
+          eventDateInput.value = cleanDate;
+        }
+        hasUrlDate = true;
+      }
+
       var restored = restoreFormStateFromStorage();
-      if (restored && citySelect.value) {
+      if (hasUrlDate) {
+        var chosenCity = citySelect.value || 'Bengaluru';
+        citySelect.value = chosenCity;
+        goToStep(2);
+        loadRoomsForCity(chosenCity, function() {
+          checkRoomAvailability();
+        });
+      } else if (restored && citySelect.value) {
         loadRoomsForCity(citySelect.value, function() {
           populateReviewCard();
           goToStep(4);
@@ -605,7 +671,7 @@
     roomsLoading.style.display = 'block';
     roomsGrid.style.display = 'none';
 
-    fetch('/api/method/solve_ninja.api.v1.solve_event.get_adda_rooms', {
+    fetch('/api/method/adda_space.api.events.get_adda_rooms', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -670,9 +736,20 @@
     });
   }
 
+  function normalizeDateStr(d) {
+    if (!d) return '';
+    var s = String(d).trim();
+    if (/^\d{2}-\d{2}-\d{4}$/.test(s)) {
+      var parts = s.split('-');
+      return parts[2] + '-' + parts[1] + '-' + parts[0];
+    }
+    return s.slice(0, 10);
+  }
+
   // Real-time Availability Checking
   function checkRoomAvailability() {
-    var date = eventDateInput.value;
+    var rawDate = eventDateInput.value;
+    var date = normalizeDateStr(rawDate);
     var city = citySelect.value;
     var room = selectedRoomInput.value;
     var startTime = startTimeInput.value;
@@ -680,7 +757,7 @@
 
     if (!date || !room) return;
 
-    fetch('/api/method/solve_ninja.api.v1.solve_event.get_adda_room_availability', {
+    fetch('/api/method/adda_space.api.events.get_adda_room_availability', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -688,21 +765,29 @@
         'X-Requested-With': 'XMLHttpRequest',
         'X-Frappe-CSRF-Token': getCsrfToken()
       },
-      body: JSON.stringify({ date: date, city: city, room_name: room })
+      body: JSON.stringify({
+        date: date,
+        city: city,
+        room_name: room,
+        start_time: startTime,
+        end_time: endTime
+      })
     })
     .then(function(res) { return res.json(); })
     .then(function(data) {
       var payload = data.message || data;
       var bookings = (payload && Array.isArray(payload.bookings)) ? payload.bookings : [];
 
-      // Check collision
+      // Check collision using ISO datetime strings for strict interval comparison
       var collision = null;
       if (startTime && endTime) {
-        var sReq = startTime + ':00';
-        var eReq = endTime + ':00';
+        var sReq = date + ' ' + (startTime.length === 5 ? startTime + ':00' : startTime);
+        var eReq = date + ' ' + (endTime.length === 5 ? endTime + ':00' : endTime);
         for (var i = 0; i < bookings.length; i++) {
           var b = bookings[i];
-          if (b.start_time < eReq && b.end_time > sReq) {
+          var bStart = b.start ? String(b.start).slice(0, 19) : (date + ' ' + b.start_time);
+          var bEnd = b.end ? String(b.end).slice(0, 19) : (date + ' ' + b.end_time);
+          if (bStart < eReq && bEnd > sReq) {
             collision = b;
             break;
           }
@@ -712,9 +797,11 @@
       availBanner.style.display = 'flex';
       if (collision) {
         availBanner.className = 'adda-avail-box adda-avail-alert';
+        var collisionStart = collision.start_time ? collision.start_time.slice(0, 5) : '';
+        var collisionEnd = collision.end_time ? collision.end_time.slice(0, 5) : '';
         availMessage.innerHTML = '<strong>Room Unavailable:</strong> ' + room + ' is already booked for "' +
-          (collision.title || 'Another Event') + '" (' + collision.start_time.slice(0, 5) + ' &ndash; ' +
-          collision.end_time.slice(0, 5) + '). Please choose another time or space.';
+          (collision.title || 'Another Event') + '" (' + collisionStart + ' &ndash; ' +
+          collisionEnd + '). Please choose another time or space.';
         step2NextBtn.disabled = true;
       } else {
         availBanner.className = 'adda-avail-box adda-avail-success';
@@ -1061,6 +1148,9 @@
       image: coverImageUrl,
       cover_image: coverImageUrl
     };
+    if (savedEventId) {
+      payload.name = savedEventId;
+    }
 
     fetch('/api/method/adda_space.api.events.create_adda_event', {
       method: 'POST',
@@ -1083,12 +1173,9 @@
     })
     .then(function(data) {
       isSubmitting = false;
-      try {
-        sessionStorage.removeItem('adda_host_form_data');
-      } catch(e) {}
-
       var doc = data.message || data;
       confRefName.textContent = doc.name || doc.title || 'Created';
+      resetHostForm();
       goToStep(5);
     })
     .catch(function(err) {

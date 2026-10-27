@@ -52,6 +52,11 @@
           </span>
         </div>
 
+        <!-- Pending approval notice -->
+        <div class="adda-modal-pending-notice" id="detail-pending-notice" style="display: none; margin-top: 1rem; margin-bottom: 1rem;">
+          This gathering is awaiting space confirmation. Details may change until it’s approved.
+        </div>
+
         <h1 style="max-width: 860px; margin-bottom: 1.25rem;" id="event-title"></h1>
 
         <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; color: var(--adda-text-muted); font-size: 0.9375rem;" id="event-quick-meta">
@@ -174,7 +179,7 @@
                   </form>
 
                   <div style="font-size: 0.75rem; color: var(--adda-text-subtle); text-align: center; margin-top: 0.75rem;">
-                    Free Admission &bull; Powered by Solve Ninja
+                    Free Admission &bull; Adda Space Community
                   </div>
                 </div>
               </div>
@@ -482,9 +487,17 @@
     eventQuickTime.textContent = timeString;
     eventQuickMode.textContent = event.mode || 'In-Person Gathering';
 
+    var isPending = String(event.approval_status || '').trim().toLowerCase() === 'pending review';
+    var detailPendingNotice = document.getElementById('detail-pending-notice');
+    if (detailPendingNotice) {
+      detailPendingNotice.style.display = isPending ? 'block' : 'none';
+    }
+
     // Hero Media
-    if (event.cover_image) {
-      eventHeroMedia.innerHTML = '<img src="' + escapeHtml(event.cover_image) + '" alt="' + escapeHtml(event.title) + '" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.parentElement.innerHTML=\'<div class=\\\'adda-card-placeholder\\\'>Adda &bull; ' + escapeHtml(event.city) + '</div>\';" />';
+    var detailImg = event.cover_image || event.image || '';
+    if (detailImg && typeof detailImg === 'string' && detailImg.trim() && !detailImg.includes('/private/files/')) {
+      var dImgClean = detailImg.trim();
+      eventHeroMedia.innerHTML = '<img src="' + escapeHtml(dImgClean) + '" alt="" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.parentElement.innerHTML=\'<div class=\\\'adda-card-placeholder\\\' style=\\\'font-size: 1.5rem;\\\'>Adda Space &bull; ' + escapeHtml(event.city || 'Gathering') + '</div>\';" />';
     } else {
       eventHeroMedia.innerHTML = '<div class="adda-card-placeholder" style="font-size: 1.5rem;">Adda Space &bull; ' + escapeHtml(event.city || 'Community') + '</div>';
     }
@@ -676,6 +689,7 @@
       }
 
       var payload = {
+        event: eventIdentifier,
         solve_event: eventIdentifier,
         mobile: cleanMobile,
         whatsapp_name: fullName || cleanMobile,
@@ -769,6 +783,18 @@
 
   function fetchDetail() {
     var eventId = getRouteEventId();
+    if (eventId) {
+      var lower = eventId.toLowerCase();
+      if (lower === 'host' || lower === 'new' || lower === 'create') {
+        window.location.replace('/events?open_host=1');
+        return;
+      }
+      if (/^\d{4}-\d{2}-\d{2}$/.test(eventId) || /^\d{2}-\d{2}-\d{4}$/.test(eventId)) {
+        window.location.replace('/events?date=' + encodeURIComponent(eventId) + '&open_host=1');
+        return;
+      }
+    }
+
     if (!eventId) {
       notFoundDesc.textContent = 'No event identifier was provided in the route.';
       setDetailState('not_found');

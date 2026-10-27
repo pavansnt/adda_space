@@ -2,25 +2,98 @@
  "actions": [],
  "allow_bulk_edit": 1,
  "allow_rename": 1,
+ "autoname": "field:city_name",
  "creation": "2026-10-09 12:19:24.159096",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "section_break_o3nv"
+  "city_name",
+  "is_active",
+  "column_break_loc",
+  "state",
+  "country",
+  "section_break_coords",
+  "latitude",
+  "column_break_coords",
+  "longitude",
+  "timezone"
  ],
  "fields": [
   {
-   "fieldname": "section_break_o3nv",
-   "fieldtype": "Section Break"
+   "fieldname": "city_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "City Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Is Active"
+  },
+  {
+   "fieldname": "column_break_loc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Data",
+   "label": "State"
+  },
+  {
+   "default": "India",
+   "fieldname": "country",
+   "fieldtype": "Data",
+   "label": "Country"
+  },
+  {
+   "fieldname": "section_break_coords",
+   "fieldtype": "Section Break",
+   "label": "Location Coordinates"
+  },
+  {
+   "fieldname": "latitude",
+   "fieldtype": "Float",
+   "label": "Latitude"
+  },
+  {
+   "fieldname": "column_break_coords",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "longitude",
+   "fieldtype": "Float",
+   "label": "Longitude"
+  },
+  {
+   "default": "Asia/Kolkata",
+   "fieldname": "timezone",
+   "fieldtype": "Data",
+   "label": "Timezone"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2026-10-09 12:19:24.159096",
+ "links": [
+  {
+   "link_doctype": "Adda Event",
+   "link_fieldname": "city"
+  },
+  {
+   "link_doctype": "Adda Room",
+   "link_fieldname": "city"
+  }
+ ],
+ "modified": "2026-10-26 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Adda Space",
  "name": "Adda City",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
@@ -34,11 +107,32 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Adda Space Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "All"
+  },
+  {
+   "read": 1,
+   "role": "Guest"
   }
  ],
  "row_format": "Dynamic",
  "rows_threshold_for_grid_search": 20,
- "sort_field": "creation",
- "sort_order": "DESC",
- "states": []
+ "sort_field": "city_name",
+ "sort_order": "ASC",
+ "states": [],
+ "title_field": "city_name"
 }
