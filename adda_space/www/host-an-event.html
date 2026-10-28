@@ -903,7 +903,7 @@
         availBanner.className = 'adda-avail-box adda-avail-alert';
         var collisionStart = collision.start_time ? collision.start_time.slice(0, 5) : '';
         var collisionEnd = collision.end_time ? collision.end_time.slice(0, 5) : '';
-        availMessage.innerHTML = '<strong>Room Unavailable:</strong> ' + room + ' is already booked for "' +
+        availMessage.innerHTML = '<strong>This space is already being used during that time.</strong> ' + room + ' is booked for "' +
           (collision.title || 'Another Event') + '" (' + collisionStart + ' &ndash; ' +
           collisionEnd + '). Please choose another time or space.';
         step2NextBtn.disabled = true;

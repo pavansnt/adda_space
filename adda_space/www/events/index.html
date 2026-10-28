@@ -976,6 +976,8 @@
   // Host Modal State
   var hostModalStep = 1;
   var hostAvailableRooms = [];
+  var modalAvailabilitySeq = 0;
+  var modalAvailabilityStatus = 'unknown';
   var isSubmittingHostProposal = false;
 
   // Calendar State (calculated in Asia/Kolkata)
@@ -1186,6 +1188,13 @@
     return formattedDate + ' &bull; ' + formattedTime;
   }
 
+  function formatShortDateTimeRange(event) {
+    if (!event) return '';
+    var start = formatShortDate(event.start_date_time);
+    var end = formatEventTime(event.end_date_time);
+    return end ? start + ' – ' + end : start;
+  }
+
   function formatEventTime(dateStr) {
     if (!dateStr) return '';
     var trimmed = String(dateStr).trim();
@@ -1203,6 +1212,13 @@
       hour12: true
     });
     return t.toUpperCase();
+  }
+
+  function formatEventTimeRange(event) {
+    var start = formatEventTime(event && event.start_date_time);
+    var end = formatEventTime(event && event.end_date_time);
+    if (!start) return end;
+    return end ? start + ' – ' + end : start;
   }
 
   function formatLongDate(dateKey) {
@@ -1246,7 +1262,7 @@
     }
 
     if (modalEventTime) {
-      modalEventTime.innerHTML = formatShortDate(ev.start_date_time);
+      modalEventTime.innerHTML = formatShortDateTimeRange(ev);
     }
 
     var venueParts = [];
@@ -1416,7 +1432,7 @@
       modalRegEventTitle.textContent = ev.title || 'Untitled Gathering';
     }
     if (modalRegEventTime) {
-      modalRegEventTime.innerHTML = formatShortDate(ev.start_date_time);
+      modalRegEventTime.innerHTML = formatShortDateTimeRange(ev);
     }
     var venueParts = [];
     if (ev.room_name) venueParts.push(ev.room_name);
@@ -1930,6 +1946,8 @@
   function resetHostModalForm() {
     selectedHostDate = null;
     currentCoordinatorData = null;
+    modalAvailabilitySeq++;
+    modalAvailabilityStatus = 'unknown';
     var hoursWarn = document.getElementById('modal-hours-warning');
     if (hoursWarn) hoursWarn.style.display = 'none';
 
@@ -2265,9 +2283,7 @@
         }
         modalDurationDisplay.textContent = 'You’ll request ' + s + ' – ' + e + ' (' + durStr + ')';
         modalDurationDisplay.style.color = '#0F766E';
-        if (hStep2Btn && modalSelectedRoom && modalSelectedRoom.value) {
-          hStep2Btn.disabled = false;
-        }
+        if (hStep2Btn) hStep2Btn.disabled = !modalSelectedRoom || !modalSelectedRoom.value || modalAvailabilityStatus !== 'available';
       } else {
         modalDurationDisplay.textContent = 'End time must be later than start time.';
         modalDurationDisplay.style.color = '#DC2626';
@@ -2281,6 +2297,10 @@
 
   function loadModalRooms(city, callback) {
     if (!modalRoomsLoading || !modalRoomsGrid) return;
+    modalAvailabilitySeq++;
+    modalAvailabilityStatus = 'unknown';
+    var availabilityContinueBtn = document.getElementById('host-step-2-continue-btn');
+    if (availabilityContinueBtn) availabilityContinueBtn.disabled = true;
     modalRoomsLoading.style.display = 'block';
     modalRoomsGrid.style.display = 'none';
 
@@ -2363,9 +2383,18 @@
     var startTime = modalStartTime.value;
     var endTime = modalEndTime.value;
 
-    if (!date || !room) return;
+    var hStep2Btn = document.getElementById('host-step-2-continue-btn');
+    var requestSeq = ++modalAvailabilitySeq;
+    if (!date || !room || !startTime || !endTime) {
+      modalAvailabilityStatus = 'unknown';
+      if (hStep2Btn) hStep2Btn.disabled = true;
+      return;
+    }
 
-    fetch('/api/method/solve_ninja.api.v1.solve_event.get_adda_room_availability', {
+    modalAvailabilityStatus = 'checking';
+    if (hStep2Btn) hStep2Btn.disabled = true;
+
+    fetch('/api/method/adda_space.api.events.get_adda_room_availability', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -2373,12 +2402,21 @@
         'X-Requested-With': 'XMLHttpRequest',
         'X-Frappe-CSRF-Token': getCsrfToken()
       },
-      body: JSON.stringify({ date: date, city: city, room_name: room })
+      body: JSON.stringify({ date: date, city: city, room_name: room, start_time: startTime, end_time: endTime })
     })
-    .then(function(res) { return res.json(); })
+    .then(function(res) {
+      return res.json().then(function(data) {
+        if (!res.ok) throw new Error('Availability check failed');
+        return data;
+      });
+    })
     .then(function(data) {
+      if (requestSeq !== modalAvailabilitySeq) return;
       var payload = data.message || data;
-      var bookings = (payload && Array.isArray(payload.bookings)) ? payload.bookings : [];
+      if (!payload || payload.status !== 'success' || !Array.isArray(payload.bookings)) {
+        throw new Error('Availability check failed');
+      }
+      var bookings = payload.bookings;
 
       var collision = null;
       if (startTime && endTime) {
@@ -2394,24 +2432,28 @@
       }
 
       modalAvailBanner.style.display = 'flex';
-      var hStep2Btn = document.getElementById('host-step-2-continue-btn');
       if (collision) {
+        modalAvailabilityStatus = 'collision';
         modalAvailBanner.className = 'adda-avail-box adda-avail-alert';
-        modalAvailMessage.innerHTML = '<strong>Room Unavailable:</strong> ' + escapeHtml(room) + ' is already booked for "' +
+        modalAvailMessage.innerHTML = '<strong>This space is already being used during that time.</strong> ' + escapeHtml(room) + ' is booked for "' +
           escapeHtml(collision.title || 'Another Event') + '" (' + escapeHtml(collision.start_time.slice(0, 5)) + ' &ndash; ' +
-          escapeHtml(collision.end_time.slice(0, 5)) + '). Please choose another time or room.';
+          escapeHtml(collision.end_time.slice(0, 5)) + '). Please choose another time or space.';
         if (hStep2Btn) hStep2Btn.disabled = true;
       } else {
+        modalAvailabilityStatus = 'available';
         modalAvailBanner.className = 'adda-avail-box adda-avail-success';
         modalAvailMessage.innerHTML = '<strong>Available:</strong> ' + escapeHtml(room) + ' is free for your selected slot (' +
           escapeHtml(startTime) + ' &ndash; ' + escapeHtml(endTime) + ').';
-        if (hStep2Btn) hStep2Btn.disabled = false;
+        updateDurationDisplay();
       }
     })
     .catch(function() {
-      modalAvailBanner.style.display = 'none';
-      var hStep2Btn = document.getElementById('host-step-2-continue-btn');
-      if (hStep2Btn) hStep2Btn.disabled = false;
+      if (requestSeq !== modalAvailabilitySeq) return;
+      modalAvailabilityStatus = 'error';
+      modalAvailBanner.className = 'adda-avail-box adda-avail-alert';
+      modalAvailMessage.textContent = 'Could not verify room availability. Please change the date or time to retry.';
+      modalAvailBanner.style.display = 'flex';
+      if (hStep2Btn) hStep2Btn.disabled = true;
     });
   }
 
@@ -2552,6 +2594,12 @@
       }
       if (!modalSelectedRoom || !modalSelectedRoom.value) {
         showStep2Error('Please select an Adda room.');
+        return;
+      }
+      if (modalAvailabilityStatus !== 'available') {
+        showStep2Error(modalAvailabilityStatus === 'collision'
+          ? 'This space is already being used during that time. Please choose another time or space.'
+          : 'Please wait for the room availability check to finish, then try again.');
         return;
       }
       goToModalStep(3);
@@ -3139,7 +3187,7 @@
 
       var timeSpan = document.createElement('span');
       timeSpan.className = 'adda-cal-event-time';
-      timeSpan.textContent = formatEventTime(ev.start_date_time);
+      timeSpan.textContent = formatEventTimeRange(ev);
 
       var titleSpan = document.createElement('span');
       titleSpan.className = 'adda-cal-event-title-text';
@@ -3268,7 +3316,7 @@
         calDrawerCards.style.display = 'grid';
         dayEvents.forEach(function(ev) {
           var safeTitle = escapeHtml(ev.title || 'Untitled Gathering');
-          var timeStr = formatEventTime(ev.start_date_time);
+          var timeStr = formatEventTimeRange(ev);
           var roomText = ev.room_name ? ' &bull; ' + escapeHtml(ev.room_name) : '';
           var venueText = ev.venue_details ? ' &bull; ' + escapeHtml(ev.venue_details) : '';
           var cityText = escapeHtml(ev.city || 'Neighbourhood');
