@@ -603,7 +603,7 @@ p.lead {
     flex-direction: column;
     padding: 0 var(--container-px);
     gap: 1.25rem;
-    align-items: flex-start;
+    align-items: stretch;
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
     max-height: 0;
     overflow: hidden;
@@ -621,7 +621,15 @@ p.lead {
   }
   .adda-menu-toggle { display: inline-flex; }
   .adda-nav-btn { width: 100%; text-align: center; }
-  .adda-nav-link { padding: 0.55rem 0; }
+  .adda-nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+    min-height: 48px;
+    padding: 0.55rem 0;
+    text-align: right;
+  }
   .adda-nav .adda-nav-link { color: #FFFFFF !important; }
   .adda-nav .adda-nav-link:hover,
   .adda-nav .adda-nav-link.active { color: #A7F3D0 !important; }
