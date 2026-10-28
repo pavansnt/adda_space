@@ -56,7 +56,7 @@ class AddaEvent(Document):
 			filters={
 				"name": ["!=", self.name or ""],
 				"room_name": self.room_name,
-				"approval_status": ["in", ["Approved", "Pending Review"]],
+				"approval_status": "Approved",
 				"start_date_time": ["<", end],
 				"end_date_time": [">", start],
 			},

@@ -535,9 +535,9 @@ def get_adda_room_availability(
 	end_time: Optional[str] = None,
 ) -> Dict[str, Any]:
 	"""
-	Return authoritative bookings blocking an Adda room on a given day (Pending Review + Approved).
-	Checks authoritative Adda Event records only. Unapproved proposals in Adda Event Request
-	do not reserve rooms until reviewed and approved by coordinators.
+	Return approved bookings blocking an Adda room on a given day.
+	Only approved Adda Event records reserve rooms. Pending event proposals and unapproved
+	Adda Event Request records remain non-blocking until a coordinator approves the event.
 	"""
 	data = _parse_request_data()
 	raw_date = str(date or data.get("date") or data.get("booking_date") or "").strip()
@@ -561,7 +561,7 @@ def get_adda_room_availability(
 			"room_name": ["is", "set"],
 			"start_date_time": ["<=", day_end],
 			"end_date_time": [">=", day_start],
-			"approval_status": ["in", ["Pending Review", "Approved"]],
+			"approval_status": "Approved",
 		}
 		if room_value:
 			filters["room_name"] = room_value
@@ -1072,7 +1072,7 @@ def create_adda_event(**kwargs) -> Dict[str, Any]:
 			filters={
 				"name": ["!=", (event_doc.name if event_doc else "") or ""],
 				"room_name": room_name,
-				"approval_status": ["in", ["Pending Review", "Approved"]],
+				"approval_status": "Approved",
 				"start_date_time": ["<", end_dt],
 				"end_date_time": [">", start_dt],
 			},
