@@ -2282,7 +2282,8 @@
         }
         modalDurationDisplay.textContent = 'You’ll request ' + s + ' – ' + e + ' (' + durStr + ')';
         modalDurationDisplay.style.color = '#0F766E';
-        if (hStep2Btn) hStep2Btn.disabled = !modalSelectedRoom || !modalSelectedRoom.value || modalAvailabilityStatus !== 'available';
+        var canProceed = Boolean(modalSelectedRoom && modalSelectedRoom.value && (modalAvailabilityStatus === 'available' || modalAvailabilityStatus === 'warning_pending'));
+        if (hStep2Btn) hStep2Btn.disabled = !canProceed;
       } else {
         modalDurationDisplay.textContent = 'End time must be later than start time.';
         modalDurationDisplay.style.color = '#DC2626';
