@@ -226,8 +226,7 @@
 
           <div class="adda-form-group">
             <label class="adda-form-label" style="display: flex; align-items: center; justify-content: space-between;">
-              <span>Event poster <span style="font-size: 0.85rem; font-weight: 600; color: #DC2626;">(required)</span></span>
-              <span class="req" style="color: #EF4444;" aria-hidden="true">*</span>
+              <span>Event poster <span style="font-size: 0.85rem; font-weight: 500; color: #6B7280;">(optional)</span></span>
             </label>
 
             <!-- Poster source tab toggle -->
@@ -242,8 +241,8 @@
 
             <!-- Tab A: Upload File -->
             <div id="step-poster-upload-panel">
-              <input type="file" id="step-poster-file" class="adda-input" accept="image/png, image/jpeg, image/webp" required aria-required="true" />
-              <p class="adda-form-hint">Supported formats: PNG, JPG, WebP (Max 5MB). Dimensions recommended: 1200 &times; 630px.</p>
+              <input type="file" id="step-poster-file" class="adda-input" accept="image/png, image/jpeg, image/webp" />
+              <p class="adda-form-hint">Supported formats: PNG, JPG, WebP (Max 5MB). Dimensions recommended: 1200 &times; 630px. If not uploaded, a default poster will be used.</p>
             </div>
 
             <!-- Tab B: Image URL -->
@@ -1104,12 +1103,6 @@
       return;
     }
 
-    if (!file && !uploadedPosterUrl && !directUrl) {
-      step3Error.style.display = 'flex';
-      step3ErrorText.textContent = 'Event poster is required. Please upload an image or provide an image URL.';
-      return;
-    }
-
     if (directUrl && !file && !uploadedPosterUrl) {
       var isValidUrl = /^https?:\/\/.+/i.test(directUrl) || /^\/\/.+/i.test(directUrl);
       if (!isValidUrl) {
@@ -1139,6 +1132,8 @@
   // Step 4 Navigation
   step4BackBtn.addEventListener('click', function() { goToStep(3); });
 
+  var DEFAULT_POSTER_URL = '/assets/adda_space/images/default_event_poster.jpg';
+
   // Submission Handler
   stepSubmitBtn.addEventListener('click', function() {
     var title = titleInput.value.trim();
@@ -1151,15 +1146,6 @@
       if (step3Error) {
         step3Error.style.display = 'flex';
         if (step3ErrorText) step3ErrorText.textContent = 'Please fill in all mandatory fields.';
-      }
-      return;
-    }
-
-    if (!file && !uploadedPosterUrl && !directUrl) {
-      goToStep(3);
-      if (step3Error) {
-        step3Error.style.display = 'flex';
-        if (step3ErrorText) step3ErrorText.textContent = 'Event poster is required. Please upload an event poster or provide an image URL.';
       }
       return;
     }
@@ -1181,6 +1167,14 @@
       stepSubmitBtn.disabled = true;
       stepSubmitBtn.textContent = 'Submitting proposal...';
       submitEventPayload(uploadedPosterUrl);
+      return;
+    }
+
+    // If no poster provided, submit directly with default poster
+    if (!file) {
+      stepSubmitBtn.disabled = true;
+      stepSubmitBtn.textContent = 'Submitting proposal...';
+      submitEventPayload(DEFAULT_POSTER_URL);
       return;
     }
 
@@ -1229,17 +1223,7 @@
   });
 
   function submitEventPayload(coverImageUrl) {
-    if (!coverImageUrl) {
-      isSubmitting = false;
-      stepSubmitBtn.disabled = false;
-      stepSubmitBtn.textContent = 'Submit Gathering Proposal';
-      goToStep(3);
-      if (step3Error) {
-        step3Error.style.display = 'flex';
-        if (step3ErrorText) step3ErrorText.textContent = 'Event poster is required. Please upload an event poster.';
-      }
-      return;
-    }
+    var finalImageUrl = coverImageUrl || DEFAULT_POSTER_URL;
 
     var sDate = eventDateInput.value;
     var sTime = startTimeInput.value;
@@ -1260,8 +1244,8 @@
       mode: modeSelect.value || 'Offline',
       venue_details: venueNotesInput.value.trim() || undefined,
       wa_group_link: waGroupInput.value.trim() || undefined,
-      image: coverImageUrl,
-      cover_image: coverImageUrl
+      image: finalImageUrl,
+      cover_image: finalImageUrl
     };
     if (savedEventId) {
       payload.name = savedEventId;

@@ -8,6 +8,9 @@ from frappe.model.document import Document
 from frappe.utils import get_datetime
 
 
+DEFAULT_EVENT_IMAGE = "/assets/adda_space/images/default_event_poster.jpg"
+
+
 def is_adda_admin(user=None) -> bool:
 	user = user or frappe.session.user
 	if not user or user == "Guest":
@@ -180,7 +183,10 @@ class AddaEvent(Document):
 			frappe.log_error(f"Error generating QR code: {e}", "Adda Event QR Code")
 
 	def sync_image_fields(self):
-		if self.cover_image and not self.image:
+		if not self.cover_image and not self.image:
+			self.cover_image = DEFAULT_EVENT_IMAGE
+			self.image = DEFAULT_EVENT_IMAGE
+		elif self.cover_image and not self.image:
 			self.image = self.cover_image
 		elif self.image and not self.cover_image:
 			self.cover_image = self.image

@@ -700,8 +700,7 @@
 
         <div class="adda-form-group" style="margin-bottom: 1rem;">
           <label class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
-            <span>Event poster <span style="font-size: 0.85rem; font-weight: 600; color: #DC2626;">(required)</span></span>
-            <span class="req" style="color: #EF4444;" aria-hidden="true">*</span>
+            <span>Event poster <span style="font-size: 0.85rem; font-weight: 500; color: #6B7280;">(optional)</span></span>
           </label>
 
           <!-- Poster source tab toggle -->
@@ -716,8 +715,8 @@
 
           <!-- Tab A: Upload File -->
           <div id="modal-poster-upload-panel">
-            <input type="file" id="modal-poster-file" class="adda-input" accept="image/png, image/jpeg, image/webp" aria-required="true" style="width: 100%; border-radius: 8px; padding: 0.5rem; border: 1px solid #D1D5DB; font-size: 0.875rem;" />
-            <p class="adda-form-hint" style="font-size: 0.75rem; color: #6B7280; margin-top: 0.25rem;">Supported formats: PNG, JPG, WebP (Max 5MB).</p>
+            <input type="file" id="modal-poster-file" class="adda-input" accept="image/png, image/jpeg, image/webp" style="width: 100%; border-radius: 8px; padding: 0.5rem; border: 1px solid #D1D5DB; font-size: 0.875rem;" />
+            <p class="adda-form-hint" style="font-size: 0.75rem; color: #6B7280; margin-top: 0.25rem;">Supported formats: PNG, JPG, WebP (Max 5MB). If not uploaded, a default poster will be used.</p>
           </div>
 
           <!-- Tab B: Image URL -->
@@ -2840,15 +2839,9 @@
         return;
       }
 
+      var DEFAULT_HOST_POSTER_URL = '/assets/adda_space/images/default_event_poster.jpg';
       var file = selectedPosterFile || (modalPosterFile && modalPosterFile.files && modalPosterFile.files[0]);
       var directUrl = (modalPosterUrlInput && modalPosterUrlInput.value.trim()) || '';
-      if (!file && !uploadedPosterUrl && !directUrl) {
-        if (modalStep3Error) {
-          modalStep3Error.style.display = 'flex';
-          if (modalStep3ErrorText) modalStep3ErrorText.textContent = 'Event poster is required. Please upload an image or provide an image URL.';
-        }
-        return;
-      }
 
       if (directUrl && !file && !uploadedPosterUrl) {
         var isValidUrl = /^https?:\/\/.+/i.test(directUrl) || /^\/\/.+/i.test(directUrl);
@@ -2880,6 +2873,14 @@
         modalStepSubmitBtn.disabled = true;
         modalStepSubmitBtn.textContent = 'Submitting proposal...';
         submitHostPayload(uploadedPosterUrl);
+        return;
+      }
+
+      // If no poster provided, submit directly with default poster
+      if (!file) {
+        modalStepSubmitBtn.disabled = true;
+        modalStepSubmitBtn.textContent = 'Submitting proposal...';
+        submitHostPayload(DEFAULT_HOST_POSTER_URL);
         return;
       }
 
@@ -2928,16 +2929,7 @@
   }
 
   function submitHostPayload(coverImageUrl) {
-    if (!coverImageUrl) {
-      if (modalStep3Error) {
-        modalStep3Error.style.display = 'flex';
-        if (modalStep3ErrorText) modalStep3ErrorText.textContent = 'Event poster is required. Please upload an event poster.';
-      }
-      isSubmittingHostProposal = false;
-      modalStepSubmitBtn.disabled = false;
-      modalStepSubmitBtn.textContent = 'Submit Gathering Proposal';
-      return;
-    }
+    var finalImageUrl = coverImageUrl || DEFAULT_HOST_POSTER_URL;
 
     var sDate = modalEventDate.value;
     var sTime = modalStartTime.value;
@@ -2956,8 +2948,8 @@
       people_expected: parseInt(modalPeopleInput.value, 10) || 20,
       approval_status: 'Pending Review',
       mode: modalModeSelect.value || 'Offline',
-      image: coverImageUrl,
-      cover_image: coverImageUrl
+      image: finalImageUrl,
+      cover_image: finalImageUrl
     };
 
     fetch('/api/method/adda_space.api.events.create_adda_event', {

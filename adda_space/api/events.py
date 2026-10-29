@@ -36,6 +36,7 @@ CITY_DOCTYPE = "Adda City"
 COORDINATOR_DOCTYPE = "City Coordinator"
 ROOM_DOCTYPE = "Adda Room"
 REGISTRATION_DOCTYPE = "Adda Event Registration"
+DEFAULT_EVENT_IMAGE = "/assets/adda_space/images/default_event_poster.jpg"
 
 
 def _validate_city_operating_hours(city: str, start_dt: str, end_dt: str) -> None:
@@ -962,10 +963,10 @@ def create_adda_event(**kwargs) -> Dict[str, Any]:
 	data = _parse_request_data()
 	data.update(kwargs)
 
-	# 1. Validate mandatory event poster (uploaded file or external URL)
+	# 1. Validate event poster (optional: defaults to default poster if not provided)
 	cover_image = str(data.get("cover_image") or data.get("image") or "").strip()
-	if not cover_image:
-		frappe.throw(_("Event poster is mandatory. Please upload a valid event poster or provide an image URL."))
+	if not cover_image or cover_image.lower() in ("none", "null", "undefined"):
+		cover_image = DEFAULT_EVENT_IMAGE
 
 	is_external_url = cover_image.startswith(("http://", "https://", "//"))
 	clean_path = cover_image.split("?")[0].split("#")[0].strip()
@@ -991,6 +992,14 @@ def create_adda_event(**kwargs) -> Dict[str, Any]:
 			if not file_exists and normalized_path.startswith("/assets/"):
 				sites_path = getattr(frappe.local, "sites_path", None) or "./sites"
 				file_exists = os.path.exists(os.path.join(sites_path, normalized_path.lstrip("/")))
+				if not file_exists and normalized_path.startswith("/assets/adda_space/"):
+					try:
+						app_public = frappe.get_app_path("adda_space", "public", normalized_path.replace("/assets/adda_space/", ""))
+						file_exists = os.path.exists(app_public)
+					except Exception:
+						pass
+				if not file_exists and normalized_path == DEFAULT_EVENT_IMAGE:
+					file_exists = True
 			if not file_exists and getattr(frappe.flags, "in_test", False):
 				file_exists = True
 

@@ -7,6 +7,9 @@ from frappe.model.document import Document
 from frappe.utils import get_datetime
 
 
+DEFAULT_EVENT_IMAGE = "/assets/adda_space/images/default_event_poster.jpg"
+
+
 def is_adda_admin(user=None) -> bool:
 	user = user or frappe.session.user
 	if not user or user == "Guest":
@@ -17,6 +20,8 @@ def is_adda_admin(user=None) -> bool:
 
 class AddaEventRequest(Document):
 	def validate(self):
+		if not self.cover_image:
+			self.cover_image = DEFAULT_EVENT_IMAGE
 		self.validate_dates()
 		self.validate_permissions_and_status()
 
@@ -67,8 +72,8 @@ class AddaEventRequest(Document):
 			event_doc.room_name = self.room_name
 			event_doc.venue_details = self.venue_details
 			event_doc.mode = self.mode or "Offline"
-			event_doc.cover_image = self.cover_image
-			event_doc.image = self.cover_image
+			event_doc.cover_image = self.cover_image or DEFAULT_EVENT_IMAGE
+			event_doc.image = self.cover_image or DEFAULT_EVENT_IMAGE
 			event_doc.people_expected = self.people_expected
 			event_doc.wa_group_link = self.wa_group_link
 			event_doc.organizer_name = self.organizer_name
@@ -90,8 +95,8 @@ class AddaEventRequest(Document):
 				"room_name": self.room_name,
 				"venue_details": self.venue_details,
 				"mode": self.mode or "Offline",
-				"cover_image": self.cover_image,
-				"image": self.cover_image,
+				"cover_image": self.cover_image or DEFAULT_EVENT_IMAGE,
+				"image": self.cover_image or DEFAULT_EVENT_IMAGE,
 				"people_expected": self.people_expected,
 				"wa_group_link": self.wa_group_link,
 				"organizer_name": self.organizer_name,

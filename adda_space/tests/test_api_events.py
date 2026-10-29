@@ -159,6 +159,26 @@ class TestApiEvents(IntegrationTestCase):
 		event_doc = frappe.get_doc("Adda Event", res["name"])
 		self.assertEqual(event_doc.approval_status, "Pending Review")
 
+	def test_create_adda_event_optional_poster_default(self):
+		frappe.set_user("Guest")
+		now = now_datetime()
+		start = add_to_date(now, days=13, hours=10).strftime("%Y-%m-%d %H:%M:%S")
+		end = add_to_date(now, days=13, hours=12).strftime("%Y-%m-%d %H:%M:%S")
+
+		res = create_adda_event(
+			title="API Test Proposal Without Poster",
+			type="Adda",
+			description="Proposal submitted without poster.",
+			start_date_time=start,
+			end_date_time=end,
+			city="Bengaluru",
+			people_expected=15,
+		)
+		self.assertTrue(res.get("success"))
+		event_doc = frappe.get_doc("Adda Event", res["name"])
+		self.assertEqual(event_doc.cover_image, "/assets/adda_space/images/default_event_poster.jpg")
+		self.assertEqual(event_doc.image, "/assets/adda_space/images/default_event_poster.jpg")
+
 	def test_register_adda_event_api(self):
 		res = register_adda_event(
 			event=self.upcoming_event.name,
