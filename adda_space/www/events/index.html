@@ -2412,13 +2412,16 @@
     .then(function(data) {
       if (requestSeq !== modalAvailabilitySeq) return;
       var payload = data.message || data;
-      if (!payload || payload.status !== 'success' || !Array.isArray(payload.bookings)) {
+      if (!payload || payload.status !== 'success') {
         throw new Error('Availability check failed');
       }
-      var bookings = payload.bookings;
+      var bookings = (payload && Array.isArray(payload.bookings)) ? payload.bookings : [];
+      var pendingBookings = (payload && Array.isArray(payload.pending_bookings)) ? payload.pending_bookings : [];
 
-      var collision = null;
-      if (startTime && endTime) {
+      var collision = payload.collision || null;
+      var pendingCollision = payload.pending_collision || null;
+
+      if (!collision && startTime && endTime) {
         var sReq = startTime + ':00';
         var eReq = endTime + ':00';
         for (var i = 0; i < bookings.length; i++) {
@@ -2428,21 +2431,43 @@
             break;
           }
         }
+        if (!collision) {
+          for (var j = 0; j < pendingBookings.length; j++) {
+            var pb = pendingBookings[j];
+            if (pb.start_time < eReq && pb.end_time > sReq) {
+              pendingCollision = pb;
+              break;
+            }
+          }
+        }
       }
 
       modalAvailBanner.style.display = 'flex';
       if (collision) {
         modalAvailabilityStatus = 'collision';
         modalAvailBanner.className = 'adda-avail-box adda-avail-alert';
-        modalAvailMessage.innerHTML = '<strong>This space is already being used during that time.</strong> ' + escapeHtml(room) + ' is booked for "' +
-          escapeHtml(collision.title || 'Another Event') + '" (' + escapeHtml(collision.start_time.slice(0, 5)) + ' &ndash; ' +
-          escapeHtml(collision.end_time.slice(0, 5)) + '). Please choose another time or space.';
+        var cStart = collision.start_time ? collision.start_time.slice(0, 5) : '';
+        var cEnd = collision.end_time ? collision.end_time.slice(0, 5) : '';
+        modalAvailMessage.innerHTML = '<strong>This space is already booked during that time.</strong> ' + escapeHtml(room ? room + ' is' : 'This space is') + ' booked for approved event "' +
+          escapeHtml(collision.title || 'Another Event') + '" (' + escapeHtml(cStart) + ' &ndash; ' +
+          escapeHtml(cEnd) + '). Please choose another time after or before this event.';
         if (hStep2Btn) hStep2Btn.disabled = true;
+      } else if (pendingCollision) {
+        modalAvailabilityStatus = 'warning_pending';
+        modalAvailBanner.className = 'adda-avail-box adda-avail-warning';
+        var pStart = pendingCollision.start_time ? pendingCollision.start_time.slice(0, 5) : '';
+        var pEnd = pendingCollision.end_time ? pendingCollision.end_time.slice(0, 5) : '';
+        modalAvailMessage.innerHTML = '<strong>Warning: Already there is a pending event with this time.</strong> There is a pending event proposal "' +
+          escapeHtml(pendingCollision.title || 'Pending Event') + '" (' + escapeHtml(pStart) + ' &ndash; ' +
+          escapeHtml(pEnd) + '). You can still request this time slot for coordinator review.';
+        if (hStep2Btn) hStep2Btn.disabled = false;
+        updateDurationDisplay();
       } else {
         modalAvailabilityStatus = 'available';
         modalAvailBanner.className = 'adda-avail-box adda-avail-success';
-        modalAvailMessage.innerHTML = '<strong>Available:</strong> ' + escapeHtml(room) + ' is free for your selected slot (' +
+        modalAvailMessage.innerHTML = '<strong>Available:</strong> ' + escapeHtml(room || 'This space') + ' is free for your selected slot (' +
           escapeHtml(startTime) + ' &ndash; ' + escapeHtml(endTime) + ').';
+        if (hStep2Btn) hStep2Btn.disabled = false;
         updateDurationDisplay();
       }
     })
@@ -2595,10 +2620,12 @@
         showStep2Error('Please select an Adda room.');
         return;
       }
-      if (modalAvailabilityStatus !== 'available') {
-        showStep2Error(modalAvailabilityStatus === 'collision'
-          ? 'This space is already being used during that time. Please choose another time or space.'
-          : 'Please wait for the room availability check to finish, then try again.');
+      if (modalAvailabilityStatus === 'collision') {
+        showStep2Error('This space is already booked for an approved event during that time. Please choose another time or space.');
+        return;
+      }
+      if (modalAvailabilityStatus !== 'available' && modalAvailabilityStatus !== 'warning_pending') {
+        showStep2Error('Please wait for the room availability check to finish, then try again.');
         return;
       }
       goToModalStep(3);

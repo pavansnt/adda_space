@@ -293,6 +293,88 @@ class TestApiEvents(IntegrationTestCase):
 		finally:
 			frappe.delete_doc("Adda Event", ev.name, force=True, ignore_permissions=True)
 
+	def test_availability_pending_warning_and_approved_block(self):
+		date_str = "2026-11-01"
+
+		# 1. Create an Approved Event: 07:00 to 09:00
+		app_event = frappe.get_doc({
+			"doctype": "Adda Event",
+			"title": "Kannada Rajyostava",
+			"type": "Adda",
+			"description": "Approved morning event",
+			"start_date_time": f"{date_str} 07:00:00",
+			"end_date_time": f"{date_str} 09:00:00",
+			"city": "Bengaluru",
+			"room_name": "Main Room Bengaluru",
+			"approval_status": "Approved",
+		}).insert(ignore_permissions=True)
+
+		# 2. Create a Pending Event: 14:00 to 16:00
+		pend_event = frappe.get_doc({
+			"doctype": "Adda Event",
+			"title": "Nada Habba",
+			"type": "Adda",
+			"description": "Pending afternoon proposal",
+			"start_date_time": f"{date_str} 14:00:00",
+			"end_date_time": f"{date_str} 16:00:00",
+			"city": "Bengaluru",
+			"room_name": "Main Room Bengaluru",
+			"approval_status": "Pending Review",
+		}).insert(ignore_permissions=True)
+
+		try:
+			# A. Request colliding with Approved event (08:00 - 09:00) -> BLOCKED
+			res_app_clash = get_adda_room_availability(
+				date=date_str, room_name="Main Room Bengaluru", start_time="08:00", end_time="09:00"
+			)
+			self.assertFalse(res_app_clash.get("is_available"))
+			self.assertIsNotNone(res_app_clash.get("collision"))
+			self.assertEqual(res_app_clash["collision"]["title"], "Kannada Rajyostava")
+
+			# B. Request on the same day after approved event (09:00 - 11:00) -> ALLOWED
+			res_after_app = get_adda_room_availability(
+				date=date_str, room_name="Main Room Bengaluru", start_time="09:00", end_time="11:00"
+			)
+			self.assertTrue(res_after_app.get("is_available"))
+			self.assertIsNone(res_after_app.get("collision"))
+
+			# C. Request colliding with Pending event (14:30 - 15:30) -> ALLOWED but has WARNING
+			res_pend_clash = get_adda_room_availability(
+				date=date_str, room_name="Main Room Bengaluru", start_time="14:30", end_time="15:30"
+			)
+			self.assertTrue(res_pend_clash.get("is_available"))
+			self.assertIsNone(res_pend_clash.get("collision"))
+			self.assertTrue(res_pend_clash.get("has_pending_collision"))
+			self.assertIsNotNone(res_pend_clash.get("pending_collision"))
+			self.assertEqual(res_pend_clash["pending_collision"]["title"], "Nada Habba")
+			self.assertIn("Already there is a pending event", res_pend_clash.get("warning", ""))
+
+			# D. Attempting to create an event overlapping with Approved event raises ValidationError
+			with self.assertRaises(frappe.ValidationError):
+				create_adda_event(
+					title="Colliding with Approved",
+					description="Desc",
+					start_date_time=f"{date_str} 08:00:00",
+					end_date_time=f"{date_str} 09:00:00",
+					city="Bengaluru",
+					room_name="Main Room Bengaluru",
+				)
+
+			# E. Creating an event overlapping with Pending event SUCCEEDS as Pending proposal
+			res_prop = create_adda_event(
+				title="Second Proposal Same Time",
+				description="Allowed proposal",
+				start_date_time=f"{date_str} 14:00:00",
+				end_date_time=f"{date_str} 16:00:00",
+				city="Bengaluru",
+				room_name="Main Room Bengaluru",
+			)
+			self.assertTrue(res_prop.get("success"))
+			frappe.delete_doc("Adda Event", res_prop["name"], force=True, ignore_permissions=True)
+		finally:
+			frappe.delete_doc("Adda Event", app_event.name, force=True, ignore_permissions=True)
+			frappe.delete_doc("Adda Event", pend_event.name, force=True, ignore_permissions=True)
+
 	def test_calendar_and_availability_agree(self):
 		# Ensure calendar API (get_adda_events) and availability API (get_adda_room_availability)
 		# read the same event record

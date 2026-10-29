@@ -44,35 +44,41 @@ class AddaEvent(Document):
 		self.end_date_time = end_dt
 
 	def validate_room_clash(self):
-		if not self.room_name:
-			return
 		if self.get("approval_status") not in ("Approved", "Pending Review"):
 			return
 
 		start = str(self.start_date_time)[:19]
 		end = str(self.end_date_time)[:19]
 
-		# Check against other authoritative Adda Event records using interval overlap:
+		# Check against other Approved Adda Event records in the same city using interval overlap:
 		# existing_start < requested_end AND existing_end > requested_start
+		clash_filters = {
+			"name": ["!=", self.name or ""],
+			"approval_status": "Approved",
+			"start_date_time": ["<", end],
+			"end_date_time": [">", start],
+		}
+		if self.city:
+			clash_filters["city"] = self.city
+
 		clashes = frappe.get_all(
 			"Adda Event",
-			filters={
-				"name": ["!=", self.name or ""],
-				"room_name": self.room_name,
-				"approval_status": "Approved",
-				"start_date_time": ["<", end],
-				"end_date_time": [">", start],
-			},
-			fields=["name", "title"],
-			limit=1,
+			filters=clash_filters,
+			fields=["name", "title", "room_name", "start_date_time", "end_date_time"],
 		)
-		if clashes:
-			clash = clashes[0]
-			frappe.throw(
-				_("Room '{0}' is already booked for this time ({1}). Pick another room or time.").format(
-					self.room_name, clash.get("title") or clash.get("name")
+		for clash in clashes:
+			c_room = str(clash.get("room_name") or "").strip()
+			my_room = str(self.room_name or "").strip()
+			# Clashes if both events specify the same room, OR if either event didn't specify a room (occupying the space)
+			if not my_room or not c_room or my_room == c_room:
+				c_start = str(clash.start_date_time)[11:16]
+				c_end = str(clash.end_date_time)[11:16]
+				space_lbl = f"Room '{my_room}'" if my_room else "This space"
+				frappe.throw(
+					_("{0} is already booked for an approved event '{1}' ({2} - {3}). Please choose another time after or before this event.").format(
+						space_lbl, clash.get("title") or clash.get("name"), c_start, c_end
+					)
 				)
-			)
 
 	def handle_unique_id(self):
 		doc_before_save = self.get_doc_before_save()

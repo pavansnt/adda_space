@@ -858,7 +858,7 @@
     var startTime = startTimeInput.value;
     var endTime = endTimeInput.value;
 
-    if (!date || !room) return;
+    if (!date) return;
 
     fetch('/api/method/adda_space.api.events.get_adda_room_availability', {
       method: 'POST',
@@ -880,10 +880,12 @@
     .then(function(data) {
       var payload = data.message || data;
       var bookings = (payload && Array.isArray(payload.bookings)) ? payload.bookings : [];
+      var pendingBookings = (payload && Array.isArray(payload.pending_bookings)) ? payload.pending_bookings : [];
 
-      // Check collision using ISO datetime strings for strict interval comparison
-      var collision = null;
-      if (startTime && endTime) {
+      var approvedCollision = payload.collision || null;
+      var pendingCollision = payload.pending_collision || null;
+
+      if (!approvedCollision && startTime && endTime) {
         var sReq = date + ' ' + (startTime.length === 5 ? startTime + ':00' : startTime);
         var eReq = date + ' ' + (endTime.length === 5 ? endTime + ':00' : endTime);
         for (var i = 0; i < bookings.length; i++) {
@@ -891,24 +893,43 @@
           var bStart = b.start ? String(b.start).slice(0, 19) : (date + ' ' + b.start_time);
           var bEnd = b.end ? String(b.end).slice(0, 19) : (date + ' ' + b.end_time);
           if (bStart < eReq && bEnd > sReq) {
-            collision = b;
+            approvedCollision = b;
             break;
+          }
+        }
+        if (!approvedCollision) {
+          for (var j = 0; j < pendingBookings.length; j++) {
+            var pb = pendingBookings[j];
+            var pbStart = pb.start ? String(pb.start).slice(0, 19) : (date + ' ' + pb.start_time);
+            var pbEnd = pb.end ? String(pb.end).slice(0, 19) : (date + ' ' + pb.end_time);
+            if (pbStart < eReq && pbEnd > sReq) {
+              pendingCollision = pb;
+              break;
+            }
           }
         }
       }
 
       availBanner.style.display = 'flex';
-      if (collision) {
+      if (approvedCollision) {
         availBanner.className = 'adda-avail-box adda-avail-alert';
-        var collisionStart = collision.start_time ? collision.start_time.slice(0, 5) : '';
-        var collisionEnd = collision.end_time ? collision.end_time.slice(0, 5) : '';
-        availMessage.innerHTML = '<strong>This space is already being used during that time.</strong> ' + room + ' is booked for "' +
-          (collision.title || 'Another Event') + '" (' + collisionStart + ' &ndash; ' +
-          collisionEnd + '). Please choose another time or space.';
+        var collisionStart = approvedCollision.start_time ? approvedCollision.start_time.slice(0, 5) : '';
+        var collisionEnd = approvedCollision.end_time ? approvedCollision.end_time.slice(0, 5) : '';
+        availMessage.innerHTML = '<strong>This space is already booked during that time.</strong> ' + (room ? room + ' is' : 'This space is') + ' booked for approved event "' +
+          (approvedCollision.title || 'Another Event') + '" (' + collisionStart + ' &ndash; ' +
+          collisionEnd + '). Please choose another time after or before this event.';
         step2NextBtn.disabled = true;
+      } else if (pendingCollision) {
+        availBanner.className = 'adda-avail-box adda-avail-warning';
+        var pendingStart = pendingCollision.start_time ? pendingCollision.start_time.slice(0, 5) : '';
+        var pendingEnd = pendingCollision.end_time ? pendingCollision.end_time.slice(0, 5) : '';
+        availMessage.innerHTML = '<strong>Warning: Already there is a pending event with this time.</strong> There is a pending event proposal "' +
+          (pendingCollision.title || 'Pending Event') + '" (' + pendingStart + ' &ndash; ' +
+          pendingEnd + '). You can still submit your request for coordinator review.';
+        step2NextBtn.disabled = false;
       } else {
         availBanner.className = 'adda-avail-box adda-avail-success';
-        availMessage.innerHTML = '<strong>Available:</strong> ' + room + ' is free for your selected slot (' +
+        availMessage.innerHTML = '<strong>Available:</strong> ' + (room || 'This space') + ' is free for your selected slot (' +
           startTime + ' &ndash; ' + endTime + ').';
         step2NextBtn.disabled = false;
       }
@@ -948,6 +969,14 @@
         alert('Choose a time between ' + cityOperatingHours.open + ' and ' + cityOperatingHours.close + '. The latest event start is ' + latestStart + '.');
         return;
       }
+    }
+    if (!selectedRoomInput.value) {
+      alert('Please select an Adda room.');
+      return;
+    }
+    if (availBanner && availBanner.classList.contains('adda-avail-alert')) {
+      alert('This space is already booked during that time. Please choose another time after or before the approved event.');
+      return;
     }
     goToStep(3);
   });

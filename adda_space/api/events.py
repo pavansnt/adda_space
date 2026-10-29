@@ -555,17 +555,15 @@ def get_adda_room_availability(
 	day_end = f"{date_key} 23:59:59"
 
 	bookings = []
+	pending_bookings = []
 
 	# Authoritative Source: Adda Event
 	if frappe.db.table_exists(EVENT_DOCTYPE):
 		filters: Dict[str, Any] = {
-			"room_name": ["is", "set"],
 			"start_date_time": ["<=", day_end],
 			"end_date_time": [">=", day_start],
-			"approval_status": "Approved",
+			"approval_status": ["in", ["Approved", "Pending Review"]],
 		}
-		if room_value:
-			filters["room_name"] = room_value
 		if city_value:
 			filters["city"] = city_value
 
@@ -578,9 +576,13 @@ def get_adda_room_availability(
 		)
 
 		for row in rows:
+			r_room = str(row.room_name or "").strip()
+			if room_value and r_room and r_room != room_value:
+				continue
+
 			start = str(row.start_date_time or "")[:19]
 			end = str(row.end_date_time or "")[:19]
-			bookings.append({
+			item = {
 				"event_id": row.name,
 				"title": row.title,
 				"city": row.city,
@@ -591,11 +593,17 @@ def get_adda_room_availability(
 				"end_time": end[11:19] if len(end) >= 19 else "",
 				"approval_status": row.approval_status or "Approved",
 				"type": row.type or "Adda",
-			})
+			}
+			if row.approval_status == "Approved":
+				bookings.append(item)
+			elif row.approval_status == "Pending Review":
+				pending_bookings.append(item)
 
-	# Optional collision calculation if start and end times provided
+	# Collision calculation if start and end times provided
 	is_available = True
 	collision = None
+	pending_collision = None
+
 	if start_time_val and end_time_val:
 		s_fmt = start_time_val if len(start_time_val) >= 8 else f"{start_time_val}:00"
 		e_fmt = end_time_val if len(end_time_val) >= 8 else f"{end_time_val}:00"
@@ -611,14 +619,35 @@ def get_adda_room_availability(
 				collision = b
 				break
 
+		# Check pending events only if there is no approved collision
+		if not collision:
+			for pb in pending_bookings:
+				pb_start = pb["start"]
+				pb_end = pb["end"]
+				if pb_start < req_end and pb_end > req_start:
+					pending_collision = pb
+					break
+
+	warning_msg = None
+	if pending_collision:
+		p_start = pending_collision["start_time"][:5]
+		p_end = pending_collision["end_time"][:5]
+		warning_msg = _(
+			"Already there is a pending event with this time ('{0}' from {1} to {2})."
+		).format(pending_collision["title"], p_start, p_end)
+
 	return {
 		"status": "success",
 		"date": date_key,
 		"city": city_value or None,
 		"room_name": room_value or None,
 		"bookings": bookings,
+		"pending_bookings": pending_bookings,
 		"is_available": is_available,
 		"collision": collision,
+		"pending_collision": pending_collision,
+		"has_pending_collision": bool(pending_collision),
+		"warning": warning_msg,
 	}
 
 
@@ -1074,27 +1103,31 @@ def create_adda_event(**kwargs) -> Dict[str, Any]:
 	else:
 		final_approval_status = "Pending Review"
 
-	# 5. Room conflict check for non-rejected events
-	if room_name and final_approval_status in ("Approved", "Pending Review") and frappe.db.table_exists(EVENT_DOCTYPE):
-		clashes = frappe.get_all(
+	# 5. Conflict check against Approved events for non-rejected events
+	if final_approval_status in ("Approved", "Pending Review") and frappe.db.table_exists(EVENT_DOCTYPE):
+		clash_filters = {
+			"name": ["!=", (event_doc.name if event_doc else "") or ""],
+			"approval_status": "Approved",
+			"city": str(mandatory["city"]).strip(),
+			"start_date_time": ["<", end_dt],
+			"end_date_time": [">", start_dt],
+		}
+		candidate_clashes = frappe.get_all(
 			EVENT_DOCTYPE,
-			filters={
-				"name": ["!=", (event_doc.name if event_doc else "") or ""],
-				"room_name": room_name,
-				"approval_status": "Approved",
-				"start_date_time": ["<", end_dt],
-				"end_date_time": [">", start_dt],
-			},
-			fields=["name", "title"],
-			limit=1,
+			filters=clash_filters,
+			fields=["name", "title", "room_name", "start_date_time", "end_date_time"],
 		)
-		if clashes:
-			clash = clashes[0]
-			frappe.throw(
-				_("Room '{0}' is already booked for this time ({1}). Pick another room or time.").format(
-					room_name, clash.get("title") or clash.get("name")
+		for clash in candidate_clashes:
+			c_room = str(clash.get("room_name") or "").strip()
+			if not room_name or not c_room or c_room == room_name:
+				c_start = str(clash.start_date_time)[11:16]
+				c_end = str(clash.end_date_time)[11:16]
+				space_lbl = f"Room '{room_name}'" if room_name else "This space"
+				frappe.throw(
+					_("{0} is already booked for an approved event '{1}' ({2} - {3}). Please choose another time after or before this event.").format(
+						space_lbl, clash.get("title") or clash.get("name"), c_start, c_end
+					)
 				)
-			)
 
 	# 6. Create or update authoritative Adda Event record
 	if not event_doc:

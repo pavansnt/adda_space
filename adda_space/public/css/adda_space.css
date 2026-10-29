@@ -2223,6 +2223,12 @@ p.lead {
   color: #1E40AF;
 }
 
+.adda-avail-warning {
+  background-color: #FFFBEB;
+  border: 1px solid #FDE68A;
+  color: #92400E;
+}
+
 /* Wizard Button Actions */
 .adda-wizard-actions {
   display: flex;
