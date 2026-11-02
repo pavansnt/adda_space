@@ -47,8 +47,8 @@ class AddaEvent(Document):
 		if self.get("approval_status") not in ("Approved", "Pending Review"):
 			return
 
-		start = str(self.start_date_time)[:19]
-		end = str(self.end_date_time)[:19]
+		start = get_datetime(self.start_date_time).replace(microsecond=0)
+		end = get_datetime(self.end_date_time).replace(microsecond=0)
 
 		# Check against other Approved Adda Event records in the same city using interval overlap:
 		# existing_start < requested_end AND existing_end > requested_start

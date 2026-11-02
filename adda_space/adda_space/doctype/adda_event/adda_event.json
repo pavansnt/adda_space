@@ -169,7 +169,8 @@
    "default": "/assets/adda_space/images/default_event_poster.jpg",
    "fieldname": "cover_image",
    "fieldtype": "Attach Image",
-   "label": "Cover Image"
+   "label": "Cover Image",
+   "reqd": 0
   },
   {
    "fieldname": "image",

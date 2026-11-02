@@ -1105,12 +1105,14 @@ def create_adda_event(**kwargs) -> Dict[str, Any]:
 
 	# 5. Conflict check against Approved events for non-rejected events
 	if final_approval_status in ("Approved", "Pending Review") and frappe.db.table_exists(EVENT_DOCTYPE):
+		req_start_dt = get_datetime(start_dt).replace(microsecond=0)
+		req_end_dt = get_datetime(end_dt).replace(microsecond=0)
 		clash_filters = {
 			"name": ["!=", (event_doc.name if event_doc else "") or ""],
 			"approval_status": "Approved",
 			"city": str(mandatory["city"]).strip(),
-			"start_date_time": ["<", end_dt],
-			"end_date_time": [">", start_dt],
+			"start_date_time": ["<", req_end_dt],
+			"end_date_time": [">", req_start_dt],
 		}
 		candidate_clashes = frappe.get_all(
 			EVENT_DOCTYPE,
