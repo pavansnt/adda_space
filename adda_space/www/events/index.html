@@ -1616,14 +1616,8 @@
         modalPosterImg.src = '';
         modalPosterWrap.style.display = 'none';
       } else {
-        try {
-          if (cleanImg.startsWith('http://') || cleanImg.startsWith('https://')) {
-            var imgUrl = new URL(cleanImg);
-            if (imgUrl.pathname && (imgUrl.pathname.startsWith('/files/') || imgUrl.pathname.startsWith('/private/files/'))) {
-              cleanImg = imgUrl.pathname;
-            }
-          }
-        } catch(e) {}
+        // Keep the server-provided origin for uploaded files. It can differ
+        // from the current page host when the site uses an alias or proxy.
         if (!cleanImg.startsWith('http://') && !cleanImg.startsWith('https://') && !cleanImg.startsWith('/')) {
           cleanImg = '/' + cleanImg;
         }
