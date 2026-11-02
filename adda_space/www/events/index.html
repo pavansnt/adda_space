@@ -150,6 +150,188 @@
       margin-top: 1px !important;
     }
   }
+
+  /* --------------------------------------------------------------------------
+     Day Overflow Events Popup (+N More) - Image 1 Exact Layout & Styles
+     -------------------------------------------------------------------------- */
+  .adda-day-events-modal-container {
+    max-width: 480px !important;
+    width: 92% !important;
+    border-radius: 16px !important;
+    background: #FFFFFF !important;
+    overflow: hidden !important;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.22) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    max-height: calc(100vh - 4rem) !important;
+    box-sizing: border-box !important;
+  }
+
+  .adda-day-events-modal-header {
+    padding: 1.5rem 1.5rem 0.5rem !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    background: #FFFFFF !important;
+    border-bottom: none !important;
+  }
+
+  .adda-day-events-modal-header h3 {
+    margin: 0 !important;
+    font-family: var(--font-headings, inherit) !important;
+    font-size: 1.35rem !important;
+    font-weight: 800 !important;
+    color: #0F3A47 !important;
+    line-height: 1.25 !important;
+    letter-spacing: -0.015em !important;
+  }
+
+  .adda-day-events-modal-header #day-events-modal-count {
+    margin-top: 0.25rem !important;
+    font-size: 0.875rem !important;
+    color: #64748B !important;
+    font-weight: 500 !important;
+  }
+
+  .adda-day-events-list {
+    padding: 0.5rem 1.5rem 1.5rem !important;
+    overflow-y: auto !important;
+    max-height: 60vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    scrollbar-width: thin;
+    scrollbar-color: #CBD5E1 transparent;
+    box-sizing: border-box !important;
+  }
+
+  .adda-day-events-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .adda-day-events-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .adda-day-events-list::-webkit-scrollbar-thumb {
+    background-color: #CBD5E1;
+    border-radius: 3px;
+  }
+
+  .adda-day-popup-card {
+    display: flex !important;
+    align-items: center !important;
+    gap: 1.15rem !important;
+    padding: 0.95rem 1.15rem !important;
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-left: 4px solid #0D9488 !important;
+    border-radius: 12px !important;
+    cursor: pointer !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease !important;
+    text-decoration: none !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+  }
+
+  .adda-day-popup-card:hover {
+    border-color: #CBD5E1 !important;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08) !important;
+    transform: translateY(-1px) !important;
+  }
+
+  .adda-day-popup-card.cat-adda,
+  .adda-day-popup-card.cat-solver-adda {
+    border-left-color: #10B981 !important;
+  }
+
+  .adda-day-popup-card.cat-solver-jam,
+  .adda-day-popup-card.cat-connection-corner,
+  .adda-day-popup-card.cat-workshop {
+    border-left-color: #F59E0B !important;
+  }
+
+  .adda-day-popup-card.cat-custom-event,
+  .adda-day-popup-card.cat-pending-event,
+  .adda-day-popup-card.cat-default {
+    border-left-color: #0D9488 !important;
+  }
+
+  .adda-day-popup-time {
+    flex: 0 0 84px !important;
+    font-family: var(--font-headings, inherit) !important;
+    font-size: 0.9375rem !important;
+    font-weight: 800 !important;
+    color: #0F3A47 !important;
+    white-space: nowrap !important;
+    line-height: 1.2 !important;
+    text-align: left !important;
+  }
+
+  .adda-day-popup-content {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    padding-right: 0.5rem !important;
+  }
+
+  .adda-day-popup-title {
+    font-family: var(--font-headings, inherit) !important;
+    font-size: 0.9375rem !important;
+    font-weight: 800 !important;
+    color: #10243A !important;
+    line-height: 1.3 !important;
+    margin: 0 0 0.25rem 0 !important;
+    word-break: break-word !important;
+  }
+
+  .adda-day-popup-location {
+    font-size: 0.8125rem !important;
+    color: #64748B !important;
+    font-weight: 500 !important;
+    margin: 0 0 0.25rem 0 !important;
+  }
+
+  .adda-day-popup-desc {
+    font-size: 0.8125rem !important;
+    color: #64748B !important;
+    line-height: 1.35 !important;
+    margin: 0 !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .adda-day-popup-action {
+    flex: 0 0 auto !important;
+    font-family: var(--font-headings, inherit) !important;
+    color: #64748B !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.15rem !important;
+    transition: color 0.15s ease !important;
+    margin-left: auto !important;
+  }
+
+  .adda-day-popup-card:hover .adda-day-popup-action {
+    color: #10B981 !important;
+  }
+
+  @media (max-width: 480px) {
+    .adda-day-popup-card {
+      gap: 0.75rem !important;
+      padding: 0.8rem 0.9rem !important;
+    }
+    .adda-day-popup-time {
+      flex: 0 0 70px !important;
+      font-size: 0.8125rem !important;
+    }
+  }
 </style>
 <section class="adda-page-header" id="adda-events-header">
   <div class="adda-container" style="max-width: 58rem; margin: 0 auto; width: 100%; box-sizing: border-box;">
@@ -315,6 +497,25 @@
 
   </div>
 </section>
+
+<!-- ========================================================================
+     2.5. DAY OVERFLOW EVENTS POPUP MODAL (+N More)
+     ======================================================================== -->
+<div class="adda-modal-backdrop" id="day-events-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="day-events-modal-title" style="display: none;">
+  <div class="adda-modal-container adda-day-events-modal-container">
+    <!-- Modal Header -->
+    <div class="adda-day-events-modal-header" style="padding: 1.5rem 1.5rem 0.5rem; display: flex; align-items: flex-start; justify-content: space-between; background: #FFFFFF;">
+      <div>
+        <h3 id="day-events-modal-title" style="margin: 0; font-family: var(--font-headings); font-size: 1.35rem; font-weight: 800; color: #0F3A47; line-height: 1.25; letter-spacing: -0.015em;">Events</h3>
+        <div id="day-events-modal-count" style="margin-top: 0.25rem; font-size: 0.875rem; color: #64748B; font-weight: 500;"></div>
+      </div>
+      <button type="button" class="adda-modal-close-btn" id="day-events-modal-close-btn" aria-label="Close" style="width: 32px; height: 32px; border-radius: 50%; background: #F1F5F9; border: none; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: #475569; cursor: pointer; line-height: 1; padding: 0;">&times;</button>
+    </div>
+
+    <!-- Modal Body: Scrollable list of cards -->
+    <div id="day-events-modal-list" class="adda-day-events-list" style="padding: 0.75rem 1.5rem 1.5rem; overflow-y: auto; max-height: 60vh; display: flex; flex-direction: column; gap: 0.75rem;"></div>
+  </div>
+</div>
 
 <!-- ========================================================================
      3. EVENT DETAIL POPUP MODAL
@@ -831,6 +1032,13 @@
   var calDrawerHostBtn = document.getElementById('cal-drawer-host-btn');
   var calDrawerHostActiveBtn = document.getElementById('cal-drawer-host-active-btn');
 
+  // Day Overflow Events Modal Elements
+  var dayEventsBackdrop = document.getElementById('day-events-modal-backdrop');
+  var dayEventsTitle = document.getElementById('day-events-modal-title');
+  var dayEventsCount = document.getElementById('day-events-modal-count');
+  var dayEventsList = document.getElementById('day-events-modal-list');
+  var dayEventsCloseBtn = document.getElementById('day-events-modal-close-btn');
+
   // List View Elements
   var loadingState = document.getElementById('events-loading-state');
   var gridContainer = document.getElementById('events-grid-container');
@@ -1238,6 +1446,112 @@
     setTimeout(function() {
       shareToast.classList.remove('is-visible');
     }, 2800);
+  }
+
+  // ========================================================================
+  // DAY OVERFLOW EVENTS POPUP MODAL (+N More)
+  // ========================================================================
+
+  function formatDayPopupDate(dateKey) {
+    if (!dateKey) return '';
+    var p = dateKey.split('-');
+    if (p.length < 3) return dateKey;
+    var d = new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+    return d.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  function openDayEventsPopup(dateKey) {
+    if (!dayEventsBackdrop || !dayEventsList) return;
+    var dayEvents = calEventsByDate[dateKey] || [];
+    if (dayEvents.length === 0) return;
+
+    if (dayEventsTitle) {
+      dayEventsTitle.textContent = 'Events on ' + formatDayPopupDate(dateKey);
+    }
+    if (dayEventsCount) {
+      dayEventsCount.textContent = dayEvents.length + (dayEvents.length === 1 ? ' event' : ' events');
+    }
+
+    dayEventsList.innerHTML = '';
+    dayEvents.forEach(function(ev) {
+      var safeTitle = escapeHtml(ev.title || 'Untitled Gathering');
+      var timeStr = formatEventTime(ev.start_date_time) || 'All day';
+      var cityText = escapeHtml(ev.city || 'Neighbourhood');
+      var cleanDesc = stripHtml(ev.description || '');
+      var descSnippet = escapeHtml(cleanDesc);
+
+      var isPending = isPendingEvent(ev);
+      var catClass = isPending ? 'cat-pending-event' : getCategoryClass(ev.type, ev.title);
+
+      var card = document.createElement('div');
+      card.className = 'adda-day-popup-card ' + catClass;
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('aria-label', safeTitle + ', ' + timeStr + ', ' + cityText);
+
+      card.innerHTML = [
+        '<div class="adda-day-popup-time">' + escapeHtml(timeStr) + '</div>',
+        '<div class="adda-day-popup-content">',
+        '  <div class="adda-day-popup-title">' + (isPending ? (safeTitle + ' &middot; Pending') : safeTitle) + '</div>',
+        '  <div class="adda-day-popup-location">' + cityText + '</div>',
+        (descSnippet && descSnippet.toLowerCase() !== 'na' && descSnippet.toLowerCase() !== 'none' && descSnippet.length > 2) ? ('  <div class="adda-day-popup-desc">' + descSnippet + '</div>') : '',
+        '</div>',
+        '<div class="adda-day-popup-action">View &rsaquo;</div>'
+      ].join('\n');
+
+      function handleCardClick(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeDayEventsPopup(true);
+        openEventDetailModal(ev);
+      }
+
+      card.addEventListener('click', handleCardClick);
+      card.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          handleCardClick(e);
+        }
+      });
+
+      dayEventsList.appendChild(card);
+    });
+
+    dayEventsBackdrop.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    setTimeout(function() {
+      dayEventsBackdrop.classList.add('is-open');
+      if (dayEventsCloseBtn) dayEventsCloseBtn.focus();
+    }, 10);
+  }
+
+  function closeDayEventsPopup(keepScrollLocked) {
+    if (!dayEventsBackdrop) return;
+    dayEventsBackdrop.classList.remove('is-open');
+    setTimeout(function() {
+      dayEventsBackdrop.style.display = 'none';
+      if (!keepScrollLocked && (!detailModalBackdrop || !detailModalBackdrop.classList.contains('is-open'))) {
+        document.body.style.overflow = '';
+      }
+    }, 200);
+  }
+
+  if (dayEventsCloseBtn) {
+    dayEventsCloseBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      closeDayEventsPopup();
+    });
+  }
+
+  if (dayEventsBackdrop) {
+    dayEventsBackdrop.addEventListener('click', function(e) {
+      if (e.target === dayEventsBackdrop) {
+        closeDayEventsPopup();
+      }
+    });
   }
 
   // ========================================================================
@@ -3235,23 +3549,23 @@
       var morePill = document.createElement('div');
       morePill.className = 'adda-cal-more-pill';
       morePill.textContent = '+' + (dayEvents.length - maxPills) + ' more';
+      morePill.setAttribute('role', 'button');
+      morePill.setAttribute('tabindex', '0');
+      morePill.setAttribute('aria-label', '+' + (dayEvents.length - maxPills) + ' more gatherings on ' + formatLongDate(dateKey));
       morePill.addEventListener('click', function(e) {
         e.stopPropagation();
         selectCalendarDay(dateKey);
+        openDayEventsPopup(dateKey);
+      });
+      morePill.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          e.stopPropagation();
+          selectCalendarDay(dateKey);
+          openDayEventsPopup(dateKey);
+        }
       });
       pillsList.appendChild(morePill);
-    }
-
-    if (dayEvents.length > 2) {
-      var mobileMorePill = document.createElement('div');
-      mobileMorePill.className = 'adda-cal-more-pill adda-cal-mobile-more-pill';
-      mobileMorePill.textContent = '+' + (dayEvents.length - 2) + ' more';
-      mobileMorePill.addEventListener('click', function(e) {
-        e.stopPropagation();
-        selectCalendarDay(dateKey);
-        if (window.matchMedia('(max-width: 640px)').matches) openMobileDayDrawer();
-      });
-      pillsList.appendChild(mobileMorePill);
     }
 
     cell.appendChild(pillsList);
@@ -3300,13 +3614,20 @@
     updateDayDrawer(dateKey);
   }
 
-  function openMobileDayDrawer() {
+  function openDayDrawer(scroll) {
     if (!calDayDrawer) return;
+    calDayDrawer.style.display = 'block';
     calDayDrawer.classList.remove('is-open');
     window.requestAnimationFrame(function() {
       calDayDrawer.classList.add('is-open');
-      calDayDrawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      if (scroll) {
+        calDayDrawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     });
+  }
+
+  function openMobileDayDrawer() {
+    openDayDrawer(true);
   }
 
   function updateDayDrawer(dateKey) {
@@ -3799,6 +4120,8 @@
       if (posterLightboxOverlay && posterLightboxOverlay.classList.contains('is-open')) {
         posterLightboxOverlay.classList.remove('is-open');
         posterLightboxOverlay.style.display = 'none';
+      } else if (dayEventsBackdrop && dayEventsBackdrop.classList.contains('is-open')) {
+        closeDayEventsPopup();
       } else if (regModalBackdrop && regModalBackdrop.classList.contains('is-open')) {
         closeEventRegistrationModal();
       } else if (detailModalBackdrop && detailModalBackdrop.classList.contains('is-open')) {
