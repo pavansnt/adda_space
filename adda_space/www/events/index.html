@@ -740,7 +740,7 @@
       </div>
       <div class="adda-modal-body" style="padding: 1.5rem 1.75rem 1rem;">
         <p style="font-size: 0.9375rem; color: #4B5563; line-height: 1.5; margin-bottom: 1.25rem;">
-          Choose the city where you want to host. The available spaces and coordinator hours will update for that city.
+          Choose the city where you want to host. The available spaces and room operating hours will update for that city.
         </p>
 
         <div class="adda-form-group" style="margin-bottom: 1.25rem;">
@@ -768,30 +768,8 @@
             <button type="button" id="modal-coord-retry-btn" class="adda-coord-retry-btn" style="display: none;">Retry</button>
           </div>
 
-          <!-- Coordinator details & Operating hours -->
+          <!-- Coordinator details -->
           <div id="modal-coord-content" style="display: none;">
-            <!-- Operating Hours Box -->
-            <div id="modal-coord-hours-box" class="adda-coord-hours-box">
-              <div class="adda-coord-hours-header">
-                <span>OPERATING HOURS</span>
-                <span id="modal-coord-timezone" class="adda-coord-hours-tz">Asia/Kolkata</span>
-              </div>
-              <div id="modal-coord-hours-grid" class="adda-coord-hours-grid">
-                <div class="adda-coord-hours-item">
-                  <span class="adda-coord-hours-label">Opens:</span>
-                  <span id="modal-coord-open-time" class="adda-coord-hours-val">10:00 AM</span>
-                </div>
-                <div class="adda-coord-hours-item">
-                  <span class="adda-coord-hours-label">Closes:</span>
-                  <span id="modal-coord-close-time" class="adda-coord-hours-val">6:00 PM</span>
-                </div>
-              </div>
-              <div id="modal-coord-hours-missing" class="adda-coord-hours-missing" style="display: none;">
-                Operating hours have not been configured yet.
-              </div>
-              <div id="modal-coord-hours-note" class="adda-coord-hours-note" style="display: none;"></div>
-            </div>
-
             <!-- Coordinator Contact Body -->
             <div class="adda-coord-lead-body">
               <div class="adda-coord-lead-info">
@@ -843,11 +821,32 @@
         </div>
 
         <div id="modal-duration-display" class="adda-duration-summary">
-          Select a start and end time during the city’s operating hours.
+          Select a start and end time during the room’s operating hours.
         </div>
 
         <div id="modal-hours-warning" class="adda-avail-box adda-avail-warning" style="display: none; background: #FFFBEB; border: 1px solid #FCD34D; color: #92400E; margin-bottom: 1rem; font-size: 0.8125rem; padding: 0.65rem 0.85rem; border-radius: 6px;">
           <span id="modal-hours-warning-text"></span>
+        </div>
+
+        <!-- Room Operating Hours Box -->
+        <div id="modal-room-hours-box" class="adda-coord-hours-box" style="margin-bottom: 1rem; display: none;">
+          <div class="adda-coord-hours-header">
+            <span class="adda-coord-hours-title" id="modal-room-hours-title">Room Operating Hours</span>
+            <span class="adda-coord-hours-tz" id="modal-room-timezone">Asia/Kolkata</span>
+          </div>
+          <div class="adda-coord-hours-grid" id="modal-room-hours-grid">
+            <div class="adda-coord-hours-item">
+              <span class="adda-coord-hours-label">Opens</span>
+              <span class="adda-coord-hours-val" id="modal-room-open-time">--:--</span>
+            </div>
+            <div class="adda-coord-hours-item">
+              <span class="adda-coord-hours-label">Closes</span>
+              <span class="adda-coord-hours-val" id="modal-room-close-time">--:--</span>
+            </div>
+          </div>
+          <div id="modal-room-hours-missing" class="adda-coord-hours-missing" style="display: none; color: #DC2626; font-size: 0.8125rem; margin-top: 0.5rem;">
+            Operating hours are not configured for this space. Please contact a coordinator or select another space.
+          </div>
         </div>
 
         <div class="adda-form-group" style="margin-top: 1rem;">
@@ -1939,6 +1938,7 @@
   // ========================================================================
 
   var currentCoordinatorData = null;
+  var currentRoomData = null;
   var pendingModalStartTime = '';
   var pendingModalEndTime = '';
   var currentCoordinatorCity = '';
@@ -2012,28 +2012,65 @@
     }
   }
 
+  function updateRoomOperatingHoursDisplay(room) {
+    var hoursBox = document.getElementById('modal-room-hours-box');
+    var hoursTitle = document.getElementById('modal-room-hours-title');
+    var tzEl = document.getElementById('modal-room-timezone');
+    var hoursGrid = document.getElementById('modal-room-hours-grid');
+    var hoursMissing = document.getElementById('modal-room-hours-missing');
+    var openTimeEl = document.getElementById('modal-room-open-time');
+    var closeTimeEl = document.getElementById('modal-room-close-time');
+
+    if (!hoursBox) return;
+
+    if (!room) {
+      hoursBox.style.display = 'none';
+      if (hoursMissing) hoursMissing.style.display = 'none';
+      return;
+    }
+
+    hoursBox.style.display = 'block';
+    if (hoursTitle) {
+      hoursTitle.textContent = (room.room_name || room.name || 'Space') + ' Hours';
+    }
+    if (tzEl) {
+      tzEl.textContent = room.timezone || 'Asia/Kolkata';
+    }
+
+    if (room.opening_time && room.closing_time) {
+      if (hoursGrid) hoursGrid.style.display = 'flex';
+      if (hoursMissing) hoursMissing.style.display = 'none';
+      if (openTimeEl) openTimeEl.textContent = room.formatted_opening_time || formatTime12hr(room.opening_time);
+      if (closeTimeEl) closeTimeEl.textContent = room.formatted_closing_time || formatTime12hr(room.closing_time);
+    } else {
+      if (hoursGrid) hoursGrid.style.display = 'none';
+      if (hoursMissing) hoursMissing.style.display = 'block';
+    }
+  }
+
   function checkOperatingHoursWarning() {
     var warningBox = document.getElementById('modal-hours-warning');
     var warningText = document.getElementById('modal-hours-warning-text');
     if (!warningBox || !warningText) return;
 
-    if (!currentCoordinatorData || !currentCoordinatorData.opening_time || !currentCoordinatorData.closing_time) {
+    if (!currentRoomData || !currentRoomData.opening_time || !currentRoomData.closing_time) {
       warningBox.style.display = 'none';
-      setTimeOptions(modalStartTime, [], 'Operating hours unavailable');
-      setTimeOptions(modalEndTime, [], 'Operating hours unavailable');
+      setTimeOptions(modalStartTime, [], 'Select an Adda space first');
+      setTimeOptions(modalEndTime, [], 'Select an Adda space first');
       if (modalEndTime) modalEndTime.disabled = true;
       return;
     }
 
-    var openT = currentCoordinatorData.opening_time.slice(0, 5);
-    var closeT = currentCoordinatorData.closing_time.slice(0, 5);
+    var openT = currentRoomData.opening_time.slice(0, 5);
+    var closeT = currentRoomData.closing_time.slice(0, 5);
     var closeParts = closeT.split(':').map(Number);
     var openParts = openT.split(':').map(Number);
-    var lastStartMinutes = closeParts[0] * 60 + closeParts[1] - 60;
-    var lastStart = String(Math.floor(lastStartMinutes / 60)).padStart(2, '0') + ':' + String(lastStartMinutes % 60).padStart(2, '0');
+    var openMinutes = openParts[0] * 60 + openParts[1];
+    var closeMinutes = closeParts[0] * 60 + closeParts[1];
+    var lastStartMinutes = closeMinutes - 15;
     var preferredStart = modalStartTime.value || pendingModalStartTime;
     var preferredEnd = modalEndTime.value || pendingModalEndTime;
-    setTimeOptions(modalStartTime, timeChoices(openParts[0] * 60 + openParts[1], lastStartMinutes), 'Select a start time', preferredStart);
+    setTimeOptions(modalStartTime, timeChoices(openMinutes, lastStartMinutes), 'Select a start time', preferredStart);
     updateModalEndTimeOptions(preferredEnd);
     pendingModalStartTime = '';
     pendingModalEndTime = '';
@@ -2049,10 +2086,10 @@
     var reqOpen = startTimeVal.slice(0, 5);
     var reqClose = endTimeVal.slice(0, 5);
 
-    if (reqOpen < openT || reqOpen > lastStart || reqClose > closeT) {
-      var openFmt = currentCoordinatorData.formatted_opening_time || formatTime12hr(openT);
-      var closeFmt = currentCoordinatorData.formatted_closing_time || formatTime12hr(closeT);
-      warningText.textContent = 'Choose a start between ' + openFmt + ' and ' + formatTime12hr(lastStart) + ', and finish by ' + closeFmt + '.';
+    if (reqOpen < openT || reqClose > closeT || reqClose <= reqOpen) {
+      var openFmt = currentRoomData.formatted_opening_time || formatTime12hr(openT);
+      var closeFmt = currentRoomData.formatted_closing_time || formatTime12hr(closeT);
+      warningText.textContent = 'Event must start at or after ' + openFmt + ' and finish by ' + closeFmt + '.';
       warningBox.style.display = 'block';
       warningBox.classList.remove('adda-avail-warning');
       warningBox.classList.add('adda-avail-alert');
@@ -2097,12 +2134,12 @@
   }
 
   function updateModalEndTimeOptions(preferred) {
-    if (!currentCoordinatorData || !modalStartTime || !modalStartTime.value) {
+    if (!currentRoomData || !currentRoomData.closing_time || !modalStartTime || !modalStartTime.value) {
       setTimeOptions(modalEndTime, [], 'Select a start time first');
       if (modalEndTime) modalEndTime.disabled = true;
       return;
     }
-    var closing = timeToMinutes(currentCoordinatorData.closing_time);
+    var closing = timeToMinutes(currentRoomData.closing_time);
     var start = timeToMinutes(modalStartTime.value);
     setTimeOptions(modalEndTime, timeChoices(start + 15, closing), 'Select an end time', preferred || minutesToTime(start + 60));
     modalEndTime.disabled = false;
@@ -2113,10 +2150,7 @@
     if (!targetCity) return;
 
     var currentSeq = ++coordFetchSeq;
-    pendingModalStartTime = (modalStartTime && modalStartTime.value) || pendingModalStartTime;
-    pendingModalEndTime = (modalEndTime && modalEndTime.value) || pendingModalEndTime;
     currentCoordinatorData = null;
-    checkOperatingHoursWarning();
 
     var coordLoading = document.getElementById('modal-coord-loading');
     var coordEmpty = document.getElementById('modal-coord-empty');
@@ -2169,7 +2203,6 @@
         if (coordEmpty) coordEmpty.style.display = 'block';
         if (coordContent) coordContent.style.display = 'none';
         updateWhatsAppLink();
-        checkOperatingHoursWarning();
         return;
       }
 
@@ -2197,38 +2230,8 @@
       }
       if (coordContactEl) coordContactEl.textContent = coord.whatsapp_number || '';
 
-      // Update Operating Hours Box
-      var tzEl = document.getElementById('modal-coord-timezone');
-      var hoursGrid = document.getElementById('modal-coord-hours-grid');
-      var hoursMissing = document.getElementById('modal-coord-hours-missing');
-      var openTimeEl = document.getElementById('modal-coord-open-time');
-      var closeTimeEl = document.getElementById('modal-coord-close-time');
-      var noteEl = document.getElementById('modal-coord-hours-note');
-
-      if (tzEl) tzEl.textContent = currentCoordinatorTimezone;
-
-      if (coord.opening_time && coord.closing_time) {
-        if (hoursGrid) hoursGrid.style.display = 'flex';
-        if (hoursMissing) hoursMissing.style.display = 'none';
-        if (openTimeEl) openTimeEl.textContent = coord.formatted_opening_time || formatTime12hr(coord.opening_time);
-        if (closeTimeEl) closeTimeEl.textContent = coord.formatted_closing_time || formatTime12hr(coord.closing_time);
-      } else {
-        if (hoursGrid) hoursGrid.style.display = 'none';
-        if (hoursMissing) hoursMissing.style.display = 'block';
-      }
-
-      if (noteEl) {
-        if (coord.hours_note) {
-          noteEl.textContent = coord.hours_note;
-          noteEl.style.display = 'block';
-        } else {
-          noteEl.style.display = 'none';
-        }
-      }
-
       // Update WhatsApp link
       updateWhatsAppLink();
-      checkOperatingHoursWarning();
     })
     .catch(function(err) {
       if (currentSeq !== coordFetchSeq) return;
@@ -2246,13 +2249,14 @@
       }
       if (coordEmpty) coordEmpty.style.display = 'block';
       updateWhatsAppLink();
-      checkOperatingHoursWarning();
     });
   }
 
   function resetHostModalForm() {
     selectedHostDate = null;
     currentCoordinatorData = null;
+    currentRoomData = null;
+    updateRoomOperatingHoursDisplay(null);
     modalAvailabilitySeq++;
     modalAvailabilityStatus = 'unknown';
     var hoursWarn = document.getElementById('modal-hours-warning');
@@ -2607,6 +2611,8 @@
     if (!modalRoomsLoading || !modalRoomsGrid) return;
     modalAvailabilitySeq++;
     modalAvailabilityStatus = 'unknown';
+    currentRoomData = null;
+    updateRoomOperatingHoursDisplay(null);
     var availabilityContinueBtn = document.getElementById('host-step-2-continue-btn');
     if (availabilityContinueBtn) availabilityContinueBtn.disabled = true;
     modalRoomsLoading.style.display = 'block';
@@ -2631,6 +2637,9 @@
       modalRoomsGrid.innerHTML = '';
       if (hostAvailableRooms.length === 0) {
         modalSelectedRoom.value = '';
+        currentRoomData = null;
+        updateRoomOperatingHoursDisplay(null);
+        checkOperatingHoursWarning();
         modalRoomsGrid.innerHTML = '<div class="adda-room-empty" style="grid-column: 1 / -1; padding: 1.5rem; text-align: center; color: var(--adda-text-muted); background: var(--adda-surface-warm); border-radius: var(--radius-sm); border: 1px dashed var(--adda-border);"><p style="margin: 0;">No active spaces or rooms found for this city.</p></div>';
         modalRoomsGrid.style.display = 'block';
         var hStep2Btn = document.getElementById('host-step-2-continue-btn');
@@ -2639,28 +2648,50 @@
         return;
       }
 
+      var selectedIndex = -1;
+      hostAvailableRooms.forEach(function(r, idx) {
+        if (modalSelectedRoom.value && modalSelectedRoom.value === (r.room_name || r.name)) {
+          selectedIndex = idx;
+        }
+      });
+      if (selectedIndex === -1) selectedIndex = 0;
+
       hostAvailableRooms.forEach(function(r, idx) {
         var card = document.createElement('div');
         card.className = 'adda-room-card';
-        card.setAttribute('data-room-name', r.room_name || r.name);
-        if (modalSelectedRoom.value === (r.room_name || r.name) || (!modalSelectedRoom.value && idx === 0)) {
+        var rName = r.room_name || r.name;
+        card.setAttribute('data-room-name', rName);
+
+        var hoursText = (r.formatted_opening_time && r.formatted_closing_time) ?
+          (r.formatted_opening_time + ' – ' + r.formatted_closing_time) :
+          ((r.opening_time && r.closing_time) ? (formatTime12hr(r.opening_time) + ' – ' + formatTime12hr(r.closing_time)) : 'Hours unconfigured');
+
+        if (idx === selectedIndex) {
           card.classList.add('selected');
-          modalSelectedRoom.value = r.room_name || r.name;
+          modalSelectedRoom.value = rName;
+          currentRoomData = r;
           if (modalCapacityHint) modalCapacityHint.textContent = 'Room capacity is ' + (r.capacity || 'Flexible') + ' people.';
         }
 
         card.innerHTML = [
-          '<div class="adda-room-name">' + escapeHtml(r.room_name || r.name) + '</div>',
-          '<div class="adda-room-cap">Capacity: ~' + escapeHtml(r.capacity || 'Flexible') + ' people</div>'
+          '<div class="adda-room-name">' + escapeHtml(rName) + '</div>',
+          '<div class="adda-room-cap">Capacity: ~' + escapeHtml(r.capacity || 'Flexible') + ' people</div>',
+          '<div class="adda-room-hours-hint" style="font-size: 0.75rem; color: #4B5563; margin-top: 0.25rem;">' + escapeHtml(hoursText) + '</div>'
         ].join('\n');
 
         card.addEventListener('click', function() {
           modalRoomsGrid.querySelectorAll('.adda-room-card').forEach(function(c) { c.classList.remove('selected'); });
           card.classList.add('selected');
-          modalSelectedRoom.value = r.room_name || r.name;
+          modalSelectedRoom.value = rName;
+          currentRoomData = r;
           if (modalCapacityHint) modalCapacityHint.textContent = 'Room capacity is ' + (r.capacity || 'Flexible') + ' people.';
+          updateRoomOperatingHoursDisplay(r);
+          checkOperatingHoursWarning();
           var hStep2Btn = document.getElementById('host-step-2-continue-btn');
-          if (hStep2Btn) hStep2Btn.disabled = false;
+          if (hStep2Btn) {
+            var hasHours = Boolean(r && r.opening_time && r.closing_time);
+            hStep2Btn.disabled = !hasHours;
+          }
           checkModalRoomAvailability();
         });
 
@@ -2668,14 +2699,25 @@
       });
 
       modalRoomsGrid.style.display = 'grid';
+      var activeRoom = hostAvailableRooms[selectedIndex];
+      currentRoomData = activeRoom;
+      updateRoomOperatingHoursDisplay(activeRoom);
+      checkOperatingHoursWarning();
+
       var hStep2Btn = document.getElementById('host-step-2-continue-btn');
-      if (hStep2Btn) hStep2Btn.disabled = false;
+      if (hStep2Btn) {
+        var hasHours = Boolean(activeRoom && activeRoom.opening_time && activeRoom.closing_time);
+        hStep2Btn.disabled = !hasHours;
+      }
       if (callback) callback();
     })
     .catch(function(err) {
       modalRoomsLoading.style.display = 'none';
       hostAvailableRooms = [];
       modalSelectedRoom.value = '';
+      currentRoomData = null;
+      updateRoomOperatingHoursDisplay(null);
+      checkOperatingHoursWarning();
       modalRoomsGrid.innerHTML = '<div class="adda-room-empty" style="grid-column: 1 / -1; padding: 1.5rem; text-align: center; color: #DC2626; background: #FEF2F2; border-radius: var(--radius-sm); border: 1px solid #FCA5A5;"><p style="margin: 0;">Unable to load spaces for this city. Please try again.</p></div>';
       modalRoomsGrid.style.display = 'block';
       var hStep2Btn = document.getElementById('host-step-2-continue-btn');
@@ -2911,22 +2953,18 @@
         showStep2Error('End time must be after start time.');
         return;
       }
-      if (!currentCoordinatorData || !currentCoordinatorData.opening_time || !currentCoordinatorData.closing_time) {
-        showStep2Error('Operating hours are not available for this city yet. Please contact the city coordinator.');
-        return;
-      }
-      if (currentCoordinatorData && currentCoordinatorData.opening_time && currentCoordinatorData.closing_time) {
-        var op = currentCoordinatorData.opening_time.slice(0, 5);
-        var cl = currentCoordinatorData.closing_time.slice(0, 5);
-        var clp = cl.split(':').map(Number);
-        var latest = String(Math.floor((clp[0] * 60 + clp[1] - 60) / 60)).padStart(2, '0') + ':' + String((clp[0] * 60 + clp[1] - 60) % 60).padStart(2, '0');
-        if (modalStartTime.value < op || modalStartTime.value > latest || modalEndTime.value > cl) {
-          showStep2Error('Choose a start between ' + formatTime12hr(op) + ' and ' + formatTime12hr(latest) + ', and finish by ' + formatTime12hr(cl) + '.');
-          return;
-        }
-      }
       if (!modalSelectedRoom || !modalSelectedRoom.value) {
         showStep2Error('Please select an Adda room.');
+        return;
+      }
+      if (!currentRoomData || !currentRoomData.opening_time || !currentRoomData.closing_time) {
+        showStep2Error('Operating hours are not configured for this space. Please contact a coordinator or select another space.');
+        return;
+      }
+      var op = currentRoomData.opening_time.slice(0, 5);
+      var cl = currentRoomData.closing_time.slice(0, 5);
+      if (modalStartTime.value < op || modalEndTime.value > cl) {
+        showStep2Error('Events in ' + (currentRoomData.room_name || 'this space') + ' must start at or after ' + formatTime12hr(op) + ' and finish by ' + formatTime12hr(cl) + '.');
         return;
       }
       if (modalAvailabilityStatus === 'collision') {
@@ -2992,6 +3030,16 @@
         }
         if (!modalSelectedRoom || !modalSelectedRoom.value) {
           showStep2Error('Please select an Adda room.');
+          return;
+        }
+        if (!currentRoomData || !currentRoomData.opening_time || !currentRoomData.closing_time) {
+          showStep2Error('Operating hours are not configured for this space. Please contact a coordinator or select another space.');
+          return;
+        }
+        var op = currentRoomData.opening_time.slice(0, 5);
+        var cl = currentRoomData.closing_time.slice(0, 5);
+        if (modalStartTime.value < op || modalEndTime.value > cl) {
+          showStep2Error('Events in ' + (currentRoomData.room_name || 'this space') + ' must start at or after ' + formatTime12hr(op) + ' and finish by ' + formatTime12hr(cl) + '.');
           return;
         }
         goToModalStep(3);
@@ -4057,10 +4105,6 @@
         var payload = d.message || d;
         var coord = payload && payload.coordinator;
         if (coord) {
-          var hoursHtml = '';
-          if (coord.formatted_opening_time && coord.formatted_closing_time) {
-            hoursHtml = '<div style="font-size: 0.75rem; color: #4B5563; margin-bottom: 0.35rem;">Opens: ' + escapeHtml(coord.formatted_opening_time) + ' &bull; Closes: ' + escapeHtml(coord.formatted_closing_time) + '</div>';
-          }
           var roleHtml = coord.role_title ? '<div style="font-size: 0.75rem; color: #6B7280;">' + escapeHtml(coord.role_title) + '</div>' : '';
           var waUrl = generateWhatsAppUrl(coord.coordinator_name || 'Coordinator', cityName, coord.whatsapp_number, selectedDateStr || null);
 
@@ -4068,7 +4112,6 @@
             '<div class="adda-coord-name">' + escapeHtml(coord.coordinator_name || '') + '</div>' +
             roleHtml +
             '<div class="adda-coord-phone">' + escapeHtml(coord.whatsapp_number || '') + '</div>' +
-            hoursHtml +
             '<a href="' + escapeHtml(waUrl) + '" target="_blank" rel="noopener noreferrer" class="adda-coord-wa-btn" id="coord-wa-' + escapeHtml(cityName.toLowerCase()) + '">' +
             '<span>&#x1F4AC;</span> WhatsApp ' + escapeHtml(coord.whatsapp_number || '') + '</a>';
         } else {

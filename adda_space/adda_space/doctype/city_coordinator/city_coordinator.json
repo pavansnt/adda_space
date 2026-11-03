@@ -17,13 +17,7 @@
   "whatsapp_number",
   "column_break_contact",
   "email",
-  "user",
-  "section_hours",
-  "opening_time",
-  "column_break_hours",
-  "closing_time",
-  "section_notes",
-  "hours_note"
+  "user"
  ],
  "fields": [
   {
@@ -87,42 +81,11 @@
    "fieldtype": "Link",
    "label": "Linked User",
    "options": "User"
-  },
-  {
-   "fieldname": "section_hours",
-   "fieldtype": "Section Break",
-   "label": "Operating Hours"
-  },
-  {
-   "fieldname": "opening_time",
-   "fieldtype": "Time",
-   "in_list_view": 1,
-   "label": "Opening Time"
-  },
-  {
-   "fieldname": "column_break_hours",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "closing_time",
-   "fieldtype": "Time",
-   "in_list_view": 1,
-   "label": "Closing Time"
-  },
-  {
-   "fieldname": "section_notes",
-   "fieldtype": "Section Break",
-   "label": "Operating Hours Note"
-  },
-  {
-   "fieldname": "hours_note",
-   "fieldtype": "Small Text",
-   "label": "Hours Note"
   }
  ],
  "index_web_pages_for_search": 0,
  "links": [],
- "modified": "2026-10-27 12:00:00.000000",
+ "modified": "2026-11-03 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Adda Space",
  "name": "City Coordinator",
@@ -170,4 +133,3 @@
  "sort_order": "DESC",
  "states": []
 }
-

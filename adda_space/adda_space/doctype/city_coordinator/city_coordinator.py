@@ -19,7 +19,6 @@ class CityCoordinator(Document):
 		self.clean_fields()
 		self.validate_city()
 		self.validate_active_coordinator_per_city()
-		self.validate_operating_hours()
 		self.validate_permissions()
 
 	def clean_fields(self):
@@ -31,8 +30,6 @@ class CityCoordinator(Document):
 			self.role_title = self.role_title.strip()
 		if self.email:
 			self.email = self.email.strip()
-		if self.hours_note:
-			self.hours_note = self.hours_note.strip()
 
 	def validate_city(self):
 		if not self.city:
@@ -72,22 +69,6 @@ class CityCoordinator(Document):
 					).format(self.city, name_found)
 				)
 
-	def validate_operating_hours(self):
-		if not self.is_active:
-			return
-
-		if not self.opening_time or not self.closing_time:
-			frappe.throw(_("Opening time and closing time are mandatory for an active coordinator."))
-
-		s_open = str(self.opening_time).strip()
-		s_close = str(self.closing_time).strip()
-
-		if s_open == s_close:
-			frappe.throw(_("Opening time and closing time cannot be the same."))
-
-		if s_close < s_open:
-			frappe.throw(_("Closing time must be after opening time."))
-
 	def validate_permissions(self):
 		if is_adda_admin():
 			return
@@ -106,4 +87,3 @@ class CityCoordinator(Document):
 					_("Coordinators are not authorized to change the assigned city."),
 					frappe.PermissionError,
 				)
-

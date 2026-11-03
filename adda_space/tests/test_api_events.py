@@ -37,8 +37,21 @@ class TestApiEvents(IntegrationTestCase):
 				"room_name": "Main Room Bengaluru",
 				"city": "Bengaluru",
 				"capacity": 40,
+				"opening_time": "06:00:00",
+				"closing_time": "23:00:00",
 				"is_active": 1,
 			}).insert(ignore_permissions=True)
+		else:
+			frappe.db.set_value(
+				"Adda Room",
+				"Main Room Bengaluru",
+				{"opening_time": "06:00:00", "closing_time": "23:00:00", "is_active": 1},
+				update_modified=False,
+			)
+
+		# Clean up any leftover test events
+		for old_ev in frappe.get_all("Adda Event", filters={"title": ["in", ["Kannada Rajyostava", "Nada Habba", "Second Proposal Same Time"]]}, pluck="name"):
+			frappe.delete_doc("Adda Event", old_ev, force=True, ignore_permissions=True)
 
 		now = now_datetime()
 		# Create an upcoming approved event
@@ -138,9 +151,9 @@ class TestApiEvents(IntegrationTestCase):
 
 	def test_create_adda_event_public_request(self):
 		frappe.set_user("Guest")
-		now = now_datetime()
-		start = add_to_date(now, days=12, hours=10).strftime("%Y-%m-%d %H:%M:%S")
-		end = add_to_date(now, days=12, hours=12).strftime("%Y-%m-%d %H:%M:%S")
+		now = now_datetime().replace(hour=10, minute=0, second=0, microsecond=0)
+		start = add_to_date(now, days=12).strftime("%Y-%m-%d %H:%M:%S")
+		end = add_to_date(now, days=12, hours=2).strftime("%Y-%m-%d %H:%M:%S")
 
 		res = create_adda_event(
 			title="API Test Proposal From Guest",
@@ -149,6 +162,7 @@ class TestApiEvents(IntegrationTestCase):
 			start_date_time=start,
 			end_date_time=end,
 			city="Bengaluru",
+			room_name="Main Room Bengaluru",
 			cover_image="/assets/adda_space/images/adda_space_logo.png",
 			people_expected=15,
 		)
@@ -161,9 +175,9 @@ class TestApiEvents(IntegrationTestCase):
 
 	def test_create_adda_event_optional_poster_default(self):
 		frappe.set_user("Guest")
-		now = now_datetime()
-		start = add_to_date(now, days=13, hours=10).strftime("%Y-%m-%d %H:%M:%S")
-		end = add_to_date(now, days=13, hours=12).strftime("%Y-%m-%d %H:%M:%S")
+		now = now_datetime().replace(hour=10, minute=0, second=0, microsecond=0)
+		start = add_to_date(now, days=13).strftime("%Y-%m-%d %H:%M:%S")
+		end = add_to_date(now, days=13, hours=2).strftime("%Y-%m-%d %H:%M:%S")
 
 		res = create_adda_event(
 			title="API Test Proposal Without Poster",
@@ -172,6 +186,7 @@ class TestApiEvents(IntegrationTestCase):
 			start_date_time=start,
 			end_date_time=end,
 			city="Bengaluru",
+			room_name="Main Room Bengaluru",
 			people_expected=15,
 		)
 		self.assertTrue(res.get("success"))
@@ -295,6 +310,8 @@ class TestApiEvents(IntegrationTestCase):
 
 	def test_availability_pending_warning_and_approved_block(self):
 		date_str = "2026-11-01"
+		for old_ev in frappe.get_all("Adda Event", filters={"title": ["in", ["Kannada Rajyostava", "Nada Habba", "Second Proposal Same Time"]]}, pluck="name"):
+			frappe.delete_doc("Adda Event", old_ev, force=True, ignore_permissions=True)
 
 		# 1. Create an Approved Event: 07:00 to 09:00
 		app_event = frappe.get_doc({
@@ -422,9 +439,9 @@ class TestApiEvents(IntegrationTestCase):
 
 	def test_website_creation_and_reference_id_stability(self):
 		frappe.set_user("Guest")
-		now = now_datetime()
-		start = add_to_date(now, days=20, hours=10).strftime("%Y-%m-%d %H:%M:%S")
-		end = add_to_date(now, days=20, hours=12).strftime("%Y-%m-%d %H:%M:%S")
+		now = now_datetime().replace(hour=10, minute=0, second=0, microsecond=0)
+		start = add_to_date(now, days=20).strftime("%Y-%m-%d %H:%M:%S")
+		end = add_to_date(now, days=20, hours=2).strftime("%Y-%m-%d %H:%M:%S")
 
 		# 1. Create event via website API
 		res = create_adda_event(
@@ -472,9 +489,9 @@ class TestApiEvents(IntegrationTestCase):
 
 	def test_website_submit_then_update_preserves_identity(self):
 		frappe.set_user("Guest")
-		now = now_datetime()
-		start = add_to_date(now, days=22, hours=14).strftime("%Y-%m-%d %H:%M:%S")
-		end = add_to_date(now, days=22, hours=16).strftime("%Y-%m-%d %H:%M:%S")
+		now = now_datetime().replace(hour=14, minute=0, second=0, microsecond=0)
+		start = add_to_date(now, days=22).strftime("%Y-%m-%d %H:%M:%S")
+		end = add_to_date(now, days=22, hours=2).strftime("%Y-%m-%d %H:%M:%S")
 
 		# 1. Submit initial event proposal
 		initial_res = create_adda_event(
@@ -484,6 +501,7 @@ class TestApiEvents(IntegrationTestCase):
 			start_date_time=start,
 			end_date_time=end,
 			city="Bengaluru",
+			room_name="Main Room Bengaluru",
 			cover_image="/assets/adda_space/images/adda_space_logo.png",
 			approval_status="Pending Review",
 		)
@@ -1012,8 +1030,6 @@ class TestApiEvents(IntegrationTestCase):
 			"whatsapp_number": "90350 54940",
 			"role_title": "City Lead",
 			"is_active": 1,
-			"opening_time": "10:00:00",
-			"closing_time": "18:00:00",
 		}).insert(ignore_permissions=True)
 
 		try:
@@ -1023,12 +1039,237 @@ class TestApiEvents(IntegrationTestCase):
 			self.assertIsNotNone(c_data)
 			self.assertEqual(c_data["coordinator_name"], "API Test Coordinator")
 			self.assertEqual(c_data["normalized_phone"], "919035054940")
-			self.assertEqual(c_data["formatted_opening_time"], "10:00 AM")
-			self.assertEqual(c_data["formatted_closing_time"], "6:00 PM")
+			self.assertNotIn("opening_time", c_data)
+			self.assertNotIn("closing_time", c_data)
+			self.assertNotIn("formatted_opening_time", c_data)
+			self.assertNotIn("formatted_closing_time", c_data)
+			self.assertNotIn("hours_note", c_data)
 			self.assertNotIn("email", c_data)
 		finally:
 			frappe.delete_doc("City Coordinator", coord.name, force=True, ignore_permissions=True)
+			# Restore active coordinator for Bengaluru
+			if not frappe.db.exists("City Coordinator", {"city": "Bengaluru", "is_active": 1}):
+				frappe.get_doc({
+					"doctype": "City Coordinator",
+					"coordinator_name": "Chiku",
+					"city": "Bengaluru",
+					"whatsapp_number": "90350 54940",
+					"role_title": "City Coordinator",
+					"is_active": 1,
+				}).insert(ignore_permissions=True)
 
 	def test_get_city_coordinator_invalid_city(self):
 		with self.assertRaises(frappe.ValidationError):
 			get_city_coordinator(city="UnknownCity123")
+
+	def test_get_adda_rooms_returns_operating_hours_and_timezone(self):
+		res = get_adda_rooms(city="Bengaluru")
+		self.assertEqual(res.get("status"), "success")
+		rooms = res.get("rooms", [])
+		self.assertTrue(len(rooms) > 0)
+		main_room = next((r for r in rooms if r["room_name"] == "Main Room Bengaluru"), None)
+		self.assertIsNotNone(main_room)
+		self.assertEqual(main_room["opening_time"], "06:00:00")
+		self.assertEqual(main_room["closing_time"], "23:00:00")
+		self.assertEqual(main_room["formatted_opening_time"], "6:00 AM")
+		self.assertEqual(main_room["formatted_closing_time"], "11:00 PM")
+		self.assertEqual(main_room["timezone"], "Asia/Kolkata")
+
+	def test_room_operating_hours_validation_rules(self):
+		room_name = "Rule Test Room Bengaluru"
+		if frappe.db.exists("Adda Room", room_name):
+			frappe.delete_doc("Adda Room", room_name, force=True, ignore_permissions=True)
+
+		frappe.get_doc({
+			"doctype": "Adda Room",
+			"room_name": room_name,
+			"city": "Bengaluru",
+			"capacity": 25,
+			"opening_time": "10:00:00",
+			"closing_time": "18:00:00",
+			"is_active": 1,
+		}).insert(ignore_permissions=True)
+
+		frappe.set_user("Guest")
+		date_str = "2026-11-20"
+
+		try:
+			# 1. Inside operating hours: 10:00 to 12:00 -> Allowed
+			res_ok1 = create_adda_event(
+				title="Rule Inside 1",
+				description="Event inside hours",
+				start_date_time=f"{date_str} 10:00:00",
+				end_date_time=f"{date_str} 12:00:00",
+				city="Bengaluru",
+				room_name=room_name,
+			)
+			self.assertTrue(res_ok1.get("success"))
+			frappe.delete_doc("Adda Event", res_ok1["name"], force=True, ignore_permissions=True)
+
+			# 2. Inside operating hours: 14:00 to 17:00 -> Allowed
+			res_ok2 = create_adda_event(
+				title="Rule Inside 2",
+				description="Event inside hours",
+				start_date_time=f"{date_str} 14:00:00",
+				end_date_time=f"{date_str} 17:00:00",
+				city="Bengaluru",
+				room_name=room_name,
+			)
+			self.assertTrue(res_ok2.get("success"))
+			frappe.delete_doc("Adda Event", res_ok2["name"], force=True, ignore_permissions=True)
+
+			# 3. Inside operating hours: 10:00 to 18:00 (full day) -> Allowed
+			res_ok3 = create_adda_event(
+				title="Rule Full Day",
+				description="Event full operating day",
+				start_date_time=f"{date_str} 10:00:00",
+				end_date_time=f"{date_str} 18:00:00",
+				city="Bengaluru",
+				room_name=room_name,
+			)
+			self.assertTrue(res_ok3.get("success"))
+			frappe.delete_doc("Adda Event", res_ok3["name"], force=True, ignore_permissions=True)
+
+			# 4. Starting before opening: 09:00 to 11:00 -> Rejected
+			with self.assertRaises(frappe.ValidationError) as ctx:
+				create_adda_event(
+					title="Rule Before Opening",
+					description="Starts early",
+					start_date_time=f"{date_str} 09:00:00",
+					end_date_time=f"{date_str} 11:00:00",
+					city="Bengaluru",
+					room_name=room_name,
+				)
+			self.assertIn("must start at or after 10:00 AM", str(ctx.exception))
+
+			# 5. Ending after closing: 17:00 to 19:00 -> Rejected
+			with self.assertRaises(frappe.ValidationError) as ctx:
+				create_adda_event(
+					title="Rule After Closing",
+					description="Ends late",
+					start_date_time=f"{date_str} 17:00:00",
+					end_date_time=f"{date_str} 19:00:00",
+					city="Bengaluru",
+					room_name=room_name,
+				)
+			self.assertIn("finish by 6:00 PM", str(ctx.exception))
+
+			# 6. Outside operating hours: 18:00 to 19:00 -> Rejected
+			with self.assertRaises(frappe.ValidationError) as ctx:
+				create_adda_event(
+					title="Rule Fully After",
+					description="After hours",
+					start_date_time=f"{date_str} 18:00:00",
+					end_date_time=f"{date_str} 19:00:00",
+					city="Bengaluru",
+					room_name=room_name,
+				)
+			self.assertIn("must start at or after 10:00 AM and finish by 6:00 PM", str(ctx.exception))
+
+			# 7. End time earlier than start time: 14:00 to 12:00 -> Rejected
+			with self.assertRaises(frappe.ValidationError):
+				create_adda_event(
+					title="Rule Inverted Times",
+					description="Inverted",
+					start_date_time=f"{date_str} 14:00:00",
+					end_date_time=f"{date_str} 12:00:00",
+					city="Bengaluru",
+					room_name=room_name,
+				)
+		finally:
+			frappe.set_user("Administrator")
+			frappe.delete_doc("Adda Room", room_name, force=True, ignore_permissions=True)
+
+	def test_room_missing_operating_hours_blocks_event_creation(self):
+		room_name = "No Hours Room Bengaluru"
+		if frappe.db.exists("Adda Room", room_name):
+			frappe.delete_doc("Adda Room", room_name, force=True, ignore_permissions=True)
+
+		room = frappe.get_doc({
+			"doctype": "Adda Room",
+			"room_name": room_name,
+			"city": "Bengaluru",
+			"capacity": 20,
+			"is_active": 0,
+		}).insert(ignore_permissions=True)
+		frappe.db.set_value("Adda Room", room_name, "is_active", 1, update_modified=False)
+
+		frappe.set_user("Guest")
+		try:
+			with self.assertRaises(frappe.ValidationError) as ctx:
+				create_adda_event(
+					title="Event in Room Without Hours",
+					description="Should be blocked",
+					start_date_time="2026-11-20 11:00:00",
+					end_date_time="2026-11-20 13:00:00",
+					city="Bengaluru",
+					room_name=room_name,
+				)
+			self.assertIn("Operating hours are not configured", str(ctx.exception))
+		finally:
+			frappe.set_user("Administrator")
+			frappe.delete_doc("Adda Room", room_name, force=True, ignore_permissions=True)
+
+	def test_inactive_room_blocks_event_creation(self):
+		room_name = "Inactive Test Room Bengaluru"
+		if frappe.db.exists("Adda Room", room_name):
+			frappe.delete_doc("Adda Room", room_name, force=True, ignore_permissions=True)
+
+		frappe.get_doc({
+			"doctype": "Adda Room",
+			"room_name": room_name,
+			"city": "Bengaluru",
+			"capacity": 20,
+			"opening_time": "10:00:00",
+			"closing_time": "18:00:00",
+			"is_active": 0,
+		}).insert(ignore_permissions=True)
+
+		frappe.set_user("Guest")
+		try:
+			with self.assertRaises(frappe.ValidationError) as ctx:
+				create_adda_event(
+					title="Event in Inactive Room",
+					description="Should be blocked",
+					start_date_time="2026-11-20 11:00:00",
+					end_date_time="2026-11-20 13:00:00",
+					city="Bengaluru",
+					room_name=room_name,
+				)
+			self.assertIn("is not active", str(ctx.exception))
+		finally:
+			frappe.set_user("Administrator")
+			frappe.delete_doc("Adda Room", room_name, force=True, ignore_permissions=True)
+
+	def test_backend_enforces_authoritative_room_hours_ignoring_client_tampering(self):
+		room_name = "Authoritative Room Bengaluru"
+		if frappe.db.exists("Adda Room", room_name):
+			frappe.delete_doc("Adda Room", room_name, force=True, ignore_permissions=True)
+
+		frappe.get_doc({
+			"doctype": "Adda Room",
+			"room_name": room_name,
+			"city": "Bengaluru",
+			"capacity": 20,
+			"opening_time": "11:00:00",
+			"closing_time": "17:00:00",
+			"is_active": 1,
+		}).insert(ignore_permissions=True)
+
+		frappe.set_user("Guest")
+		try:
+			with self.assertRaises(frappe.ValidationError) as ctx:
+				create_adda_event(
+					title="Tampered Request Attempt",
+					description="Attempting to start at 9 AM",
+					start_date_time="2026-11-20 09:00:00",
+					end_date_time="2026-11-20 12:00:00",
+					city="Bengaluru",
+					room_name=room_name,
+					opening_time="08:00:00",
+					closing_time="22:00:00",
+				)
+			self.assertIn("must start at or after 11:00 AM", str(ctx.exception))
+		finally:
+			frappe.set_user("Administrator")
+			frappe.delete_doc("Adda Room", room_name, force=True, ignore_permissions=True)

@@ -104,13 +104,13 @@ class TestApiSecurityAndPermissions(IntegrationTestCase):
 
 	def test_guest_submission_cannot_set_approved_status(self):
 		frappe.set_user("Guest")
-		now = now_datetime()
+		now = now_datetime().replace(hour=10, minute=0, second=0, microsecond=0)
 		res = create_adda_event(
 			title="Security Test Guest Submit",
 			type="Adda",
 			description="Attempting to force approval status as guest.",
-			start_date_time=add_to_date(now, days=15, hours=10).strftime("%Y-%m-%d %H:%M:%S"),
-			end_date_time=add_to_date(now, days=15, hours=12).strftime("%Y-%m-%d %H:%M:%S"),
+			start_date_time=add_to_date(now, days=15).strftime("%Y-%m-%d %H:%M:%S"),
+			end_date_time=add_to_date(now, days=15, hours=2).strftime("%Y-%m-%d %H:%M:%S"),
 			city="Bengaluru",
 			cover_image="/assets/adda_space/images/adda_space_logo.png",
 			approval_status="Approved",  # Exploit attempt

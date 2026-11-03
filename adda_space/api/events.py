@@ -39,35 +39,122 @@ REGISTRATION_DOCTYPE = "Adda Event Registration"
 DEFAULT_EVENT_IMAGE = "/assets/adda_space/images/default_event_poster.jpg"
 
 
-def _validate_city_operating_hours(city: str, start_dt: str, end_dt: str) -> None:
-	"""Reject proposed events outside the active coordinator's city hours."""
-	if _is_mock_db() or not frappe.db.table_exists(COORDINATOR_DOCTYPE):
-		return
+_MOCK_ROOM_STORE: Dict[str, Dict[str, Any]] = {}
 
-	coordinator = frappe.db.get_value(
-		COORDINATOR_DOCTYPE,
-		{"city": city, "is_active": 1},
-		["opening_time", "closing_time"],
-		as_dict=True,
-	)
-	if not coordinator or not coordinator.get("opening_time") or not coordinator.get("closing_time"):
-		frappe.throw(_("Operating hours are not configured for {0}. Please contact the city coordinator.").format(city))
 
-	try:
+def _validate_room_operating_hours(room_name: Optional[str], city: str, start_dt: str, end_dt: str) -> str:
+	"""
+	Validate proposed event start and end times against the selected Adda Room's operating hours.
+	Retrieves operating hours authoritatively from the Adda Room record.
+	Returns the resolved room_name.
+	"""
+	city = (city or "").strip()
+	resolved_room = (room_name or "").strip()
+
+	if _is_mock_db():
+		if resolved_room and resolved_room in _MOCK_ROOM_STORE:
+			room_data = _MOCK_ROOM_STORE[resolved_room]
+		elif not resolved_room:
+			matched = [r for r in _MOCK_ROOM_STORE.values() if r.get("city", "").lower() == city.lower() and r.get("is_active", 1)]
+			if not matched:
+				frappe.throw(_("No active Adda rooms found in {0}.").format(city))
+			room_data = matched[0]
+			resolved_room = room_data.get("room_name") or room_data.get("name")
+		else:
+			frappe.throw(_("Adda Room '{0}' does not exist.").format(resolved_room))
+
+		if not room_data.get("is_active", 1):
+			frappe.throw(_("Adda Room '{0}' is not active.").format(resolved_room))
+
+		if not room_data.get("opening_time") or not room_data.get("closing_time"):
+			frappe.throw(_("Operating hours are not configured for Adda Room '{0}'.").format(resolved_room))
+
+		opening_time = _coerce_time(room_data["opening_time"])
+		closing_time = _coerce_time(room_data["closing_time"])
 		start_time = get_datetime(start_dt).time()
 		end_time = get_datetime(end_dt).time()
-		opening_time = _coerce_time(coordinator.get("opening_time"))
-		closing_time = _coerce_time(coordinator.get("closing_time"))
-	except (TypeError, ValueError):
-		frappe.throw(_("Could not validate the event time against {0}'s operating hours.").format(city))
 
-	latest_start = (datetime.datetime.combine(datetime.date.today(), closing_time) - datetime.timedelta(hours=1)).time()
-	if start_time < opening_time or start_time > latest_start or end_time > closing_time:
+		if start_time < opening_time or end_time > closing_time:
+			frappe.throw(
+				_("Events in {0} must start at or after {1} and finish by {2}.").format(
+					resolved_room,
+					format_time_12hr(opening_time),
+					format_time_12hr(closing_time),
+				)
+			)
+		return resolved_room
+
+	if not frappe.db.table_exists(ROOM_DOCTYPE):
+		return resolved_room
+
+	if not resolved_room:
+		# Check available active rooms in the city
+		active_rooms = frappe.get_all(
+			ROOM_DOCTYPE,
+			filters={"city": city, "is_active": 1},
+			fields=["name", "room_name", "opening_time", "closing_time"],
+			order_by="room_name asc",
+		)
+		if not active_rooms:
+			frappe.throw(_("No active Adda rooms found in {0}.").format(city))
+		resolved_room = active_rooms[0].room_name or active_rooms[0].name
+
+	# Fetch authoritative room record from DB
+	room_doc = frappe.db.get_value(
+		ROOM_DOCTYPE,
+		resolved_room,
+		["name", "room_name", "city", "is_active", "opening_time", "closing_time"],
+		as_dict=True,
+	)
+	if not room_doc:
+		rooms = frappe.get_all(
+			ROOM_DOCTYPE,
+			filters={"room_name": resolved_room},
+			fields=["name", "room_name", "city", "is_active", "opening_time", "closing_time"],
+			limit=1,
+		)
+		if rooms:
+			room_doc = rooms[0]
+
+	if not room_doc:
+		frappe.throw(_("Adda Room '{0}' does not exist.").format(resolved_room))
+
+	if not room_doc.get("is_active"):
+		frappe.throw(_("Adda Room '{0}' is not active.").format(room_doc.get("room_name") or resolved_room))
+
+	if city and room_doc.get("city") and room_doc.get("city") != city:
+		frappe.throw(_("Room '{0}' does not belong to {1}.").format(room_doc.get("room_name") or resolved_room, city))
+
+	if not room_doc.get("opening_time") or not room_doc.get("closing_time"):
+		frappe.throw(_("Operating hours are not configured for Adda Room '{0}'.").format(room_doc.get("room_name") or resolved_room))
+
+	try:
+		start_dt_obj = get_datetime(start_dt)
+		end_dt_obj = get_datetime(end_dt)
+		if start_dt_obj >= end_dt_obj:
+			frappe.throw(_("Start Date Time must be strictly before End Date Time."))
+
+		start_time = start_dt_obj.time()
+		end_time = end_dt_obj.time()
+		opening_time = _coerce_time(room_doc.get("opening_time"))
+		closing_time = _coerce_time(room_doc.get("closing_time"))
+	except (TypeError, ValueError):
+		frappe.throw(_("Could not validate the event time against operating hours for room '{0}'.").format(resolved_room))
+
+	if closing_time <= opening_time:
+		frappe.throw(_("Adda Room '{0}' has invalid operating hours.").format(room_doc.get("room_name") or resolved_room))
+
+	if start_time < opening_time or end_time > closing_time:
+		r_label = room_doc.get("room_name") or resolved_room
 		frappe.throw(
-			_("Events in {0} must start between {1} and {2}, and finish by {3}.").format(
-				city, opening_time.strftime("%H:%M"), latest_start.strftime("%H:%M"), closing_time.strftime("%H:%M")
+			_("Events in {0} must start at or after {1} and finish by {2}.").format(
+				r_label,
+				format_time_12hr(opening_time),
+				format_time_12hr(closing_time),
 			)
 		)
+
+	return room_doc.get("room_name") or resolved_room
 
 
 def _coerce_time(value: Any) -> datetime.time:
@@ -452,9 +539,6 @@ def get_city_coordinator(city: Optional[str] = None) -> Dict[str, Any]:
 				"coordinator_name",
 				"role_title",
 				"whatsapp_number",
-				"opening_time",
-				"closing_time",
-				"hours_note",
 			],
 			limit=1,
 		)
@@ -473,9 +557,6 @@ def get_city_coordinator(city: Optional[str] = None) -> Dict[str, Any]:
 			"message": _("No active coordinator is assigned to this city yet."),
 		}
 
-	formatted_open = format_time_12hr(coord_doc.get("opening_time")) if coord_doc.get("opening_time") else None
-	formatted_close = format_time_12hr(coord_doc.get("closing_time")) if coord_doc.get("closing_time") else None
-
 	return {
 		"status": "success",
 		"success": True,
@@ -487,11 +568,6 @@ def get_city_coordinator(city: Optional[str] = None) -> Dict[str, Any]:
 			"role_title": coord_doc.get("role_title") or "",
 			"whatsapp_number": coord_doc.get("whatsapp_number"),
 			"normalized_phone": normalize_phone_number(coord_doc.get("whatsapp_number")),
-			"opening_time": str(coord_doc.get("opening_time")) if coord_doc.get("opening_time") else None,
-			"closing_time": str(coord_doc.get("closing_time")) if coord_doc.get("closing_time") else None,
-			"formatted_opening_time": formatted_open,
-			"formatted_closing_time": formatted_close,
-			"hours_note": coord_doc.get("hours_note") or "",
 		},
 		"message": None,
 	}
@@ -499,7 +575,7 @@ def get_city_coordinator(city: Optional[str] = None) -> Dict[str, Any]:
 
 @frappe.whitelist(allow_guest=True)
 def get_adda_rooms(city: Optional[str] = None) -> Dict[str, Any]:
-	"""List Adda Room records, optionally filtered by city."""
+	"""List Adda Room records with operating hours, optionally filtered by city."""
 	data = _parse_request_data()
 	city_value = str(city or data.get("city") or "").strip()
 
@@ -511,12 +587,37 @@ def get_adda_rooms(city: Optional[str] = None) -> Dict[str, Any]:
 		if city_value:
 			filters["city"] = city_value
 
-		rooms = frappe.get_all(
+		rooms_raw = frappe.get_all(
 			ROOM_DOCTYPE,
 			filters=filters,
-			fields=["name", "room_name", "city", "capacity"],
+			fields=["name", "room_name", "city", "capacity", "opening_time", "closing_time", "is_active"],
 			order_by="room_name asc",
 		)
+
+		city_tzs = {}
+		if frappe.db.table_exists(CITY_DOCTYPE):
+			for c in frappe.get_all(CITY_DOCTYPE, fields=["name", "city_name", "timezone"]):
+				c_key = c.get("city_name") or c.get("name")
+				city_tzs[c_key] = c.get("timezone") or "Asia/Kolkata"
+
+		rooms = []
+		for r in rooms_raw:
+			r_city = r.get("city")
+			tz = city_tzs.get(r_city, "Asia/Kolkata")
+			formatted_open = format_time_12hr(r.get("opening_time")) if r.get("opening_time") else None
+			formatted_close = format_time_12hr(r.get("closing_time")) if r.get("closing_time") else None
+			rooms.append({
+				"name": r.name,
+				"room_name": r.room_name or r.name,
+				"city": r.city,
+				"capacity": r.capacity,
+				"is_active": r.is_active,
+				"opening_time": str(r.opening_time) if r.opening_time else None,
+				"closing_time": str(r.closing_time) if r.closing_time else None,
+				"formatted_opening_time": formatted_open,
+				"formatted_closing_time": formatted_close,
+				"timezone": tz,
+			})
 	else:
 		rooms = []
 
@@ -1064,7 +1165,10 @@ def create_adda_event(**kwargs) -> Dict[str, Any]:
 	start_dt = str(mandatory["start_date_time"]).strip()
 	end_dt = str(mandatory["end_date_time"]).strip()
 	room_name = str(data.get("room_name") or "").strip()
-	_validate_city_operating_hours(str(mandatory["city"]).strip(), start_dt, end_dt)
+	city_name = str(mandatory["city"]).strip()
+	resolved_room = _validate_room_operating_hours(room_name, city_name, start_dt, end_dt)
+	if not room_name and resolved_room:
+		room_name = resolved_room
 
 	# 3. Check existing event if modifying or submitting an existing draft/proposal
 	existing_id = (
@@ -1084,14 +1188,13 @@ def create_adda_event(**kwargs) -> Dict[str, Any]:
 
 	req_action = str(data.get("action") or "").strip().lower()
 	req_status = str(data.get("approval_status") or data.get("status") or "").strip()
+	is_explicit_edit = (req_action == "edit") or bool(data.get("event_id") or kwargs.get("event_id"))
 
 	event_doc = None
 	if existing_id and frappe.db.table_exists(EVENT_DOCTYPE) and frappe.db.exists(EVENT_DOCTYPE, existing_id):
 		candidate = frappe.get_doc(EVENT_DOCTYPE, existing_id)
-		# Allow modifying in-place only if explicit edit action is requested or pending event by authorized user:
-		if req_action == "edit" and (is_admin or candidate.owner == user):
-			event_doc = candidate
-		elif candidate.approval_status == "Pending Review" and (is_admin or candidate.owner == user):
+		# Allow modifying in-place if explicit edit action or event_id is requested:
+		if is_explicit_edit and (is_admin or candidate.owner == user):
 			event_doc = candidate
 		else:
 			event_doc = None

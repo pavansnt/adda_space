@@ -44,7 +44,7 @@ class TestCityCoordinatorUnit(unittest.TestCase):
 		with patch("frappe.get_meta") as mock_meta:
 			mock_meta.return_value._table_doctypes = []
 			mock_meta.return_value.get_valid_columns.return_value = [
-				"coordinator_name", "city", "whatsapp_number", "opening_time", "closing_time", "is_active", "role_title", "hours_note"
+				"coordinator_name", "city", "whatsapp_number", "is_active", "role_title", "email", "user"
 			]
 			data = {"doctype": "City Coordinator"}
 			data.update(kwargs)
@@ -77,53 +77,20 @@ class TestCityCoordinatorUnit(unittest.TestCase):
 		with self.assertRaises(frappe.ValidationError):
 			doc.validate_city()
 
-	def test_coordinator_validation_operating_hours_mandatory_when_active(self):
+	def test_coordinator_clean_fields(self):
 		doc = self._create_coordinator(
-			coordinator_name="Sarah Misra",
+			coordinator_name="  Sarah Misra  ",
 			city="Mysuru",
-			whatsapp_number="87929 65810",
+			whatsapp_number=" 87929 65810 ",
+			role_title=" City Lead ",
+			email=" sarah@example.com ",
 			is_active=1,
-			opening_time=None,
-			closing_time=None,
 		)
-		with self.assertRaises(frappe.ValidationError):
-			doc.validate_operating_hours()
-
-	def test_coordinator_validation_reject_identical_hours(self):
-		doc = self._create_coordinator(
-			coordinator_name="Sarah Misra",
-			city="Mysuru",
-			whatsapp_number="87929 65810",
-			is_active=1,
-			opening_time="10:00:00",
-			closing_time="10:00:00",
-		)
-		with self.assertRaises(frappe.ValidationError):
-			doc.validate_operating_hours()
-
-	def test_coordinator_validation_reject_closing_before_opening(self):
-		doc = self._create_coordinator(
-			coordinator_name="Sarah Misra",
-			city="Mysuru",
-			whatsapp_number="87929 65810",
-			is_active=1,
-			opening_time="18:00:00",
-			closing_time="10:00:00",
-		)
-		with self.assertRaises(frappe.ValidationError):
-			doc.validate_operating_hours()
-
-	def test_coordinator_validation_valid_hours(self):
-		doc = self._create_coordinator(
-			coordinator_name="Sarah Misra",
-			city="Mysuru",
-			whatsapp_number="87929 65810",
-			is_active=1,
-			opening_time="10:00:00",
-			closing_time="18:00:00",
-		)
-		# Should succeed without error
-		doc.validate_operating_hours()
+		doc.clean_fields()
+		self.assertEqual(doc.coordinator_name, "Sarah Misra")
+		self.assertEqual(doc.whatsapp_number, "87929 65810")
+		self.assertEqual(doc.role_title, "City Lead")
+		self.assertEqual(doc.email, "sarah@example.com")
 
 	def test_api_missing_city_raises_validation_error(self):
 		with self.assertRaises(frappe.ValidationError):
@@ -146,9 +113,6 @@ class TestCityCoordinatorUnit(unittest.TestCase):
 			"coordinator_name": "Chiku Agarawal",
 			"role_title": "City Lead",
 			"whatsapp_number": "90350 54940",
-			"opening_time": "10:00:00",
-			"closing_time": "18:00:00",
-			"hours_note": "Closed on municipal holidays",
 		}
 		res = get_city_coordinator(city="Bengaluru")
 		self.assertTrue(res.get("success"))
@@ -158,9 +122,13 @@ class TestCityCoordinatorUnit(unittest.TestCase):
 		self.assertEqual(coord["role_title"], "City Lead")
 		self.assertEqual(coord["whatsapp_number"], "90350 54940")
 		self.assertEqual(coord["normalized_phone"], "919035054940")
-		self.assertEqual(coord["formatted_opening_time"], "10:00 AM")
-		self.assertEqual(coord["formatted_closing_time"], "6:00 PM")
-		self.assertEqual(coord["hours_note"], "Closed on municipal holidays")
+
+		# Ensure operating hours fields are NOT in coordinator response
+		self.assertNotIn("opening_time", coord)
+		self.assertNotIn("closing_time", coord)
+		self.assertNotIn("formatted_opening_time", coord)
+		self.assertNotIn("formatted_closing_time", coord)
+		self.assertNotIn("hours_note", coord)
 
 		# Ensure private fields are NOT exposed
 		self.assertNotIn("email", coord)
@@ -170,6 +138,11 @@ class TestCityCoordinatorUnit(unittest.TestCase):
 
 class TestCityCoordinatorIntegration(IntegrationTestCase):
 	"""Integration tests requiring live Frappe site and database."""
+
+	@classmethod
+	def setUpClass(cls):
+		# Prevent generator from attempting to make test records for User
+		cls._newly_created_test_records = []
 
 	def setUp(self):
 		frappe.set_user("Administrator")
@@ -193,25 +166,27 @@ class TestCityCoordinatorIntegration(IntegrationTestCase):
 			frappe.delete_doc("City Coordinator", name, force=True, ignore_permissions=True)
 
 	def test_one_active_coordinator_per_city_enforced(self):
+		if not frappe.db.exists("Adda City", "TestCityBengaluru"):
+			frappe.get_doc({
+				"doctype": "Adda City",
+				"city_name": "TestCityBengaluru",
+				"is_active": 1,
+			}).insert(ignore_permissions=True)
+
 		coord1 = frappe.get_doc({
 			"doctype": "City Coordinator",
 			"coordinator_name": "Test Lead 1",
-			"city": "Bengaluru",
+			"city": "TestCityBengaluru",
 			"whatsapp_number": "9999900001",
 			"is_active": 1,
-			"opening_time": "10:00:00",
-			"closing_time": "18:00:00",
 		}).insert(ignore_permissions=True)
 
 		coord2 = frappe.get_doc({
 			"doctype": "City Coordinator",
 			"coordinator_name": "Test Lead 2",
-			"city": "Bengaluru",
+			"city": "TestCityBengaluru",
 			"whatsapp_number": "9999900002",
 			"is_active": 1,
-			"opening_time": "10:00:00",
-			"closing_time": "18:00:00",
 		})
 		with self.assertRaises(frappe.ValidationError):
 			coord2.insert(ignore_permissions=True)
-

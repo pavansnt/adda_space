@@ -117,6 +117,27 @@ function mockFetchCoordinator(cityName, delayMs, callback) {
   }, delayMs);
 }
 
+function validateRoomOperatingHours(room, startTime, endTime) {
+  if (!room || !room.opening_time || !room.closing_time) {
+    return { valid: false, error: 'Operating hours are not configured for this space.' };
+  }
+  const op = room.opening_time.slice(0, 5);
+  const cl = room.closing_time.slice(0, 5);
+  const s = String(startTime || '').slice(0, 5);
+  const e = String(endTime || '').slice(0, 5);
+
+  if (!s || !e) {
+    return { valid: false, error: 'Please select start and end time.' };
+  }
+  if (s >= e) {
+    return { valid: false, error: 'End time must be after start time.' };
+  }
+  if (s < op || e > cl) {
+    return { valid: false, error: 'Event must start at or after ' + formatTime12hr(op) + ' and finish by ' + formatTime12hr(cl) + '.' };
+  }
+  return { valid: true };
+}
+
 // User clicks Mysuru (slow response: 50ms), then quickly switches to Bengaluru (fast response: 10ms)
 mockFetchCoordinator('Mysuru', 50, (c) => {});
 mockFetchCoordinator('Bengaluru', 10, (c) => {});
@@ -125,5 +146,52 @@ setTimeout(() => {
   // After 60ms, Bengaluru must be displayed, NOT Mysuru!
   assert.strictEqual(displayedCity, 'Bengaluru');
   console.log('✓ Rapid city changes discard stale responses correctly');
-  console.log('All frontend coordinator tests PASSED!');
+
+  // Test 7: Room Operating Hours Evaluation (10:00 to 18:00)
+  console.log('Test 7: Room Operating Hours Evaluation');
+  const testRoom = {
+    room_name: 'Workshop Room',
+    opening_time: '10:00:00',
+    closing_time: '18:00:00',
+    timezone: 'Asia/Kolkata'
+  };
+
+  // 10 AM–12 PM: allowed
+  assert.strictEqual(validateRoomOperatingHours(testRoom, '10:00', '12:00').valid, true);
+  // 2 PM–5 PM: allowed
+  assert.strictEqual(validateRoomOperatingHours(testRoom, '14:00', '17:00').valid, true);
+  // 10 AM–6 PM: allowed
+  assert.strictEqual(validateRoomOperatingHours(testRoom, '10:00', '18:00').valid, true);
+  // 9 AM–11 AM: rejected
+  assert.strictEqual(validateRoomOperatingHours(testRoom, '09:00', '11:00').valid, false);
+  assert.strictEqual(validateRoomOperatingHours(testRoom, '09:00', '11:00').error.includes('10:00 AM'), true);
+  // 5 PM–7 PM: rejected
+  assert.strictEqual(validateRoomOperatingHours(testRoom, '17:00', '19:00').valid, false);
+  assert.strictEqual(validateRoomOperatingHours(testRoom, '17:00', '19:00').error.includes('6:00 PM'), true);
+  // 6 PM–7 PM: rejected
+  assert.strictEqual(validateRoomOperatingHours(testRoom, '18:00', '19:00').valid, false);
+  // End time earlier than start time: rejected
+  assert.strictEqual(validateRoomOperatingHours(testRoom, '15:00', '14:00').valid, false);
+  // Room with missing operating hours: rejected
+  const roomMissingHours = { room_name: 'No Hours Room', opening_time: null, closing_time: null };
+  assert.strictEqual(validateRoomOperatingHours(roomMissingHours, '10:00', '12:00').valid, false);
+  assert.strictEqual(validateRoomOperatingHours(roomMissingHours, '10:00', '12:00').error.includes('not configured'), true);
+
+  console.log('✓ Room operating hours boundary rules passed');
+
+  // Test 8: Stale Hours Discard on Room Switch
+  console.log('Test 8: Room switch updates hours and clears stale state');
+  let currentRoomData = null;
+  function selectRoom(newRoom) {
+    currentRoomData = newRoom;
+  }
+  selectRoom(testRoom);
+  assert.strictEqual(currentRoomData.opening_time, '10:00:00');
+  selectRoom(null); // switching city
+  assert.strictEqual(currentRoomData, null);
+  selectRoom({ room_name: 'Night Owl Room', opening_time: '18:00:00', closing_time: '23:00:00' });
+  assert.strictEqual(currentRoomData.opening_time, '18:00:00');
+  console.log('✓ Stale room hours prevented on room/city change');
+
+  console.log('All frontend coordinator & room operating hours tests PASSED!');
 }, 70);

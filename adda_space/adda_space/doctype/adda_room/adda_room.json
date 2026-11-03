@@ -12,7 +12,11 @@
   "city",
   "capacity",
   "is_active",
-  "description"
+  "description",
+  "section_hours",
+  "opening_time",
+  "column_break_hours",
+  "closing_time"
  ],
  "fields": [
   {
@@ -50,6 +54,27 @@
    "fieldname": "description",
    "fieldtype": "Small Text",
    "label": "Description / Facilities"
+  },
+  {
+   "fieldname": "section_hours",
+   "fieldtype": "Section Break",
+   "label": "Operating Hours"
+  },
+  {
+   "fieldname": "opening_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Opening Time"
+  },
+  {
+   "fieldname": "column_break_hours",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "closing_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Closing Time"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -59,7 +84,7 @@
    "link_fieldname": "room_name"
   }
  ],
- "modified": "2026-10-26 12:00:00.000000",
+ "modified": "2026-11-03 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Adda Space",
  "name": "Adda Room",
@@ -104,4 +129,3 @@
  "states": [],
  "title_field": "room_name"
 }
-

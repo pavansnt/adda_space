@@ -23,6 +23,7 @@ class AddaEventRequest(Document):
 		if not self.cover_image:
 			self.cover_image = DEFAULT_EVENT_IMAGE
 		self.validate_dates()
+		self.validate_room_operating_hours()
 		self.validate_permissions_and_status()
 
 	def validate_dates(self):
@@ -34,6 +35,61 @@ class AddaEventRequest(Document):
 
 		if start_dt >= end_dt:
 			frappe.throw(_("Start Date Time must be strictly before End Date Time."))
+
+	def validate_room_operating_hours(self):
+		if not self.room_name or not self.start_date_time or not self.end_date_time:
+			return
+
+		if not getattr(frappe, "db", None) or not hasattr(frappe.db, "table_exists") or not frappe.db.table_exists("Adda Room"):
+			return
+
+		room = frappe.db.get_value(
+			"Adda Room",
+			self.room_name,
+			["name", "room_name", "city", "is_active", "opening_time", "closing_time"],
+			as_dict=True,
+		)
+		if not room:
+			rooms = frappe.get_all(
+				"Adda Room",
+				filters={"room_name": self.room_name},
+				fields=["name", "room_name", "city", "is_active", "opening_time", "closing_time"],
+				limit=1,
+			)
+			if rooms:
+				room = rooms[0]
+
+		if not room:
+			frappe.throw(_("Adda Room '{0}' does not exist.").format(self.room_name))
+
+		if not room.get("is_active"):
+			frappe.throw(_("Adda Room '{0}' is not active.").format(room.get("room_name") or self.room_name))
+
+		if self.city and room.get("city") and room.get("city") != self.city:
+			frappe.throw(_("Room '{0}' does not belong to {1}.").format(room.get("room_name") or self.room_name, self.city))
+
+		if not room.get("opening_time") or not room.get("closing_time"):
+			frappe.throw(_("Operating hours are not configured for Adda Room '{0}'.").format(room.get("room_name") or self.room_name))
+
+		from adda_space.api.events import _coerce_time, format_time_12hr
+
+		start_time = get_datetime(self.start_date_time).time()
+		end_time = get_datetime(self.end_date_time).time()
+		opening_time = _coerce_time(room.get("opening_time"))
+		closing_time = _coerce_time(room.get("closing_time"))
+
+		if closing_time <= opening_time:
+			frappe.throw(_("Adda Room '{0}' has invalid operating hours.").format(room.get("room_name") or self.room_name))
+
+		if start_time < opening_time or end_time > closing_time:
+			r_label = room.get("room_name") or self.room_name
+			frappe.throw(
+				_("Events in {0} must start at or after {1} and finish by {2}.").format(
+					r_label,
+					format_time_12hr(opening_time),
+					format_time_12hr(closing_time),
+				)
+			)
 
 	def validate_permissions_and_status(self):
 		# If document is being created or modified by a non-admin / Guest user:

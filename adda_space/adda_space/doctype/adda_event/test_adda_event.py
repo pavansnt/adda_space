@@ -23,7 +23,17 @@ class TestAddaEvent(IntegrationTestCase):
 				"room_name": "Test Event Room",
 				"city": "Bengaluru",
 				"capacity": 50,
+				"opening_time": "08:00:00",
+				"closing_time": "22:00:00",
+				"is_active": 1,
 			}).insert(ignore_permissions=True)
+		else:
+			frappe.db.set_value(
+				"Adda Room",
+				"Test Event Room",
+				{"opening_time": "08:00:00", "closing_time": "22:00:00", "is_active": 1},
+				update_modified=False,
+			)
 
 	def tearDown(self):
 		# Clean up any test events
@@ -115,9 +125,9 @@ class TestAddaEvent(IntegrationTestCase):
 			clashing.insert(ignore_permissions=True)
 
 	def test_unapproved_request_does_not_block_desk_event(self):
-		now = now_datetime()
-		start = add_to_date(now, days=6, hours=10)
-		end = add_to_date(now, days=6, hours=12)
+		now = now_datetime().replace(hour=10, minute=0, second=0, microsecond=0)
+		start = add_to_date(now, days=6)
+		end = add_to_date(now, days=6, hours=2)
 
 		# Create an unapproved proposal in Adda Event Request
 		req = frappe.get_doc({
@@ -154,9 +164,9 @@ class TestAddaEvent(IntegrationTestCase):
 			frappe.delete_doc("Adda Event Request", req.name, force=True, ignore_permissions=True)
 
 	def test_approved_request_creates_event_and_blocks_desk_event(self):
-		now = now_datetime()
-		start = add_to_date(now, days=7, hours=10)
-		end = add_to_date(now, days=7, hours=12)
+		now = now_datetime().replace(hour=10, minute=0, second=0, microsecond=0)
+		start = add_to_date(now, days=7)
+		end = add_to_date(now, days=7, hours=2)
 
 		frappe.set_user("Administrator")
 		req = frappe.get_doc({
