@@ -751,7 +751,7 @@
         </div>
 
         <!-- Prefer a human? Card -->
-        <div id="modal-coordinator-card" class="adda-coordinator-lead-card">
+        <div id="modal-coordinator-card" class="adda-coordinator-lead-card" style="display: none;">
           <div class="adda-coord-lead-header">
             <h4 class="adda-coord-lead-title">Prefer a human?</h4>
             <p class="adda-coord-lead-desc"><span id="modal-coord-city-tag">Adda Space</span> &mdash; talk to a coordinator</p>
@@ -2147,7 +2147,14 @@
 
   function updateCoordinatorInfo(cityName) {
     var targetCity = (cityName || '').trim();
-    if (!targetCity) return;
+    var coordinatorCard = document.getElementById('modal-coordinator-card');
+    if (!targetCity) {
+      coordFetchSeq++;
+      currentCoordinatorData = null;
+      if (coordinatorCard) coordinatorCard.style.display = 'none';
+      return;
+    }
+    if (coordinatorCard) coordinatorCard.style.display = 'block';
 
     var currentSeq = ++coordFetchSeq;
     currentCoordinatorData = null;
@@ -2315,7 +2322,7 @@
       modalEventDate.value = istDateStr;
     }
 
-    var targetCity = currentCity || '';
+    var targetCity = (modalCitySelect && modalCitySelect.value) || '';
     if (modalCitySelect) {
       modalCitySelect.value = targetCity;
     }
@@ -2330,9 +2337,11 @@
       var coordLoading = document.getElementById('modal-coord-loading');
       var coordContent = document.getElementById('modal-coord-content');
       var coordEmpty = document.getElementById('modal-coord-empty');
+      var coordinatorCard = document.getElementById('modal-coordinator-card');
       if (coordLoading) coordLoading.style.display = 'none';
       if (coordContent) coordContent.style.display = 'none';
       if (coordEmpty) coordEmpty.style.display = 'none';
+      if (coordinatorCard) coordinatorCard.style.display = 'none';
     }
 
     // If prefilledDate is given, advance directly to Step 2 with that date ready!
@@ -2493,7 +2502,7 @@
     saveHostDraft();
 
     if (step === 1) {
-      var currentChosenCity = (modalCitySelect && modalCitySelect.value) || currentCity || 'Bengaluru';
+      var currentChosenCity = (modalCitySelect && modalCitySelect.value) || '';
       updateCoordinatorInfo(currentChosenCity);
     }
 
@@ -4211,29 +4220,22 @@
       if (cities.length > 0) renderCityFilterButtons(cities);
       loadCoordinatorSection(cities);
 
-      // Populate Host Modal City Select while preserving currently selected city
+      // Populate the Host Modal City Select without inheriting the calendar filter.
       if (modalCitySelect) {
-        var prevValue = currentCity || '';
         modalCitySelect.innerHTML = '';
         var placeholder = document.createElement('option');
         placeholder.value = '';
         placeholder.textContent = 'Select a city';
         placeholder.disabled = true;
-        placeholder.selected = !prevValue;
+        placeholder.selected = true;
         modalCitySelect.appendChild(placeholder);
         cities.forEach(function(c) {
           var opt = document.createElement('option');
           opt.value = c;
           opt.textContent = c;
-          if (prevValue && c.toLowerCase() === prevValue.toLowerCase()) {
-            opt.selected = true;
-          }
           modalCitySelect.appendChild(opt);
         });
-        modalCitySelect.value = prevValue;
-        if (modalCitySelect.value) {
-          updateCoordinatorInfo(modalCitySelect.value);
-        }
+        modalCitySelect.value = '';
       }
 
       // Opening /events loads the calendar normally — NO modal automatically opened.
@@ -4263,10 +4265,7 @@
     .catch(function() {
       if (modalCitySelect && !modalCitySelect.options.length) {
         modalCitySelect.innerHTML = '<option value="" selected disabled>Select a city</option><option value="Bengaluru">Bengaluru</option><option value="Mysuru">Mysuru</option>';
-        if (currentCity) {
-          modalCitySelect.value = currentCity;
-          updateCoordinatorInfo(currentCity);
-        }
+        modalCitySelect.value = '';
       }
     });
 
