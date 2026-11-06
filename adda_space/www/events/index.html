@@ -2303,13 +2303,13 @@
     }
   }
 
-  function openHostModal(prefilledDate) {
+  function openHostModal(prefilledDate, preserveDraft) {
     if (!hostModalBackdrop) return;
 
     selectedHostDate = prefilledDate || null;
 
     // Reset previous inputs if fresh proposal or prefilling date
-    if (hostModalStep === 5 || prefilledDate) {
+    if (!preserveDraft && (hostModalStep === 5 || prefilledDate)) {
       resetHostModalForm();
       selectedHostDate = prefilledDate || null;
     }
@@ -2320,7 +2320,9 @@
       modalEventDate.value = istDateStr;
     }
 
-    var targetCity = (modalCitySelect && modalCitySelect.value) || '';
+    var targetCity = preserveDraft
+      ? ((modalCitySelect && modalCitySelect.value) || currentCity || '')
+      : (currentCity || '');
     if (modalCitySelect) {
       modalCitySelect.value = targetCity;
     }
@@ -2342,7 +2344,7 @@
       if (coordinatorCard) coordinatorCard.style.display = 'none';
     }
 
-    // If prefilledDate is given, advance directly to Step 2 with that date ready!
+    // Resume drafts at time selection so room hours and availability are rechecked.
     if (prefilledDate && targetCity) {
       goToModalStep(2);
       loadModalRooms(targetCity, function() {
@@ -2464,7 +2466,6 @@
 
       if (state.city && modalCitySelect) {
         modalCitySelect.value = state.city;
-        updateCoordinatorInfo(state.city);
       }
       if (state.date && modalEventDate) {
         modalEventDate.value = state.date;
@@ -3047,6 +3048,14 @@
         var cl = currentRoomData.closing_time.slice(0, 5);
         if (modalStartTime.value < op || modalEndTime.value > cl) {
           showStep2Error('Events in ' + (currentRoomData.room_name || 'this space') + ' must start at or after ' + formatTime12hr(op) + ' and finish by ' + formatTime12hr(cl) + '.');
+          return;
+        }
+        if (modalAvailabilityStatus === 'collision') {
+          showStep2Error('This space is already booked for an approved event during that time. Please choose another time or space.');
+          return;
+        }
+        if (modalAvailabilityStatus !== 'available' && modalAvailabilityStatus !== 'warning_pending') {
+          showStep2Error('Please wait for the room availability check to finish, then try again.');
           return;
         }
         goToModalStep(3);
@@ -4201,14 +4210,10 @@
           sessionStorage.setItem('adda_host_modal_auto_opened', '1');
         } catch(e) {}
         if (hostModalBackdrop) {
-          openHostModal(initialDate || (hasDraft ? (modalEventDate ? modalEventDate.value : null) : null));
-          if (modalCitySelect && modalCitySelect.value) {
-            loadModalRooms(modalCitySelect.value, function() {
-              if (hasDraft) {
-                goToModalStep(3);
-              }
-            });
-          }
+          var resumeDate = hasDraft
+            ? (modalEventDate ? modalEventDate.value : null)
+            : initialDate;
+          openHostModal(resumeDate, hasDraft);
         }
       }
     })
