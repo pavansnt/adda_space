@@ -25,16 +25,12 @@ def execute():
 	if "opening_time" not in room_cols or "closing_time" not in room_cols:
 		return
 
-	coordinators = frappe.db.sql(
-		"""
-		SELECT name, coordinator_name, city, opening_time, closing_time
-		FROM "tabCity Coordinator"
-		WHERE is_active = 1
-		  AND opening_time IS NOT NULL
-		  AND closing_time IS NOT NULL
-		""",
-		as_dict=True,
-	)
+	coord = frappe.qb.DocType("City Coordinator")
+	coordinators = (
+		frappe.qb.from_(coord)
+		.select(coord.name, coord.coordinator_name, coord.city, coord.opening_time, coord.closing_time)
+		.where((coord.is_active == 1) & coord.opening_time.isnotnull() & coord.closing_time.isnotnull())
+	).run(as_dict=True)
 
 	coords_by_city = {}
 	for c in coordinators:
@@ -43,31 +39,27 @@ def execute():
 			coords_by_city.setdefault(city, []).append(c)
 
 	for city, coords in coords_by_city.items():
-		active_rooms = frappe.db.sql(
-			"""
-			SELECT name, room_name, opening_time, closing_time
-			FROM "tabAdda Room"
-			WHERE city = %s AND is_active = 1
-			""",
-			(city,),
-			as_dict=True,
+		active_rooms = frappe.get_all(
+			"Adda Room",
+			filters={"city": city, "is_active": 1},
+			fields=["name", "room_name", "opening_time", "closing_time"],
 		)
 
 		if len(coords) == 1 and len(active_rooms) == 1:
-			coord = coords[0]
+			coord_record = coords[0]
 			room = active_rooms[0]
 
 			frappe.db.set_value(
 				"Adda Room",
 				room["name"],
 				{
-					"opening_time": coord["opening_time"],
-					"closing_time": coord["closing_time"],
+					"opening_time": coord_record["opening_time"],
+					"closing_time": coord_record["closing_time"],
 				},
 				update_modified=False,
 			)
 			print(
-				f"[Adda Space Migration] Migrated operating hours from coordinator '{coord['name']}' to room '{room['name']}' ({coord['opening_time']} - {coord['closing_time']})"
+				f"[Adda Space Migration] Migrated operating hours from coordinator '{coord_record['name']}' to room '{room['name']}' ({coord_record['opening_time']} - {coord_record['closing_time']})"
 			)
 		elif len(active_rooms) == 0:
 			print(
