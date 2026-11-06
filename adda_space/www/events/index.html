@@ -1006,8 +1006,6 @@
   'use strict';
 
   // DOM Elements
-  var filterBar = document.getElementById('adda-filter-bar');
-  var cityFilterGroup = document.getElementById('adda-city-filter-group');
   var viewCalendarBtn = document.getElementById('view-calendar-btn');
   var viewListBtn = document.getElementById('view-list-btn');
 
@@ -3931,26 +3929,6 @@
       });
     }
 
-    if (cityFilterGroup) {
-      var existingButtons = Array.from(cityFilterGroup.querySelectorAll('button[data-city]'));
-      var existingValues = existingButtons.map(function(b) { return (b.getAttribute('data-city') || '').toLowerCase(); });
-
-      cities.forEach(function(cityName) {
-        if (cityName && existingValues.indexOf(cityName.toLowerCase()) === -1) {
-          var btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'adda-pill';
-          btn.setAttribute('data-city', cityName);
-          btn.textContent = cityName;
-          if (currentCity && currentCity.toLowerCase() === cityName.toLowerCase()) {
-            btn.classList.add('active');
-          }
-          cityFilterGroup.appendChild(btn);
-          existingValues.push(cityName.toLowerCase());
-        }
-      });
-    }
-
     updateFilterUI();
   }
 
@@ -3958,16 +3936,6 @@
     if (cityFilterSelect) {
       cityFilterSelect.value = currentCity || '';
     }
-
-    var cityButtons = cityFilterGroup ? cityFilterGroup.querySelectorAll('button[data-city]') : [];
-    cityButtons.forEach(function(btn) {
-      var btnCity = btn.getAttribute('data-city') || '';
-      if (btnCity.toLowerCase() === (currentCity || '').toLowerCase()) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
-    });
 
     if (viewCalendarBtn && viewListBtn) {
       var calendarNavGroup = document.querySelector('#cal-toolbar .adda-cal-nav-group');
@@ -4054,22 +4022,6 @@
     });
   }
 
-  if (filterBar) {
-    filterBar.addEventListener('click', function(e) {
-      var target = e.target;
-      if (target.matches('button[data-city]')) {
-        var city = target.getAttribute('data-city');
-        if (city !== currentCity) {
-          currentCity = city;
-          updateFilterUI();
-          syncUrlParams();
-          if (currentView === 'calendar') fetchCalendarEvents();
-          else fetchListEvents();
-        }
-      }
-    });
-  }
-
   if (resetBtn) {
     resetBtn.addEventListener('click', function() {
       currentCity = '';
@@ -4124,13 +4076,11 @@
             '<a href="' + escapeHtml(waUrl) + '" target="_blank" rel="noopener noreferrer" class="adda-coord-wa-btn" id="coord-wa-' + escapeHtml(cityName.toLowerCase()) + '">' +
             '<span>&#x1F4AC;</span> WhatsApp ' + escapeHtml(coord.whatsapp_number || '') + '</a>';
         } else {
-          card.innerHTML = '<span class="adda-coord-city-tag">' + escapeHtml(cityName.toUpperCase()) + '</span>' +
-            '<div style="font-size: 0.8125rem; color: #6B7280; margin-top: 0.5rem; font-style: italic;">No active coordinator assigned yet.</div>';
+          card.remove();
         }
       })
       .catch(function() {
-        card.innerHTML = '<span class="adda-coord-city-tag">' + escapeHtml(cityName.toUpperCase()) + '</span>' +
-          '<div style="font-size: 0.8125rem; color: #9CA3AF; margin-top: 0.5rem;">Coordinator unavailable</div>';
+        card.remove();
       });
     });
   }
