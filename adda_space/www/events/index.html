@@ -2059,8 +2059,15 @@
       return;
     }
 
-    var openT = currentRoomData.opening_time.slice(0, 5);
-    var closeT = currentRoomData.closing_time.slice(0, 5);
+    var openT = normalizeClockTime(currentRoomData.opening_time);
+    var closeT = normalizeClockTime(currentRoomData.closing_time);
+    if (!openT || !closeT) {
+      warningBox.style.display = 'none';
+      setTimeOptions(modalStartTime, [], 'Space hours could not be read');
+      setTimeOptions(modalEndTime, [], 'Space hours could not be read');
+      if (modalEndTime) modalEndTime.disabled = true;
+      return;
+    }
     var closeParts = closeT.split(':').map(Number);
     var openParts = openT.split(':').map(Number);
     var openMinutes = openParts[0] * 60 + openParts[1];
@@ -2084,7 +2091,7 @@
     var reqOpen = startTimeVal.slice(0, 5);
     var reqClose = endTimeVal.slice(0, 5);
 
-    if (reqOpen < openT || reqClose > closeT || reqClose <= reqOpen) {
+    if (timeToMinutes(reqOpen) < timeToMinutes(openT) || timeToMinutes(reqClose) > timeToMinutes(closeT) || timeToMinutes(reqClose) <= timeToMinutes(reqOpen)) {
       var openFmt = currentRoomData.formatted_opening_time || formatTime12hr(openT);
       var closeFmt = currentRoomData.formatted_closing_time || formatTime12hr(closeT);
       warningText.textContent = 'Event must start at or after ' + openFmt + ' and finish by ' + closeFmt + '.';
@@ -2097,8 +2104,16 @@
   }
 
   function timeToMinutes(value) {
-    var parts = String(value || '').slice(0, 5).split(':').map(Number);
+    var normalized = normalizeClockTime(value);
+    if (!normalized) return NaN;
+    var parts = normalized.split(':').map(Number);
     return parts[0] * 60 + parts[1];
+  }
+
+  function normalizeClockTime(value) {
+    var match = String(value || '').trim().match(/(\d{1,2}):(\d{2})(?::\d{2}(?:\.\d+)?)?/);
+    if (!match) return '';
+    return String(Number(match[1])).padStart(2, '0') + ':' + match[2];
   }
 
   function minutesToTime(minutes) {
@@ -2969,9 +2984,9 @@
         showStep2Error('Operating hours are not configured for this space. Please contact a coordinator or select another space.');
         return;
       }
-      var op = currentRoomData.opening_time.slice(0, 5);
-      var cl = currentRoomData.closing_time.slice(0, 5);
-      if (modalStartTime.value < op || modalEndTime.value > cl) {
+      var op = normalizeClockTime(currentRoomData.opening_time);
+      var cl = normalizeClockTime(currentRoomData.closing_time);
+      if (!op || !cl || timeToMinutes(modalStartTime.value) < timeToMinutes(op) || timeToMinutes(modalEndTime.value) > timeToMinutes(cl)) {
         showStep2Error('Events in ' + (currentRoomData.room_name || 'this space') + ' must start at or after ' + formatTime12hr(op) + ' and finish by ' + formatTime12hr(cl) + '.');
         return;
       }
@@ -3044,9 +3059,9 @@
           showStep2Error('Operating hours are not configured for this space. Please contact a coordinator or select another space.');
           return;
         }
-        var op = currentRoomData.opening_time.slice(0, 5);
-        var cl = currentRoomData.closing_time.slice(0, 5);
-        if (modalStartTime.value < op || modalEndTime.value > cl) {
+        var op = normalizeClockTime(currentRoomData.opening_time);
+        var cl = normalizeClockTime(currentRoomData.closing_time);
+        if (!op || !cl || timeToMinutes(modalStartTime.value) < timeToMinutes(op) || timeToMinutes(modalEndTime.value) > timeToMinutes(cl)) {
           showStep2Error('Events in ' + (currentRoomData.room_name || 'this space') + ' must start at or after ' + formatTime12hr(op) + ' and finish by ' + formatTime12hr(cl) + '.');
           return;
         }

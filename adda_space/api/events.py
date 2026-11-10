@@ -171,6 +171,16 @@ def _coerce_time(value: Any) -> datetime.time:
 	return datetime.time(int(match.group(1)), int(match.group(2)), int(match.group(3) or 0))
 
 
+def _serialize_time(value: Any) -> Optional[str]:
+	"""Return time values in a stable, zero-padded format across Frappe backends."""
+	if value is None:
+		return None
+	try:
+		return _coerce_time(value).strftime("%H:%M:%S")
+	except (TypeError, ValueError):
+		return str(value)
+
+
 def _is_mock_db() -> bool:
 	"""Check if current database handle is unbound or a unit-test mock."""
 	if not hasattr(frappe, "local") or not getattr(frappe.local, "db", None):
@@ -604,16 +614,18 @@ def get_adda_rooms(city: Optional[str] = None) -> Dict[str, Any]:
 		for r in rooms_raw:
 			r_city = r.get("city")
 			tz = city_tzs.get(r_city, "Asia/Kolkata")
-			formatted_open = format_time_12hr(r.get("opening_time")) if r.get("opening_time") else None
-			formatted_close = format_time_12hr(r.get("closing_time")) if r.get("closing_time") else None
+			opening_time = _serialize_time(r.get("opening_time"))
+			closing_time = _serialize_time(r.get("closing_time"))
+			formatted_open = format_time_12hr(opening_time) if opening_time else None
+			formatted_close = format_time_12hr(closing_time) if closing_time else None
 			rooms.append({
 				"name": r.name,
 				"room_name": r.room_name or r.name,
 				"city": r.city,
 				"capacity": r.capacity,
 				"is_active": r.is_active,
-				"opening_time": str(r.opening_time) if r.opening_time else None,
-				"closing_time": str(r.closing_time) if r.closing_time else None,
+				"opening_time": opening_time,
+				"closing_time": closing_time,
 				"formatted_opening_time": formatted_open,
 				"formatted_closing_time": formatted_close,
 				"timezone": tz,
