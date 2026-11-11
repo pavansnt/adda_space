@@ -304,7 +304,7 @@
    "print": 1,
    "read": 1,
    "report": 0,
-   "role": "Event Coordinator",
+   "role": "Room Coordinator",
    "share": 0,
    "write": 1
   },
@@ -313,7 +313,7 @@
    "if_owner": 1,
    "permlevel": 0,
    "read": 1,
-   "role": "Event Coordinator",
+   "role": "Room Coordinator",
    "write": 1
   },
   {

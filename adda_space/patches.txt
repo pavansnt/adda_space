@@ -5,3 +5,4 @@
 # Patches added in this section will be executed after doctypes are migrated
 adda_space.patches.v1_0.migrate_to_independent_doctypes
 adda_space.patches.v1_0.setup_event_coordinator
+adda_space.patches.v1_0.setup_room_coordinator

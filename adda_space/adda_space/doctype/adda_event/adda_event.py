@@ -201,9 +201,9 @@ class AddaEvent(Document):
 		user = frappe.session.user
 		if not is_adda_admin(user):
 			roles = frappe.get_roles(user)
-			if "Event Coordinator" in roles:
+			if "Room Coordinator" in roles:
 				if self.owner and self.owner != user:
-					frappe.throw(_("Event Coordinators can only delete events that they created."), frappe.PermissionError)
+					frappe.throw(_("Room Coordinators can only delete events that they created."), frappe.PermissionError)
 
 	@frappe.whitelist()
 	def submit(self):

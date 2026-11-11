@@ -148,6 +148,7 @@ after_migrate = "adda_space.setup.setup_adda_space"
 
 has_permission = {
 	"Adda Event": "adda_space.permissions.has_event_permission",
+	"Adda Room": "adda_space.permissions.has_room_permission",
 }
 
 # Document Events
@@ -157,7 +158,10 @@ has_permission = {
 doc_events = {
 	"Adda Event": {
 		"on_trash": "adda_space.permissions.validate_event_delete_permission",
-	}
+	},
+	"Adda Room": {
+		"on_trash": "adda_space.permissions.validate_room_delete_permission",
+	},
 }
 
 # Scheduled Tasks

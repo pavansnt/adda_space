@@ -11,6 +11,7 @@
   "room_name",
   "city",
   "capacity",
+  "coordinator",
   "is_active",
   "description",
   "section_hours",
@@ -42,6 +43,14 @@
    "in_list_view": 1,
    "label": "Capacity",
    "non_negative": 1
+  },
+  {
+   "fieldname": "coordinator",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Room Coordinator",
+   "options": "User"
   },
   {
    "default": "1",
@@ -123,9 +132,9 @@
    "print": 1,
    "read": 1,
    "report": 0,
-   "role": "Event Coordinator",
+   "role": "Room Coordinator",
    "share": 0,
-   "write": 0
+   "write": 1
   },
   {
    "read": 1,
