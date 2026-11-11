@@ -4,7 +4,19 @@
 {% set web_include_js = (web_include_js or []) | select | list %}
 {% block title %}{{ title or "Adda Space — Community Gatherings" }}{% endblock %}
 
+{% block favicon %}
+  <link rel="shortcut icon" href="/assets/adda_space/images/favicon.ico?v=2" type="image/x-icon">
+  <link rel="icon" type="image/png" sizes="114x114" href="/assets/adda_space/images/favicon.png?v=2">
+  <link rel="icon" type="image/x-icon" href="/assets/adda_space/images/favicon.ico?v=2">
+  <link rel="apple-touch-icon" href="/assets/adda_space/images/favicon.png?v=2">
+{% endblock %}
+
 {% block head_include %}
+  <!-- Adda Space Favicon & App Icons -->
+  <link rel="shortcut icon" href="/assets/adda_space/images/favicon.ico?v=2" type="image/x-icon">
+  <link rel="icon" type="image/png" sizes="114x114" href="/assets/adda_space/images/favicon.png?v=2">
+  <link rel="apple-touch-icon" href="/assets/adda_space/images/favicon.png?v=2">
+
   <!-- Google Fonts: Plus Jakarta Sans (Bold Civic Headings) & Inter (Clean Body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

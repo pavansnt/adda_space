@@ -25,7 +25,7 @@ def setup_roles():
 
 
 def setup_settings():
-	"""Ensure Adda Space Settings document is initialized with default values."""
+	"""Ensure Adda Space Settings and Website Settings documents are initialized with default values."""
 	if frappe.db.table_exists("Adda Space Settings"):
 		try:
 			settings = frappe.get_single("Adda Space Settings")
@@ -33,5 +33,15 @@ def setup_settings():
 				settings.enable_public_registration = 1
 				settings.save(ignore_permissions=True)
 				frappe.db.commit()
+		except Exception:
+			pass
+
+	if frappe.db.table_exists("Website Settings"):
+		try:
+			ws = frappe.get_single("Website Settings")
+			ws.favicon = "/assets/adda_space/images/favicon.ico"
+			ws.app_logo = "/assets/adda_space/images/adda_space_logo.png"
+			ws.save(ignore_permissions=True)
+			frappe.db.commit()
 		except Exception:
 			pass
