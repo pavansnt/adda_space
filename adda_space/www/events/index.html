@@ -713,6 +713,17 @@
   <img src="" alt="Full Event Poster" class="adda-lightbox-img" id="lightbox-enlarged-img" />
 </div>
 
+<div class="adda-gallery-lightbox" id="recap-gallery-lightbox" style="display: none;" role="dialog" aria-modal="true" aria-label="Event recap photo gallery">
+  <button type="button" class="adda-gallery-lightbox__close" id="recap-gallery-close" aria-label="Close photo gallery">&times;</button>
+  <button type="button" class="adda-gallery-lightbox__nav adda-gallery-lightbox__prev" id="recap-gallery-prev" aria-label="Previous photo">&#10094;</button>
+  <figure class="adda-gallery-lightbox__figure">
+    <img class="adda-gallery-lightbox__image" id="recap-gallery-lightbox-image" src="" alt="" />
+    <figcaption class="adda-gallery-lightbox__caption" id="recap-gallery-lightbox-caption"></figcaption>
+  </figure>
+  <button type="button" class="adda-gallery-lightbox__nav adda-gallery-lightbox__next" id="recap-gallery-next" aria-label="Next photo">&#10095;</button>
+  <div class="adda-gallery-lightbox__count" id="recap-gallery-lightbox-count" aria-live="polite"></div>
+</div>
+
 <!-- Share Toast Notification -->
 <div class="adda-toast" id="adda-share-toast" role="status" aria-live="polite">
   Event link copied to clipboard!
@@ -1065,6 +1076,17 @@
   var modalRecapOutcomes = document.getElementById('modal-recap-outcomes');
   var modalRecapMeta = document.getElementById('modal-recap-meta');
   var modalRecapGallery = document.getElementById('modal-recap-gallery');
+  var recapGalleryLightbox = document.getElementById('recap-gallery-lightbox');
+  var recapGalleryLightboxImage = document.getElementById('recap-gallery-lightbox-image');
+  var recapGalleryLightboxCaption = document.getElementById('recap-gallery-lightbox-caption');
+  var recapGalleryLightboxCount = document.getElementById('recap-gallery-lightbox-count');
+  var recapGalleryLightboxClose = document.getElementById('recap-gallery-close');
+  var recapGalleryLightboxPrev = document.getElementById('recap-gallery-prev');
+  var recapGalleryLightboxNext = document.getElementById('recap-gallery-next');
+  var recapGalleryImages = [];
+  var recapGalleryIndex = 0;
+  var recapGalleryTrigger = null;
+  var recapGalleryPreviousOverflow = '';
   var modalPosterWrap = document.getElementById('modal-poster-wrap');
   var modalPosterImg = document.getElementById('modal-poster-img');
   var modalDetailCloseBtn = document.getElementById('modal-detail-close-btn');
@@ -1335,9 +1357,80 @@
       if (!photo || !photo.photo) return '';
       var caption = photo.caption || '';
       var alt = photo.alt_text || caption || recap.title || 'Gathering photo';
-      return '<figure><img src="' + escapeHtml(photo.photo) + '" alt="' + escapeHtml(alt) + '" loading="lazy"><figcaption>' + escapeHtml(caption) + '</figcaption></figure>';
+      return '<figure><img src="' + escapeHtml(photo.photo) + '" alt="' + escapeHtml(alt) + '" tabindex="0" role="button" aria-label="Open photo: ' + escapeHtml(alt) + '" loading="lazy"><figcaption>' + escapeHtml(caption) + '</figcaption></figure>';
     }).join('');
   }
+
+  function updateRecapLightbox() {
+    if (!recapGalleryImages.length) return;
+    var active = recapGalleryImages[recapGalleryIndex];
+    recapGalleryLightboxImage.src = active.src;
+    recapGalleryLightboxImage.alt = active.alt || 'Event recap photo';
+    recapGalleryLightboxCaption.textContent = active.closest('figure').querySelector('figcaption').textContent || '';
+    recapGalleryLightboxCount.textContent = (recapGalleryIndex + 1) + ' / ' + recapGalleryImages.length;
+    recapGalleryLightboxPrev.style.display = recapGalleryImages.length > 1 ? 'inline-flex' : 'none';
+    recapGalleryLightboxNext.style.display = recapGalleryImages.length > 1 ? 'inline-flex' : 'none';
+  }
+
+  function openRecapLightbox(gallery, image) {
+    if (!recapGalleryLightbox || !gallery || !image) return;
+    recapGalleryImages = Array.prototype.slice.call(gallery.querySelectorAll('img'));
+    recapGalleryIndex = recapGalleryImages.indexOf(image);
+    if (recapGalleryIndex < 0) return;
+    recapGalleryTrigger = image;
+    recapGalleryPreviousOverflow = document.body.style.overflow;
+    updateRecapLightbox();
+    recapGalleryLightbox.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    recapGalleryLightboxClose.focus();
+  }
+
+  function closeRecapLightbox() {
+    if (!recapGalleryLightbox) return;
+    recapGalleryLightbox.classList.remove('is-open');
+    recapGalleryLightbox.style.display = 'none';
+    document.body.style.overflow = recapGalleryPreviousOverflow;
+    var trigger = recapGalleryTrigger;
+    recapGalleryImages = [];
+    recapGalleryTrigger = null;
+    if (trigger && document.contains(trigger)) trigger.focus();
+  }
+
+  function moveRecapLightbox(step) {
+    if (recapGalleryImages.length < 2) return;
+    recapGalleryIndex = (recapGalleryIndex + step + recapGalleryImages.length) % recapGalleryImages.length;
+    updateRecapLightbox();
+  }
+
+  if (modalRecapGallery) {
+    modalRecapGallery.addEventListener('click', function(e) {
+      var image = e.target.closest('img');
+      if (image) openRecapLightbox(modalRecapGallery, image);
+    });
+    modalRecapGallery.addEventListener('keydown', function(e) {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('img')) {
+        e.preventDefault();
+        openRecapLightbox(modalRecapGallery, e.target);
+      }
+    });
+  }
+  if (recapGalleryLightboxClose) recapGalleryLightboxClose.addEventListener('click', closeRecapLightbox);
+  if (recapGalleryLightboxPrev) recapGalleryLightboxPrev.addEventListener('click', function() { moveRecapLightbox(-1); });
+  if (recapGalleryLightboxNext) recapGalleryLightboxNext.addEventListener('click', function() { moveRecapLightbox(1); });
+  if (recapGalleryLightbox) {
+    recapGalleryLightbox.addEventListener('click', function(e) {
+      if (e.target === recapGalleryLightbox) closeRecapLightbox();
+    });
+  }
+  document.addEventListener('keydown', function(e) {
+    if (!recapGalleryLightbox || !recapGalleryLightbox.classList.contains('is-open')) return;
+    if (e.key === 'Escape') {
+      e.stopImmediatePropagation();
+      closeRecapLightbox();
+    }
+    else if (e.key === 'ArrowLeft') moveRecapLightbox(-1);
+    else if (e.key === 'ArrowRight') moveRecapLightbox(1);
+  });
 
   function padZero(num) {
     return num < 10 ? '0' + num : '' + num;
