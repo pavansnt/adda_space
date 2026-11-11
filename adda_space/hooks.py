@@ -10,16 +10,23 @@ app_license = "mit"
 
 # required_apps = []
 
+# App Logo and Branding
+app_logo_url = "/assets/adda_space/images/adda_space_logo.png"
+
+website_context = {
+	"favicon": "/assets/adda_space/images/favicon.ico",
+	"splash_image": "/assets/adda_space/images/adda_space_logo.png",
+}
+
 # Each item in the list will be shown as an app in the apps page
-# add_to_apps_screen = [
-# 	{
-# 		"name": "adda_space",
-# 		"logo": "/assets/adda_space/logo.png",
-# 		"title": "Adda Space",
-# 		"route": "/adda_space",
-# 		"has_permission": "adda_space.api.permission.has_app_permission"
-# 	}
-# ]
+add_to_apps_screen = [
+	{
+		"name": "adda_space",
+		"logo": "/assets/adda_space/images/adda_space_logo.png",
+		"title": "Adda Space",
+		"route": "/events",
+	}
+]
 
 # Includes in <head>
 # ------------------
