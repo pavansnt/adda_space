@@ -146,25 +146,19 @@ after_migrate = "adda_space.setup.setup_adda_space"
 # -----------
 # Permissions evaluated in scripted ways
 
-# permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# }
-#
-# has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
-# }
+has_permission = {
+	"Adda Event": "adda_space.permissions.has_event_permission",
+}
 
 # Document Events
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Adda Event": {
+		"on_trash": "adda_space.permissions.validate_event_delete_permission",
+	}
+}
 
 # Scheduled Tasks
 # ---------------

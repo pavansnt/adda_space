@@ -297,6 +297,26 @@
    "write": 1
   },
   {
+   "create": 1,
+   "delete": 0,
+   "email": 1,
+   "export": 0,
+   "print": 1,
+   "read": 1,
+   "report": 0,
+   "role": "Event Coordinator",
+   "share": 0,
+   "write": 1
+  },
+  {
+   "delete": 1,
+   "if_owner": 1,
+   "permlevel": 0,
+   "read": 1,
+   "role": "Event Coordinator",
+   "write": 1
+  },
+  {
    "read": 1,
    "role": "All"
   },

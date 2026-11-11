@@ -197,6 +197,14 @@ class AddaEvent(Document):
 		elif self.image and not self.cover_image:
 			self.cover_image = self.image
 
+	def on_trash(self):
+		user = frappe.session.user
+		if not is_adda_admin(user):
+			roles = frappe.get_roles(user)
+			if "Event Coordinator" in roles:
+				if self.owner and self.owner != user:
+					frappe.throw(_("Event Coordinators can only delete events that they created."), frappe.PermissionError)
+
 	@frappe.whitelist()
 	def submit(self):
 		"""Ensure event is Pending Review (or Approved for Admins)."""

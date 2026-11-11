@@ -11,8 +11,8 @@ def setup_adda_space():
 
 
 def setup_roles():
-	"""Ensure 'Adda Space Admin' and 'City Coordinator' roles exist with Desk access."""
-	for role_name in ("Adda Space Admin", "City Coordinator"):
+	"""Ensure 'Adda Space Admin', 'City Coordinator', and 'Event Coordinator' roles exist with Desk access."""
+	for role_name in ("Adda Space Admin", "City Coordinator", "Event Coordinator"):
 		if not frappe.db.exists("Role", role_name):
 			role = frappe.get_doc({
 				"doctype": "Role",
@@ -22,6 +22,15 @@ def setup_roles():
 			})
 			role.insert(ignore_permissions=True)
 			frappe.db.commit()
+		else:
+			try:
+				role = frappe.get_doc("Role", role_name)
+				if not role.desk_access:
+					role.desk_access = 1
+					role.save(ignore_permissions=True)
+					frappe.db.commit()
+			except Exception:
+				pass
 
 
 def setup_settings():
