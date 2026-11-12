@@ -1,7 +1,8 @@
 {
  "actions": [],
  "autoname": "hash",
- "creation": "2026-10-26 12:00:00.000000",
+ "allow_import": 1,
+ "creation": "2026-11-11 16:03:28.152182",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -169,8 +170,7 @@
    "default": "/assets/adda_space/images/default_event_poster.jpg",
    "fieldname": "cover_image",
    "fieldtype": "Attach Image",
-   "label": "Cover Image",
-   "reqd": 0
+   "label": "Cover Image"
   },
   {
    "fieldname": "image",
@@ -265,7 +265,7 @@
    "link_fieldname": "event"
   }
  ],
- "modified": "2026-10-26 12:00:00.000000",
+ "modified": "2026-11-12 11:54:44.405977",
  "modified_by": "Administrator",
  "module": "Adda Space",
  "name": "Adda Event",
@@ -298,20 +298,15 @@
   },
   {
    "create": 1,
-   "delete": 0,
    "email": 1,
-   "export": 0,
    "print": 1,
    "read": 1,
-   "report": 0,
    "role": "Room Coordinator",
-   "share": 0,
    "write": 1
   },
   {
    "delete": 1,
    "if_owner": 1,
-   "permlevel": 0,
    "read": 1,
    "role": "Room Coordinator",
    "write": 1
@@ -325,10 +320,10 @@
    "role": "Guest"
   }
  ],
+ "row_format": "Dynamic",
  "show_title_field_in_link": 1,
  "sort_field": "start_date_time",
  "sort_order": "DESC",
  "states": [],
  "title_field": "title"
 }
-
