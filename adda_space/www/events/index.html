@@ -1258,6 +1258,7 @@
 
   function isPendingEvent(event) {
     if (!event) return false;
+    if (String(event.type || '').trim().toLowerCase() !== 'custom event') return false;
     var status = String(event.approval_status || '').trim().toLowerCase();
     return status === 'pending review' || status === 'pending';
   }
@@ -3445,7 +3446,7 @@
 
     var payload = {
       title: modalTitleInput.value.trim(),
-      type: 'Adda',
+      type: 'Custom Event',
       description: modalDescInput.value.trim(),
       start_date_time: sDate + ' ' + sTime + ':00',
       end_date_time: sDate + ' ' + eTime + ':00',

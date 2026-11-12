@@ -316,7 +316,9 @@ def _format_event_payload(event: Dict[str, Any]) -> Dict[str, Any]:
 		else:
 			event["cover_image"] = None
 
-	if "approval_status" in event and event["approval_status"]:
+	if str(event.get("type") or "").strip().lower() != "custom event":
+		event["approval_status"] = "Approved"
+	elif "approval_status" in event and event["approval_status"]:
 		event["approval_status"] = str(event["approval_status"]).strip()
 	else:
 		event["approval_status"] = APPROVAL_STATUS
@@ -1211,7 +1213,11 @@ def create_adda_event(**kwargs) -> Dict[str, Any]:
 		else:
 			event_doc = None
 
-	if is_admin and req_status == "Approved":
+	event_type = str(data.get("type") or data.get("event_type") or "Adda").strip()
+	is_custom_event = event_type.lower() == "custom event"
+	if not is_custom_event:
+		final_approval_status = "Approved"
+	elif is_admin and req_status == "Approved":
 		final_approval_status = "Approved"
 	elif is_admin and req_status == "Rejected":
 		final_approval_status = "Rejected"
@@ -1251,7 +1257,7 @@ def create_adda_event(**kwargs) -> Dict[str, Any]:
 		event_doc = frappe.new_doc(EVENT_DOCTYPE)
 
 	event_doc.title = str(mandatory["title"]).strip()
-	event_doc.type = str(data.get("type") or data.get("event_type") or "Adda").strip()
+	event_doc.type = event_type
 	event_doc.description = str(mandatory["description"]).strip()
 	event_doc.start_date_time = start_dt
 	event_doc.end_date_time = end_dt

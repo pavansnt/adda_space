@@ -21,7 +21,9 @@ def is_adda_admin(user=None) -> bool:
 
 class AddaEvent(Document):
 	def validate(self):
-		if not self.approval_status:
+		if str(self.type or "").strip().lower() != "custom event":
+			self.approval_status = "Approved"
+		elif not self.approval_status:
 			self.approval_status = "Pending Review"
 		self.validate_dates()
 		self.validate_room_clash()
@@ -199,7 +201,7 @@ class AddaEvent(Document):
 	@frappe.whitelist()
 	def submit(self):
 		"""Ensure event is Pending Review (or Approved for Admins)."""
-		if is_adda_admin():
+		if is_adda_admin() or str(self.type or "").strip().lower() != "custom event":
 			self.approval_status = "Approved"
 		else:
 			self.approval_status = "Pending Review"

@@ -73,7 +73,7 @@
    "reqd": 1
   },
   {
-   "default": "Pending Review",
+   "default": "Approved",
    "fieldname": "approval_status",
    "fieldtype": "Select",
    "in_list_view": 1,
