@@ -3968,7 +3968,10 @@
     setListUIState('loading');
 
     var apiUrl = new URL('/api/method/adda_space.api.events.get_adda_events', window.location.origin);
-    apiUrl.searchParams.set('time_scope', 'all');
+    var monthStart = calYear + '-' + padZero(calMonth + 1) + '-01';
+    var monthEnd = calYear + '-' + padZero(calMonth + 1) + '-' + padZero(getDaysInMonth(calYear, calMonth));
+    apiUrl.searchParams.set('start_date', monthStart);
+    apiUrl.searchParams.set('end_date', monthEnd);
     apiUrl.searchParams.set('event_type', 'all');
     apiUrl.searchParams.set('include_pending', '1');
     if (currentCity) {
@@ -4056,8 +4059,8 @@
 
     if (viewCalendarBtn && viewListBtn) {
       var calendarNavGroup = document.querySelector('#cal-toolbar .adda-cal-nav-group');
-      if (calendarNavGroup) calendarNavGroup.style.display = currentView === 'calendar' ? 'flex' : 'none';
-      if (calTodayBtn) calTodayBtn.style.display = currentView === 'calendar' ? '' : 'none';
+      if (calendarNavGroup) calendarNavGroup.style.display = 'flex';
+      if (calTodayBtn) calTodayBtn.style.display = '';
       if (currentView === 'calendar') {
         viewCalendarBtn.classList.add('active');
         viewCalendarBtn.setAttribute('aria-pressed', 'true');
@@ -4108,7 +4111,9 @@
     calPrevBtn.addEventListener('click', function() {
       if (calMonth === 0) { calMonth = 11; calYear--; }
       else { calMonth--; }
-      fetchCalendarEvents();
+      updateCalHeader();
+      if (currentView === 'calendar') fetchCalendarEvents();
+      else fetchListEvents();
     });
   }
 
@@ -4116,7 +4121,9 @@
     calNextBtn.addEventListener('click', function() {
       if (calMonth === 11) { calMonth = 0; calYear++; }
       else { calMonth++; }
-      fetchCalendarEvents();
+      updateCalHeader();
+      if (currentView === 'calendar') fetchCalendarEvents();
+      else fetchListEvents();
     });
   }
 
@@ -4125,7 +4132,9 @@
       calYear = todayYear;
       calMonth = todayMonth;
       selectedDateStr = istDateStr;
-      fetchCalendarEvents();
+      updateCalHeader();
+      if (currentView === 'calendar') fetchCalendarEvents();
+      else fetchListEvents();
     });
   }
 
