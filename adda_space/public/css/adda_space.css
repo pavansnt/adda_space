@@ -402,6 +402,10 @@ body.adda-body {
   display: flex !important;
   flex-direction: column !important;
   background-color: var(--adda-bg) !important;
+  background-image:
+    repeating-linear-gradient(45deg, transparent 0 20px, rgba(31, 41, 55, 0.035) 21px 24px, transparent 25px 42px),
+    repeating-linear-gradient(-45deg, transparent 0 20px, rgba(31, 41, 55, 0.035) 21px 24px, transparent 25px 42px);
+  background-size: 42px 42px;
   color: var(--adda-text);
   font-family: var(--font-sans);
   font-size: 16px;
@@ -416,7 +420,7 @@ body.adda-body {
   display: block !important;
   width: 100% !important;
   min-height: auto !important;
-  background-color: var(--adda-bg) !important;
+  background-color: transparent !important;
   position: relative !important;
   clear: both !important;
 }
@@ -492,7 +496,7 @@ p.lead {
   box-sizing: border-box;
   padding-top: var(--section-py);
   padding-bottom: var(--section-py);
-  background-color: var(--adda-bg);
+  background-color: transparent;
 }
 
 #upcoming-addas-section {
@@ -503,7 +507,7 @@ p.lead {
   box-sizing: border-box;
   padding-top: clamp(2.25rem, 4.5vw, 3.5rem);
   padding-bottom: clamp(2.25rem, 4.5vw, 3.5rem);
-  background-color: var(--adda-bg);
+  background-color: transparent;
 }
 
 .adda-section-listing {
@@ -514,7 +518,7 @@ p.lead {
   box-sizing: border-box;
   padding-top: clamp(2rem, 3.5vw, 3rem);
   padding-bottom: var(--section-py);
-  background-color: var(--adda-bg);
+  background-color: transparent;
 }
 
 .adda-section-alt {
@@ -561,7 +565,7 @@ p.lead {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 72px;
+  height: 88px;
   gap: 1.5rem;
 }
 
@@ -588,9 +592,9 @@ p.lead {
 
 /* Preserved Logo Image Styling: Never distorted, cropped, or recolored */
 .adda-logo-img {
-  height: 48px;
+  height: 68px;
   width: auto;
-  max-width: 200px;
+  max-width: 260px;
   object-fit: contain;
   display: block !important;
 }
@@ -713,6 +717,8 @@ p.lead {
 }
 
 @media (max-width: 768px) {
+  .adda-header-inner { height: 76px; }
+  .adda-logo-img { height: 58px; max-width: 220px; }
   .adda-nav {
     display: flex;
     position: absolute;
