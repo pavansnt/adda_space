@@ -81,15 +81,11 @@ class AddaEvent(Document):
 				)
 
 	def handle_unique_id(self):
-		doc_before_save = self.get_doc_before_save()
-		should_regenerate = False
-		if doc_before_save:
-			for field in ("type", "city", "start_date_time"):
-				if doc_before_save.get(field) != self.get(field):
-					should_regenerate = True
-					break
-
-		if not self.unique_id or should_regenerate:
+		if self.is_new():
+			# The ID uses only a two-letter city code, so serialize allocation globally
+			# to cover different cities that can share the same code.
+			frappe.db.get_value("DocType", self.doctype, "name", for_update=True)
+			self.unique_id = None
 			self.generate_unique_id()
 
 	def subtype_code(self, val):
@@ -112,24 +108,19 @@ class AddaEvent(Document):
 		return "XX"
 
 	def generate_unique_id(self):
-		try:
-			code = self.subtype_code(self.type)
-			city_code = self.city_two_letters(self.city)
-			dt = get_datetime(self.start_date_time)
-			date_str = dt.strftime("%d%m%Y")
-			base = f"{code}{city_code}{date_str}"
+		code = self.subtype_code(self.type)
+		city_code = self.city_two_letters(self.city)
+		dt = get_datetime(self.start_date_time)
+		date_str = dt.strftime("%d%m%Y")
+		base = f"{code}{city_code}{date_str}"
 
-			candidate = base
-			i = 2
-			while True:
-				exists = frappe.db.exists("Adda Event", {"unique_id": candidate, "name": ["!=", self.name or ""]})
-				if not exists:
-					self.unique_id = candidate
-					break
-				candidate = f"{base}-{i}"
-				i += 1
-		except Exception as e:
-			frappe.log_error(f"Error generating unique_id: {e}", "Adda Event ID Gen")
+		candidate = base
+		i = 2
+		while frappe.db.get_value("Adda Event", {"unique_id": candidate}, "name", for_update=True):
+			candidate = f"{base}-{i}"
+			i += 1
+
+		self.unique_id = candidate
 
 	def update_checkin_url(self):
 		if not self.unique_id:

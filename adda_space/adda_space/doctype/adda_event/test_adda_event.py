@@ -68,6 +68,42 @@ class TestAddaEvent(IntegrationTestCase):
 		self.assertTrue(event.unique_id)
 		self.assertEqual(event.approval_status, "Approved")
 
+	def test_new_and_duplicated_events_get_new_unique_ids(self):
+		now = now_datetime()
+		start = add_to_date(now, days=20)
+		end = add_to_date(now, days=20, hours=2)
+		original = frappe.get_doc({
+			"doctype": "Adda Event",
+			"title": "Test Event Unique ID Source",
+			"type": "Adda",
+			"description": "Source event for duplicate ID testing.",
+			"start_date_time": start,
+			"end_date_time": end,
+			"city": "Bengaluru",
+			"unique_id": "COPIED-UNIQUE-ID",
+		}).insert(ignore_permissions=True)
+
+		self.assertNotEqual(original.unique_id, "COPIED-UNIQUE-ID")
+		self.assertTrue(original.unique_id.startswith("ADDBE"))
+
+		duplicate_ids = set()
+		for day_offset in (20, 20, 21):
+			duplicate = frappe.copy_doc(original)
+			duplicate.start_date_time = add_to_date(now, days=day_offset)
+			duplicate.end_date_time = add_to_date(now, days=day_offset, hours=2)
+			duplicate.insert(ignore_permissions=True)
+			duplicate_ids.add(duplicate.unique_id)
+			self.assertEqual(duplicate.title, original.title)
+			self.assertEqual(duplicate.description, original.description)
+
+		self.assertEqual(len(duplicate_ids), 3)
+		self.assertNotIn(original.unique_id, duplicate_ids)
+
+		original_id = original.unique_id
+		original.description = "Edited without changing its Unique ID."
+		original.save(ignore_permissions=True)
+		self.assertEqual(original.unique_id, original_id)
+
 	def test_invalid_dates_rejected(self):
 		now = now_datetime()
 		# Start after End
