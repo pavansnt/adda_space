@@ -4257,6 +4257,7 @@
 
   // URL State Initialization
   var urlParams = new URLSearchParams(window.location.search);
+  var initialEventId = urlParams.get('event_id');
   var initialCity = urlParams.get('city');
   if (initialCity && initialCity.trim()) currentCity = initialCity.trim();
 
@@ -4278,6 +4279,18 @@
   }
 
   var shouldOpenHost = urlParams.get('open_host') === '1' || urlParams.get('action') === 'host';
+
+  if (initialEventId) {
+    var eventDetailUrl = new URL('/api/method/adda_space.api.events.get_adda_event_detail', window.location.origin);
+    eventDetailUrl.searchParams.set('event_id', initialEventId);
+    fetch(eventDetailUrl.toString(), { headers: { 'Accept': 'application/json' } })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        var payload = data.message || data;
+        if (payload.success && payload.event) openEventDetailModal(payload.event);
+      })
+      .catch(function() {});
+  }
 
   // Pre-fetch supported cities
   fetch('/api/method/adda_space.api.events.get_supported_cities')

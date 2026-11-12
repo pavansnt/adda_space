@@ -174,7 +174,7 @@
 
   function renderCard(event) {
     var eventIdentifier = event.unique_id || event.name;
-    var eventUrl = '/events/' + encodeURIComponent(eventIdentifier);
+    var eventUrl = '/events?event_id=' + encodeURIComponent(eventIdentifier);
     var safeTitle = escapeHtml(event.title || 'Untitled Gathering');
     var rawCity = isMeaningful(event.city) ? String(event.city).trim() : '';
     var safeCity = (rawCity && rawCity.toLowerCase() !== 'neighbourhood') ? escapeHtml(rawCity) : '';
