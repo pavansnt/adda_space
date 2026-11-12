@@ -737,41 +737,6 @@ class TestApiEvents(IntegrationTestCase):
 			frappe.db.delete("Adda Event Registration", {"event": event_id})
 			frappe.delete_doc("Adda Event", event_id, force=True, ignore_permissions=True)
 
-	def test_detail_py_redirects_date_and_host_routes(self):
-		"""
-		Ensure detail.py intercepts date strings and 'host' keywords routed to /events/<event_id>
-		and redirects to the hosting workflow on the calendar instead of serving the participant registration form.
-		"""
-		from adda_space.www.events.detail import get_context
-
-		# 1. Date route: YYYY-MM-DD
-		frappe.form_dict.event_id = "2026-10-28"
-		frappe.local.flags.redirect_location = None
-		with self.assertRaises(frappe.Redirect):
-			get_context({})
-		self.assertEqual(frappe.local.flags.redirect_location, "/events?date=2026-10-28&open_host=1")
-
-		# 2. Date route: DD-MM-YYYY
-		frappe.form_dict.event_id = "28-10-2026"
-		frappe.local.flags.redirect_location = None
-		with self.assertRaises(frappe.Redirect):
-			get_context({})
-		self.assertEqual(frappe.local.flags.redirect_location, "/events?date=28-10-2026&open_host=1")
-
-		# 3. Host keyword route
-		frappe.form_dict.event_id = "host"
-		frappe.local.flags.redirect_location = None
-		with self.assertRaises(frappe.Redirect):
-			get_context({})
-		self.assertEqual(frappe.local.flags.redirect_location, "/events?open_host=1")
-
-		# 4. Actual event identifier (e.g. EV-2026-00001) must NOT redirect
-		frappe.form_dict.event_id = "EV-2026-00001"
-		frappe.local.flags.redirect_location = None
-		# Should return without raising Redirect
-		get_context({})
-		self.assertIsNone(frappe.local.flags.redirect_location)
-
 	def test_click_future_date_and_create_event(self):
 		"""
 		Scenario 3: Click an eligible future date, check availability, and create a gathering for that date.

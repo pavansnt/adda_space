@@ -1781,7 +1781,7 @@
     modalShareBtn.addEventListener('click', function() {
       if (!currentActiveEvent) return;
       var eventIdentifier = currentActiveEvent.unique_id || currentActiveEvent.name;
-      var shareUrl = window.location.origin + '/events/' + encodeURIComponent(eventIdentifier);
+      var shareUrl = window.location.origin + '/events?event_id=' + encodeURIComponent(eventIdentifier);
       var shareTitle = currentActiveEvent.title || 'Adda Space Gathering';
 
       if (navigator.share) {

@@ -73,9 +73,7 @@ add_to_apps_screen = [
 
 # Website Route Rules
 # --------------------
-website_route_rules = [
-	{"from_route": "/events/<event_id>", "to_route": "events/detail"},
-]
+website_route_rules = []
 
 # Generators
 # ----------
