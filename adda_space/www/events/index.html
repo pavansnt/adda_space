@@ -23,13 +23,14 @@
   .adda-list-past-title { color: var(--adda-green, #0D9488); font-size: 1.05rem; font-weight: 800; line-height: 1.25; }
   .adda-list-past-summary { color: #64748B; font-size: 0.875rem; font-weight: 500; }
   .adda-list-past-arrow {
-    width: 48px; height: 48px; flex: 0 0 48px; display: grid; place-items: center;
-    border-radius: 50%; background: var(--adda-green, #0D9488); color: #fff;
-    font-size: 1.65rem; font-weight: 600; line-height: 1;
-    transition: transform 300ms ease, background-color 300ms ease;
+    width: 34px; height: 34px; flex: 0 0 34px; display: grid; place-items: center;
+    border: 1px solid rgba(13, 148, 136, 0.22); border-radius: 50%;
+    background: rgba(255, 255, 255, 0.82); color: var(--adda-green, #0D9488);
+    font-size: 1.15rem; font-weight: 700; line-height: 1;
+    transition: transform 280ms ease, border-color 280ms ease, background-color 280ms ease;
   }
-  .adda-list-past-arrow::before { content: '↑'; transform: translateY(1px); }
-  .adda-list-past-events.is-expanded .adda-list-past-arrow { transform: rotate(180deg); background: #0F766E; }
+  .adda-list-past-arrow::before { content: '⌃'; transform: translateY(2px); }
+  .adda-list-past-events.is-expanded .adda-list-past-arrow { transform: rotate(180deg); border-color: rgba(13, 148, 136, 0.36); background: #fff; }
   .adda-list-past-content { max-height: 0; overflow: hidden; opacity: 0; transform: translateY(-8px); transition: max-height 320ms ease, opacity 280ms ease, transform 320ms ease; }
   .adda-list-past-events.is-expanded .adda-list-past-content { opacity: 1; transform: translateY(0); }
   .adda-list-past-content-inner { padding-top: 0.85rem; }
@@ -37,7 +38,7 @@
     .adda-list-past-toggle { min-height: 80px; padding: 1rem; border-radius: 13px; }
     .adda-list-past-title { font-size: 0.98rem; }
     .adda-list-past-summary { font-size: 0.8rem; }
-    .adda-list-past-arrow { width: 42px; height: 42px; flex-basis: 42px; font-size: 1.45rem; }
+    .adda-list-past-arrow { width: 32px; height: 32px; flex-basis: 32px; font-size: 1.05rem; }
   }
   @media (prefers-reduced-motion: reduce) {
     .adda-list-past-toggle, .adda-list-past-arrow, .adda-list-past-content { transition-duration: 0.01ms; }
@@ -4079,7 +4080,7 @@
         }
         if (pastEvents.length) {
           pastEvents.sort(function(a, b) {
-            return String(b.start_date_time || '').localeCompare(String(a.start_date_time || ''));
+            return String(a.start_date_time || '').localeCompare(String(b.start_date_time || ''));
           });
           var monthLabel = monthNames[calMonth];
           var pastEventCount = pastEvents.length;
