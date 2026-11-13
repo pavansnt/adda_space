@@ -3762,6 +3762,17 @@ p.lead {
   transition: all 0.2s;
 }
 
+.adda-whatsapp-mark {
+  display: inline-block;
+  width: 18px !important;
+  height: 18px !important;
+  max-width: 18px !important;
+  min-width: 18px;
+  flex: 0 0 auto;
+  color: currentColor;
+  vertical-align: middle;
+}
+
 .adda-coord-lead-wa-btn:hover {
   background-color: #1EBE5D;
   transform: translateY(-1px);
