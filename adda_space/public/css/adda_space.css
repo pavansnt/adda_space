@@ -29,7 +29,7 @@
   /* Surfaces & Backgrounds: Restrained warm neutrals, not plain corporate white */
   --adda-bg: #FAF7F0;              /* Warm cream base background */
   --adda-page-bg: #FAFAF8;
-  --adda-geometric-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23E8E8E5' stroke-opacity='.42' stroke-width='1'%3E%3Cpath d='M48 0 96 48 48 96 0 48Z'/%3E%3Cpath d='M48 18 78 48 48 78 18 48Z'/%3E%3Cpath d='M0 0 48 48 0 96M96 0 48 48 96 96'/%3E%3C/g%3E%3C/svg%3E");
+  --adda-geometric-pattern: url("/assets/adda_space/images/site_geometric_background.png");
   --adda-bg-alt: #F3EFE6;          /* Warm stone alternating band */
   --adda-surface: #FFFFFF;         /* Crisp card and modal surface */
   --adda-surface-warm: #FFFDF9;    /* Warm card surface */
@@ -405,7 +405,7 @@ body.adda-body {
   flex-direction: column !important;
   background-color: var(--adda-page-bg) !important;
   background-image: var(--adda-geometric-pattern);
-  background-size: 96px 96px;
+  background-size: 500px 500px;
   background-repeat: repeat;
   color: var(--adda-text);
   font-family: var(--font-sans);
@@ -726,10 +726,16 @@ p.lead {
     display: flex;
     position: absolute;
     top: calc(100% + 3px);
-    left: 0;
-    right: 0;
-    background-color: var(--adda-navy-dark);
-    border-bottom: 1px solid var(--adda-border-dark);
+    left: auto;
+    right: var(--container-px);
+    width: min(15rem, calc(100vw - (2 * var(--container-px))));
+    box-sizing: border-box;
+    background-color: rgba(13, 26, 36, 0.9);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-top: 0;
+    border-radius: 0 0 12px 12px;
     flex-direction: column;
     padding: 0 var(--container-px);
     gap: 1.25rem;
@@ -755,10 +761,19 @@ p.lead {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    width: 100%;
+    width: max-content;
+    align-self: flex-end;
     min-height: 48px;
     padding: 0.55rem 0;
     text-align: right;
+  }
+  .adda-nav-link.active {
+    padding-inline: 0.65rem;
+    border-radius: 6px;
+    background-color: rgba(27, 138, 90, 0.24);
+  }
+  .adda-nav-link.active::after {
+    display: none;
   }
   .adda-nav .adda-nav-link { color: #FFFFFF !important; }
   .adda-nav .adda-nav-link:hover,
@@ -775,8 +790,11 @@ p.lead {
   position: relative !important;
   overflow: visible !important;
   box-sizing: border-box !important;
-  background: #1B8A5A !important;
-  background: linear-gradient(135deg, #146C46 0%, #1B8A5A 50%, #177D52 100%) !important;
+  background-color: #146C46 !important;
+  background-image: linear-gradient(125deg, rgba(19, 37, 51, 0.42) 0%, rgba(27, 138, 90, 0.4) 100%), url("/assets/adda_space/images/community_hero_background.png") !important;
+  background-position: center, center 42% !important;
+  background-size: cover, cover !important;
+  background-repeat: no-repeat, no-repeat !important;
   color: #FFFFFF !important;
   padding-top: clamp(2.5rem, 4vw, 3.75rem) !important;
   padding-bottom: clamp(2.5rem, 4vw, 3.75rem) !important;
