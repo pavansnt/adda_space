@@ -586,14 +586,16 @@ p.lead {
 
 .adda-brand-title {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 0.65rem;
   color: var(--adda-navy) !important;
+  text-decoration: none;
 }
 
 /* Preserved Logo Image Styling: Never distorted, cropped, or recolored */
 .adda-logo-img {
-  height: 68px;
+  height: 78px;
   width: auto;
   max-width: 260px;
   object-fit: contain;
