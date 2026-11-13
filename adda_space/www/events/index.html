@@ -7,6 +7,41 @@
 
 {% block adda_content %}
 <style>
+  .adda-list-past-events { margin: 0 0 1.25rem; }
+  .adda-list-past-toggle {
+    width: 100%; min-height: 92px; display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; padding: 1.15rem 1.35rem; border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 16px; background: linear-gradient(110deg, #F0FAF5, #F8FCF9);
+    color: var(--adda-navy, #0F3A47); font: inherit; text-align: left; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(15, 58, 71, 0.04);
+    transition: background-color 300ms ease, border-color 300ms ease, box-shadow 300ms ease;
+  }
+  .adda-list-past-toggle:hover, .adda-list-past-events.is-expanded .adda-list-past-toggle {
+    border-color: rgba(16, 185, 129, 0.48); background: #ECF8F1; box-shadow: 0 5px 16px rgba(15, 58, 71, 0.08);
+  }
+  .adda-list-past-toggle-copy { display: grid; gap: 0.3rem; }
+  .adda-list-past-title { color: var(--adda-green, #0D9488); font-size: 1.05rem; font-weight: 800; line-height: 1.25; }
+  .adda-list-past-summary { color: #64748B; font-size: 0.875rem; font-weight: 500; }
+  .adda-list-past-arrow {
+    width: 48px; height: 48px; flex: 0 0 48px; display: grid; place-items: center;
+    border-radius: 50%; background: var(--adda-green, #0D9488); color: #fff;
+    font-size: 1.65rem; font-weight: 600; line-height: 1;
+    transition: transform 300ms ease, background-color 300ms ease;
+  }
+  .adda-list-past-arrow::before { content: '↑'; transform: translateY(1px); }
+  .adda-list-past-events.is-expanded .adda-list-past-arrow { transform: rotate(180deg); background: #0F766E; }
+  .adda-list-past-content { max-height: 0; overflow: hidden; opacity: 0; transform: translateY(-8px); transition: max-height 320ms ease, opacity 280ms ease, transform 320ms ease; }
+  .adda-list-past-events.is-expanded .adda-list-past-content { opacity: 1; transform: translateY(0); }
+  .adda-list-past-content-inner { padding-top: 0.85rem; }
+  @media (max-width: 600px) {
+    .adda-list-past-toggle { min-height: 80px; padding: 1rem; border-radius: 13px; }
+    .adda-list-past-title { font-size: 0.98rem; }
+    .adda-list-past-summary { font-size: 0.8rem; }
+    .adda-list-past-arrow { width: 42px; height: 42px; flex-basis: 42px; font-size: 1.45rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .adda-list-past-toggle, .adda-list-past-arrow, .adda-list-past-content { transition-duration: 0.01ms; }
+  }
   /* Ensure past events are visibly muted/faded across Calendar and List views */
   .adda-list-card.is-past-event {
     opacity: 0.42 !important;
@@ -3933,6 +3968,11 @@
 
   function formatListDateHeading(dateKey) {
     if (!dateKey || dateKey === 'date-tbd') return 'DATE TO BE ANNOUNCED';
+    if (dateKey === istDateStr) return 'TODAY';
+    var tomorrow = new Date(istDateStr + 'T12:00:00+05:30');
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    var tomorrowKey = tomorrow.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+    if (dateKey === tomorrowKey) return 'TOMORROW';
     var dateObj = new Date(dateKey + 'T12:00:00+05:30');
     if (isNaN(dateObj.getTime())) return escapeHtml(dateKey);
     var dateOptions = { timeZone: 'Asia/Kolkata' };
@@ -3957,13 +3997,39 @@
     return groups.map(function(group) {
       var eventWord = group.events.length === 1 ? 'event' : 'events';
       return [
-        '<section class="adda-list-day-group" aria-label="' + formatListDateHeading(group.key) + '">',
+        '<section class="adda-list-day-group" data-date="' + escapeHtml(group.key) + '" aria-label="' + formatListDateHeading(group.key) + '">',
         '  <header class="adda-list-day-heading"><h2>' + formatListDateHeading(group.key) + '</h2><span>' + group.events.length + ' ' + eventWord + '</span></header>',
         '  <div class="adda-list-day-cards">' + group.events.map(renderListCard).join('') + '</div>',
         '</section>'
       ].join('');
     }).join('');
   }
+
+  function isCurrentListMonth() {
+    return calYear === todayYear && calMonth === todayMonth;
+  }
+
+  function scrollListToDate(dateKey) {
+    if (!gridContainer || !dateKey) return;
+    var heading = gridContainer.querySelector('[data-date="' + dateKey + '"] .adda-list-day-heading');
+    if (!heading) return;
+    // Wait until the visible list has completed layout before measuring the heading.
+    window.requestAnimationFrame(function() {
+      window.requestAnimationFrame(function() {
+        var headingTop = heading.getBoundingClientRect().top;
+        var stickyBottom = 0;
+        document.querySelectorAll('header, #cal-toolbar').forEach(function(el) {
+          var style = window.getComputedStyle(el);
+          if (style.position !== 'sticky' && style.position !== 'fixed') return;
+          var rect = el.getBoundingClientRect();
+          if (rect.height && rect.top <= 1 && rect.bottom > stickyBottom) stickyBottom = rect.bottom;
+        });
+        window.scrollTo({ top: window.pageYOffset + headingTop - stickyBottom - 12, behavior: 'smooth' });
+      });
+    });
+  }
+
+  var showPastEvents = false;
 
   function fetchListEvents() {
     setListUIState('loading');
@@ -3995,13 +4061,51 @@
     .then(function(data) {
       var payload = data.message || data;
       var events = payload.events || [];
+      var pastEvents = [];
+      var visibleEvents = events;
+      if (isCurrentListMonth()) {
+        pastEvents = events.filter(function(ev) { return getListDateKey(ev) < istDateStr; });
+        visibleEvents = events.filter(function(ev) { return getListDateKey(ev) >= istDateStr; });
+      }
       if (events.length === 0) {
         var cityContext = currentCity ? (' in ' + currentCity) : '';
         emptyStateTitle.textContent = 'No gatherings' + cityContext;
         emptyStateDesc.textContent = 'There are currently no Adda gatherings scheduled' + (currentCity ? (' for ' + currentCity) : '') + '. Explore another city or propose a community gathering.';
         setListUIState('empty');
       } else {
-        gridContainer.innerHTML = renderListDateGroups(events);
+        gridContainer.innerHTML = renderListDateGroups(visibleEvents);
+        if (isCurrentListMonth() && visibleEvents.length === 0 && pastEvents.length) {
+          gridContainer.insertAdjacentHTML('afterbegin', '<p class="adda-list-upcoming-empty">No upcoming gatherings this month.</p>');
+        }
+        if (pastEvents.length) {
+          pastEvents.sort(function(a, b) {
+            return String(b.start_date_time || '').localeCompare(String(a.start_date_time || ''));
+          });
+          var monthLabel = monthNames[calMonth];
+          var pastEventCount = pastEvents.length;
+          var pastCountText = pastEventCount + ' ' + (pastEventCount === 1 ? 'event' : 'events') + ' in ' + monthLabel;
+          var pastSection = document.createElement('section');
+          pastSection.className = 'adda-list-past-events' + (showPastEvents ? ' is-expanded' : '');
+          pastSection.innerHTML = '<button type="button" class="adda-list-past-toggle" aria-expanded="' + (showPastEvents ? 'true' : 'false') + '" aria-controls="adda-list-past-content"><span class="adda-list-past-toggle-copy"><span class="adda-list-past-title">' + (showPastEvents ? 'Past events · ' + monthLabel : 'Explore past events') + '</span><span class="adda-list-past-summary">' + pastCountText + '</span></span><span class="adda-list-past-arrow" aria-hidden="true"></span></button><div class="adda-list-past-content" id="adda-list-past-content"><div class="adda-list-past-content-inner">' + renderListDateGroups(pastEvents) + '</div></div>';
+          gridContainer.insertBefore(pastSection, gridContainer.firstChild);
+          var pastContent = pastSection.querySelector('.adda-list-past-content');
+          if (showPastEvents) pastContent.style.maxHeight = pastContent.scrollHeight + 'px';
+          pastSection.querySelector('.adda-list-past-toggle').addEventListener('click', function() {
+            showPastEvents = !showPastEvents;
+            pastSection.classList.toggle('is-expanded', showPastEvents);
+            this.setAttribute('aria-expanded', showPastEvents ? 'true' : 'false');
+            pastSection.querySelector('.adda-list-past-title').textContent = showPastEvents ? 'Past events · ' + monthLabel : 'Explore past events';
+            if (showPastEvents) {
+              pastContent.style.maxHeight = pastContent.scrollHeight + 'px';
+            } else {
+              pastContent.style.maxHeight = pastContent.scrollHeight + 'px';
+              window.requestAnimationFrame(function() { pastContent.style.maxHeight = '0px'; });
+            }
+          });
+          pastContent.addEventListener('transitionend', function(event) {
+            if (event.propertyName === 'max-height' && showPastEvents) pastContent.style.maxHeight = 'none';
+          });
+        }
 
         // Attach modal trigger to list cards
         gridContainer.querySelectorAll('.adda-list-card').forEach(function(cardEl) {
@@ -4020,8 +4124,10 @@
         });
 
         var cityLabel = currentCity || 'all cities';
-        countLabel.textContent = 'Showing ' + events.length + ' gathering' + (events.length === 1 ? '' : 's') + ' across ' + cityLabel + '.';
+        countLabel.textContent = 'Showing ' + visibleEvents.length + ' gathering' + (visibleEvents.length === 1 ? '' : 's') + ' across ' + cityLabel + '.';
         setListUIState('results');
+        var targetDate = isCurrentListMonth() ? istDateStr : (calYear > todayYear || (calYear === todayYear && calMonth > todayMonth) ? monthStart : selectedDateStr);
+        scrollListToDate(targetDate);
       }
     })
     .catch(function(err) {
@@ -4094,6 +4200,7 @@
   }
 
   function switchView(viewName) {
+    if (currentView === viewName) return;
     currentView = viewName;
     updateFilterUI();
     syncUrlParams();
@@ -4133,6 +4240,7 @@
       calYear = todayYear;
       calMonth = todayMonth;
       selectedDateStr = istDateStr;
+      showPastEvents = false;
       updateCalHeader();
       if (currentView === 'calendar') fetchCalendarEvents();
       else fetchListEvents();
