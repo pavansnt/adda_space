@@ -4327,6 +4327,34 @@ p.lead {
 }
 
 @media (max-width: 768px) {
+  html,
+  body.adda-body {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: clip !important;
+  }
+
+  .adda-main,
+  .adda-header,
+  .adda-site-footer,
+  .adda-footer {
+    width: 100% !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .adda-container,
+  .adda-footer-two-col,
+  .adda-footer-col {
+    min-width: 0 !important;
+  }
+
+  .adda-footer-socials {
+    flex-wrap: wrap !important;
+    overflow-x: visible !important;
+  }
+
   .adda-container,
   .adda-container-narrow {
     width: 100%;
