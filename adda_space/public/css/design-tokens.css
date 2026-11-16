@@ -1,0 +1,81 @@
+/* ==========================================================================
+   Adda Space — Brand Design System & Stylesheet
+   Rooted in the official Adda Space Green & Dark Navy palette,
+   youth problem-solving energy, and BIC-inspired editorial layout.
+   ========================================================================== */
+
+:root {
+  /* ------------------------------------------------------------------------
+     1. Color Palette: Official Adda Space Green & Dark Navy
+     ------------------------------------------------------------------------ */
+  /* Primary Brand Colors */
+  --adda-green: #1B8A5A;           /* Official Adda Space Green (primary action & selected) */
+  --adda-green-hover: #146C46;     /* Deepened action green */
+  --adda-green-light: #E8F5EE;     /* Soft green tint for badges and selected pills */
+  --adda-green-border: rgba(27, 138, 90, 0.25);
+
+  --adda-navy: #132533;            /* Official Dark Navy (headings, navbar, strong contrast) */
+  --adda-navy-dark: #0D1A24;       /* Deepest navy (footer, dark callout surfaces) */
+  --adda-navy-surface: #1E374B;    /* Elevated navy container */
+  --adda-navy-light: #E8EEF3;      /* Soft navy tint */
+  --adda-navy-border: rgba(19, 37, 51, 0.2);
+
+  /* Accents */
+  --adda-teal: #0D7E75;            /* Secondary civic teal */
+  --adda-teal-light: #E6F5F3;
+  --adda-amber: #D97706;           /* Subtle highlight amber */
+  --adda-amber-light: #FEF3C7;
+
+  /* Surfaces & Backgrounds: Restrained warm neutrals, not plain corporate white */
+  --adda-bg: #FAF7F0;              /* Warm cream base background */
+  --adda-page-bg: #FAFAF8;
+  --adda-geometric-pattern: url("/assets/adda_space/images/site_geometric_background.png");
+  --adda-bg-alt: #F3EFE6;          /* Warm stone alternating band */
+  --adda-surface: #FFFFFF;         /* Crisp card and modal surface */
+  --adda-surface-warm: #FFFDF9;    /* Warm card surface */
+  --adda-surface-subtle: #EFE9DD;  /* Inactive pill / tag background */
+
+  /* Typography Colors */
+  --adda-text: #132533;            /* Primary high-contrast dark navy body text */
+  --adda-text-muted: #52606D;      /* Secondary editorial slate text */
+  --adda-text-subtle: #798897;     /* Uppercase labels & metadata */
+  --adda-text-on-dark: #FAF7F0;    /* Warm white text for dark surfaces */
+  --adda-text-muted-on-dark: #B9C7D4; /* Soft slate text for dark surfaces */
+
+  /* Primary Action Alias */
+  --adda-accent: var(--adda-green);
+  --adda-accent-hover: var(--adda-green-hover);
+  --adda-accent-subtle: var(--adda-green-light);
+
+  /* Hairlines & Borders */
+  --adda-border: #E5DFD3;          /* Warm hairline border */
+  --adda-border-light: #EFE9DD;    /* Soft divider */
+  --adda-border-dark: #223749;     /* Dark navy divider */
+
+  /* Keyboard Focus */
+  --adda-focus: #1B8A5A;
+
+  /* ------------------------------------------------------------------------
+     2. Typography
+     ------------------------------------------------------------------------ */
+  --font-headings: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: var(--font-headings);
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* ------------------------------------------------------------------------
+     3. Layout & Elevation
+     ------------------------------------------------------------------------ */
+  --max-w-content: 1160px;
+  --max-w-narrow: 800px;
+  --container-px: clamp(1.25rem, 4vw, 2.5rem);
+  --section-py: clamp(2.25rem, 4.5vw, 3.5rem);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
+  --shadow-card: 0 2px 8px rgba(19, 37, 51, 0.05), 0 1px 2px rgba(19, 37, 51, 0.04);
+  --shadow-hover: 0 10px 24px rgba(19, 37, 51, 0.10), 0 2px 6px rgba(19, 37, 51, 0.05);
+}
+

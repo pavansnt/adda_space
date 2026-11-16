@@ -1,0 +1,165 @@
+/* --------------------------------------------------------------------------
+   Reset & Base Styles
+   -------------------------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: auto !important;
+  min-height: 100% !important;
+}
+
+body,
+body.adda-body {
+  margin: 0;
+  padding: 0;
+  height: auto !important;
+  min-height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background-color: var(--adda-page-bg) !important;
+  background-image: var(--adda-geometric-pattern);
+  background-size: 500px 500px;
+  background-repeat: repeat;
+  color: var(--adda-text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+.adda-main {
+  flex: 1 0 auto !important;
+  display: block !important;
+  width: 100% !important;
+  min-height: auto !important;
+  background-color: transparent !important;
+  position: relative !important;
+  clear: both !important;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+a:hover {
+  color: var(--adda-green);
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--adda-focus);
+  outline-offset: 3px;
+}
+
+/* Headings: Dark Navy, bold, youth-friendly, high contrast */
+h1, h2, h3, h4 {
+  font-family: var(--font-headings);
+  color: var(--adda-navy);
+  line-height: 1.2;
+  margin-top: 0;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+h1 { font-size: clamp(2.25rem, 5vw, 3.5rem); font-weight: 800; line-height: 1.15; }
+h2 { font-size: clamp(1.75rem, 3.5vw, 2.5rem); font-weight: 800; line-height: 1.2; }
+h3 { font-size: clamp(1.25rem, 2.5vw, 1.75rem); font-weight: 700; line-height: 1.3; }
+h4 { font-size: clamp(1.05rem, 2vw, 1.35rem); font-weight: 700; }
+
+p {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+}
+
+p.lead {
+  font-size: clamp(1.125rem, 2vw, 1.35rem);
+  line-height: 1.6;
+  color: var(--adda-text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Containers
+   -------------------------------------------------------------------------- */
+.adda-container {
+  width: 100%;
+  max-width: var(--max-w-content);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--container-px);
+  padding-right: var(--container-px);
+}
+
+.adda-container-narrow {
+  width: 100%;
+  max-width: var(--max-w-narrow);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--container-px);
+  padding-right: var(--container-px);
+}
+
+.adda-section {
+  display: block;
+  width: 100%;
+  position: relative;
+  clear: both;
+  box-sizing: border-box;
+  padding-top: var(--section-py);
+  padding-bottom: var(--section-py);
+  background-color: transparent;
+}
+
+#upcoming-addas-section {
+  display: block;
+  width: 100%;
+  position: relative;
+  clear: both;
+  box-sizing: border-box;
+  padding-top: clamp(2.25rem, 4.5vw, 3.5rem);
+  padding-bottom: clamp(2.25rem, 4.5vw, 3.5rem);
+  background-color: transparent;
+}
+
+.adda-section-listing {
+  display: block;
+  width: 100%;
+  position: relative;
+  clear: both;
+  box-sizing: border-box;
+  padding-top: clamp(2rem, 3.5vw, 3rem);
+  padding-bottom: var(--section-py);
+  background-color: transparent;
+}
+
+.adda-section-alt {
+  background-color: var(--adda-bg-alt);
+  border-top: 1px solid var(--adda-border);
+  border-bottom: 1px solid var(--adda-border);
+}
+
+.adda-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2.25rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.adda-section-heading {
+  margin-bottom: 0.35rem;
+  color: var(--adda-navy);
+}
+
+.adda-section-sub {
+  color: var(--adda-text-muted);
+  font-size: 1.05rem;
+  margin-bottom: 0;
+}
+

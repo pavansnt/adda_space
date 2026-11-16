@@ -22,8 +22,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- Adda Space Reap Benefit-Inspired Stylesheet -->
-  <link rel="stylesheet" href="/assets/adda_space/css/adda_space.css?v={{ build_version or '2.0.1' }}&t=20261113_mobile_dropdown_v3">
+  <!-- Adda Space stylesheets, loaded in dependency and cascade order -->
+  <link rel="stylesheet" href="/assets/adda_space/css/design-tokens.css?v={{ build_version or '2.0.1' }}">
+  <link rel="stylesheet" href="/assets/adda_space/css/events-recap.css?v={{ build_version or '2.0.1' }}">
+  <link rel="stylesheet" href="/assets/adda_space/css/base.css?v={{ build_version or '2.0.1' }}">
+  <link rel="stylesheet" href="/assets/adda_space/css/navigation.css?v={{ build_version or '2.0.1' }}">
+  <link rel="stylesheet" href="/assets/adda_space/css/homepage.css?v={{ build_version or '2.0.1' }}">
+  <link rel="stylesheet" href="/assets/adda_space/css/events-calendar.css?v={{ build_version or '2.0.1' }}">
+  <link rel="stylesheet" href="/assets/adda_space/css/events-host.css?v={{ build_version or '2.0.1' }}">
+  <link rel="stylesheet" href="/assets/adda_space/css/events-components.css?v={{ build_version or '2.0.1' }}">
+  <link rel="stylesheet" href="/assets/adda_space/css/events-page.css?v={{ build_version or '2.0.1' }}">
+  <link rel="stylesheet" href="/assets/adda_space/css/utilities.css?v={{ build_version or '2.0.1' }}">
   <link rel="stylesheet" href="/assets/adda_space/css/events.css?v={{ build_version or '2.0.1' }}">
 {% endblock %}
 

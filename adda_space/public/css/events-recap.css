@@ -1,0 +1,304 @@
+/* Published event recaps shown on past event cards, modals, and detail pages. */
+.adda-recap-status {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0.15rem 0 0.5rem;
+  padding: 0.28rem 0.65rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.adda-recap-status--available {
+  color: #047857;
+  background: #ECFDF5;
+  border-color: #A7F3D0;
+}
+
+.adda-recap-status--pending {
+  color: #475569;
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+}
+
+/* Past Events - Muted appearance in Calendar and List views */
+.adda-cal-event-pill.is-past-event {
+  opacity: 0.42 !important;
+  box-shadow: none !important;
+}
+
+.adda-cal-event-pill.is-past-event:hover {
+  opacity: 0.75 !important;
+}
+
+.adda-cal-drawer-card.is-past-event {
+  opacity: 0.42 !important;
+}
+
+.adda-cal-drawer-card.is-past-event:hover {
+  opacity: 0.75 !important;
+}
+
+.adda-list-card.is-past-event {
+  opacity: 0.42 !important;
+}
+
+.adda-list-card.is-past-event:hover {
+  opacity: 0.75 !important;
+}
+
+.adda-cal-recap-mark {
+  flex: 0 0 auto;
+  margin-left: 0.3rem;
+  color: #047857;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.adda-event-recap {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  border: 1px solid #D1FAE5;
+  border-radius: 1rem;
+  background: linear-gradient(145deg, #F0FDF4 0%, #FFFFFF 72%);
+}
+
+.adda-event-recap__eyebrow {
+  margin-bottom: 0.45rem;
+  color: #047857;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.adda-event-recap__title {
+  margin: 0 0 0.8rem;
+  color: var(--adda-navy, #0F172A);
+  font-family: var(--font-headings, inherit);
+  font-size: 1.4rem;
+  line-height: 1.35;
+}
+
+.adda-event-recap__summary {
+  color: var(--adda-text-muted, #475569);
+  font-size: 0.98rem;
+  line-height: 1.75;
+}
+
+.adda-event-recap__summary > :first-child {
+  margin-top: 0;
+}
+
+.adda-event-recap__summary > :last-child {
+  margin-bottom: 0;
+}
+
+.adda-event-recap__outcomes {
+  margin-top: 1.25rem;
+  color: var(--adda-text, #1E293B);
+  white-space: pre-line;
+}
+
+.adda-event-recap__outcomes h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.adda-event-recap__outcomes ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.adda-event-recap__outcomes li + li {
+  margin-top: 0.35rem;
+}
+
+.adda-event-recap__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.75rem;
+  margin-top: 1rem;
+  color: var(--adda-text-muted, #475569);
+  font-size: 0.85rem;
+}
+
+.adda-event-recap__gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.adda-event-recap__gallery figure {
+  min-width: 0;
+  margin: 0;
+}
+
+.adda-event-recap__gallery img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 0.65rem;
+  background: #E2E8F0;
+  object-fit: cover;
+  cursor: zoom-in;
+}
+
+.adda-event-recap__gallery figcaption {
+  margin-top: 0.35rem;
+  color: var(--adda-text-muted, #475569);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.adda-event-recap--compact {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+}
+
+.adda-event-recap--compact .adda-event-recap__title {
+  font-size: 1.1rem;
+}
+
+.adda-event-recap--compact .adda-event-recap__gallery {
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+}
+
+.adda-gallery-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: none !important;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 5rem;
+  background: rgba(7, 12, 18, 0.96);
+  color: #FFFFFF;
+}
+
+.adda-gallery-lightbox.is-open {
+  display: flex !important;
+}
+
+.adda-gallery-lightbox__figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 1200px);
+  max-height: 100%;
+  margin: 0;
+}
+
+.adda-gallery-lightbox__image {
+  display: block;
+  max-width: 100%;
+  max-height: calc(100vh - 9rem);
+  object-fit: contain;
+  border-radius: 0.35rem;
+}
+
+.adda-gallery-lightbox__caption {
+  min-height: 1.5rem;
+  margin-top: 0.75rem;
+  color: #E2E8F0;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.adda-gallery-lightbox__close,
+.adda-gallery-lightbox__nav {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.58);
+  color: #FFFFFF;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.adda-gallery-lightbox__close:hover,
+.adda-gallery-lightbox__nav:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.04);
+}
+
+.adda-gallery-lightbox__close {
+  top: 1rem;
+  right: 1rem;
+  font-size: 2rem;
+}
+
+.adda-gallery-lightbox__prev {
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.adda-gallery-lightbox__next {
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.adda-gallery-lightbox__prev:hover,
+.adda-gallery-lightbox__next:hover {
+  transform: translateY(-50%) scale(1.04);
+}
+
+.adda-gallery-lightbox__count {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #CBD5E1;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 480px) {
+  .adda-event-recap {
+    padding: 1rem;
+  }
+
+  .adda-event-recap__gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .adda-gallery-lightbox {
+    padding: 4rem 3.5rem;
+  }
+
+  .adda-gallery-lightbox__close,
+  .adda-gallery-lightbox__nav {
+    width: 2.35rem;
+    height: 2.35rem;
+  }
+
+  .adda-gallery-lightbox__prev {
+    left: 0.45rem;
+  }
+
+  .adda-gallery-lightbox__next {
+    right: 0.45rem;
+  }
+
+  .adda-gallery-lightbox__image {
+    max-height: calc(100vh - 8rem);
+  }
+}
+

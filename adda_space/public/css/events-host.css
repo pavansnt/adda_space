@@ -1,0 +1,431 @@
+   Host at Adda Space — Wizard & Multi-Step Registration Styles
+   ========================================================================== */
+
+.adda-wizard-container {
+  background-color: var(--adda-surface);
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  margin-bottom: 3rem;
+}
+
+/* Wizard Stepper Progress */
+.adda-wizard-nav {
+  display: flex;
+  background-color: var(--adda-bg-alt);
+  border-bottom: 1px solid var(--adda-border);
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  gap: 0.5rem;
+}
+
+.adda-wizard-step {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-headings);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--adda-text-muted);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  flex: 1 1 auto;
+  justify-content: center;
+}
+
+.adda-wizard-step.active {
+  background-color: var(--adda-surface);
+  color: var(--adda-navy);
+  border: 1px solid var(--adda-border);
+  box-shadow: 0 1px 3px rgba(19, 37, 51, 0.06);
+}
+
+.adda-wizard-step.completed {
+  color: var(--adda-green);
+}
+
+.adda-step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--adda-border);
+  color: var(--adda-text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.adda-wizard-step.active .adda-step-num {
+  background-color: var(--adda-green);
+  color: #FFFFFF;
+}
+
+.adda-wizard-step.completed .adda-step-num {
+  background-color: var(--adda-green-light);
+  color: var(--adda-green);
+}
+
+/* Wizard Body */
+.adda-wizard-body {
+  padding: clamp(1.5rem, 4vw, 2.75rem);
+}
+
+.adda-step-panel {
+  display: none;
+}
+
+.adda-step-panel.active {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+
+.adda-step-header {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--adda-border-light);
+  padding-bottom: 1.25rem;
+}
+
+.adda-step-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--adda-navy);
+  margin-bottom: 0.5rem;
+}
+
+.adda-step-desc {
+  font-size: 0.95rem;
+  color: var(--adda-text-muted);
+  margin: 0;
+}
+
+/* Form Controls */
+.adda-form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.adda-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.adda-form-label {
+  display: block;
+  font-family: var(--font-headings);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--adda-navy);
+  margin-bottom: 0.45rem;
+}
+
+.adda-form-label .req {
+  color: #DC2626;
+  margin-left: 0.2rem;
+}
+
+.adda-form-hint {
+  font-size: 0.8125rem;
+  color: var(--adda-text-subtle);
+  margin-top: 0.35rem;
+}
+
+.adda-select,
+.adda-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  color: var(--adda-text);
+  background-color: var(--adda-surface-warm);
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.adda-select:focus,
+.adda-textarea:focus {
+  outline: none;
+  border-color: var(--adda-green);
+  box-shadow: 0 0 0 3px var(--adda-green-light);
+  background-color: var(--adda-surface);
+}
+
+.adda-textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+/* Room Cards Grid */
+.adda-room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.adda-room-card {
+  border: 1.5px solid var(--adda-border);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  background-color: var(--adda-surface-warm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.adda-room-card:hover {
+  border-color: var(--adda-green);
+  background-color: #FAFDFB;
+  transform: translateY(-1px);
+}
+
+.adda-room-card.selected {
+  border-color: var(--adda-green);
+  background-color: var(--adda-green-light);
+  box-shadow: 0 0 0 2px var(--adda-green);
+}
+
+.adda-room-name {
+  font-family: var(--font-headings);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--adda-navy);
+  margin-bottom: 0.35rem;
+}
+
+.adda-room-cap {
+  font-size: 0.8125rem;
+  color: var(--adda-text-muted);
+}
+
+/* Availability Status Callouts */
+.adda-avail-box {
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.adda-avail-success {
+  background-color: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  color: #065F46;
+}
+
+.adda-avail-alert {
+  background-color: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: #991B1B;
+}
+
+.adda-avail-info {
+  background-color: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  color: #1E40AF;
+}
+
+.adda-avail-warning {
+  background-color: #FFFBEB;
+  border: 1px solid #FDE68A;
+  color: #92400E;
+}
+
+/* Wizard Button Actions */
+.adda-wizard-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--adda-border-light);
+  padding-top: 1.5rem;
+  margin-top: 2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Review Summary Card */
+.adda-review-card {
+  background-color: var(--adda-bg-alt);
+  border: 1px solid var(--adda-border);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.adda-review-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--adda-border-light);
+  font-size: 0.9375rem;
+}
+
+.adda-review-row:last-child {
+  border-bottom: none;
+}
+
+.adda-review-label {
+  font-weight: 700;
+  color: var(--adda-text-muted);
+  font-family: var(--font-headings);
+  width: 35%;
+}
+
+.adda-review-val {
+  color: var(--adda-navy);
+  font-weight: 600;
+  width: 65%;
+  text-align: right;
+}
+
+/* Poster Preview */
+.adda-poster-preview {
+  margin-top: 1rem;
+  max-width: 220px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--adda-border);
+  overflow: hidden;
+  background-color: var(--adda-bg-alt);
+}
+
+.adda-poster-preview img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Confirmation Box */
+.adda-confirmation-card {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+}
+
+.adda-confirmation-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: var(--adda-green-light);
+  color: var(--adda-green);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ==========================================================================
+   Header Auth Navigation & User Profile
+   ========================================================================== */
+
+.adda-nav-auth {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.adda-nav-btn-login,
+.adda-nav-btn-signup {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-headings);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  padding: 0.55rem 1.25rem;
+  background-color: var(--adda-green) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--adda-green) !important;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 2px 6px rgba(27, 138, 90, 0.25);
+  transition: all 0.15s ease;
+  text-decoration: none;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.adda-nav-btn-login:hover,
+.adda-nav-btn-signup:hover {
+  background-color: var(--adda-green-hover) !important;
+  border-color: var(--adda-green-hover) !important;
+  color: #FFFFFF !important;
+  transform: translateY(-1px);
+}
+
+.adda-nav-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.adda-user-badge {
+  font-family: var(--font-headings);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--adda-navy) !important;
+  background-color: var(--adda-green-light) !important;
+  border: 1px solid var(--adda-green-border);
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-pill);
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.adda-nav-logout {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--adda-text-muted) !important;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--adda-border);
+  background-color: var(--adda-surface-warm);
+  transition: all 0.15s ease;
+  text-decoration: none;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.adda-nav-logout:hover {
+  color: #DC2626 !important;
+  border-color: #FCA5A5;
+  background-color: #FEF2F2;
+}
+
+.adda-nav-auth-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .adda-header-auth {
+    display: none;
+  }
+  .adda-nav-auth-mobile {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 1rem;
+    gap: 0.5rem;
+  }
+  .adda-nav-auth-mobile .adda-nav-btn-login,
+  .adda-nav-auth-mobile .adda-nav-btn-signup {
+    width: 100%;
+    text-align: center;
+  }
+}
+

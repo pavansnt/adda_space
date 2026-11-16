@@ -1,0 +1,235 @@
+/* --------------------------------------------------------------------------
+/* --------------------------------------------------------------------------
+   Navigation Bar (Crisp White Header, Green Accent Border, Visible Logo)
+   -------------------------------------------------------------------------- */
+.adda-header {
+  background-color: #FFFFFF !important;
+  border-bottom: 3px solid var(--adda-green) !important;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  color: var(--adda-navy) !important;
+  box-shadow: 0 2px 10px rgba(19, 37, 51, 0.08);
+}
+
+.adda-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 88px;
+  gap: 1.5rem;
+}
+
+.adda-header-auth {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.adda-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.adda-brand-title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--adda-navy) !important;
+  text-decoration: none;
+}
+
+/* Preserved Logo Image Styling: Never distorted, cropped, or recolored */
+.adda-logo-img {
+  height: 78px;
+  width: auto;
+  max-width: 260px;
+  object-fit: contain;
+  display: block !important;
+}
+
+/* Fallback Brand Mark: Hidden when logo is present */
+.adda-brand-text-mark {
+  display: none;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-headings);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.adda-brand-pill {
+  background-color: var(--adda-green);
+  color: #FFFFFF;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-sm);
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+.adda-brand-word {
+  color: var(--adda-navy);
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+.adda-brand-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: var(--adda-green);
+  border-radius: var(--radius-pill);
+}
+
+.adda-brand-tagline {
+  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--adda-text-muted);
+  border-left: 1px solid var(--adda-border);
+  padding-left: 0.75rem;
+  display: none;
+}
+
+@media (min-width: 680px) {
+  .adda-brand-tagline { display: inline-block; }
+}
+
+.adda-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.adda-nav-link {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--adda-navy) !important;
+  position: relative;
+  padding: 0.35rem 0;
+  transition: color 0.15s ease;
+}
+
+.adda-nav-link:hover {
+  color: var(--adda-green) !important;
+}
+
+.adda-nav-link.active {
+  color: var(--adda-green) !important;
+  font-weight: 700;
+}
+
+.adda-nav-link.active::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: var(--adda-green);
+  border-radius: var(--radius-pill);
+}
+
+.adda-nav-btn {
+  font-family: var(--font-headings);
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 0.55rem 1.25rem;
+  background-color: var(--adda-green);
+  color: #FFFFFF !important;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 2px 6px rgba(27, 138, 90, 0.3);
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.adda-nav-btn:hover {
+  background-color: var(--adda-green-hover);
+  color: #FFFFFF !important;
+  transform: translateY(-1px);
+}
+
+/* Mobile Navigation Drawer */
+.adda-menu-toggle {
+  display: none;
+  background: var(--adda-green);
+  border: 1px solid var(--adda-green-hover);
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #FFFFFF;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+@media (max-width: 768px) {
+  .adda-header-inner { height: 76px; }
+  .adda-logo-img { height: 58px; max-width: 220px; }
+  .adda-nav {
+    display: flex;
+    position: absolute;
+    top: calc(100% + 3px);
+    left: auto;
+    right: 0;
+    width: min(15rem, calc(100vw - (2 * var(--container-px))));
+    box-sizing: border-box;
+    background-color: rgba(250, 250, 248, 0.97);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(19, 37, 51, 0.12);
+    border-top: 0;
+    border-radius: 0 0 12px 12px;
+    flex-direction: column;
+    padding: 0 var(--container-px);
+    gap: 1.25rem;
+    align-items: stretch;
+    box-shadow: 0 12px 24px rgba(19, 37, 51, 0.18);
+    max-height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: max-height 0.25s ease, padding 0.25s ease, opacity 0.2s ease, visibility 0.2s ease;
+  }
+  .adda-nav.is-open {
+    max-height: 80vh;
+    padding: 1rem var(--container-px) 1.25rem;
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .adda-menu-toggle { display: inline-flex; }
+  .adda-nav-btn { width: 100%; text-align: center; }
+  .adda-nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: max-content;
+    align-self: flex-end;
+    min-height: 48px;
+    padding: 0.55rem 0;
+    text-align: right;
+  }
+  .adda-nav-link.active {
+    padding-inline: 0.65rem;
+    border-radius: 999px;
+    background-color: var(--adda-green);
+    color: #FFFFFF !important;
+  }
+  .adda-nav-link.active::after {
+    display: none;
+  }
+  .adda-nav .adda-nav-link { color: var(--adda-navy) !important; }
+  .adda-nav .adda-nav-link:hover { color: var(--adda-green) !important; }
+  .adda-nav .adda-nav-link.active,
+  .adda-nav .adda-nav-link.active:hover { color: #FFFFFF !important; }
+  .adda-menu-toggle { min-height: 44px; min-width: 44px; justify-content: center; }
+}
+
