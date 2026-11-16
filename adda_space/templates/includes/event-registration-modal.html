@@ -1,0 +1,122 @@
+<!-- ========================================================================
+     3B. EVENT REGISTRATION POPUP MODAL
+     ======================================================================== -->
+<div class="adda-modal-backdrop adda-inline-f2892a2e8a" id="event-reg-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-reg-event-title">
+  <div class="adda-modal-container adda-detail-modal-container adda-inline-ffa089e03c" id="adda-reg-modal-container">
+    <!-- Top row with Circular Close Button -->
+    <div class="adda-modal-top-bar adda-detail-modal-top">
+      <button type="button" class="adda-modal-close-btn" id="modal-reg-close-btn" aria-label="Close registration">&times;</button>
+    </div>
+
+    <!-- Scrollable Modal Body -->
+    <div class="adda-modal-body adda-inline-b4170a4660">
+      <h2 class="adda-inline-b99d21523f">Register for Gathering</h2>
+      
+      <!-- Event Summary Mini-Card -->
+      <div class="adda-inline-637dcd8ff3">
+        <h3 id="modal-reg-event-title" class="adda-inline-076aa5184d"></h3>
+        <div class="adda-inline-2e10e04559">
+          <div class="adda-inline-85056bada5">
+            <span aria-hidden="true">&#x1F5D3;&#xFE0F;</span>
+            <span id="modal-reg-event-time"></span>
+          </div>
+          <div class="adda-inline-85056bada5">
+            <span aria-hidden="true">&#x1F4CD;</span>
+            <span id="modal-reg-event-venue"></span>
+          </div>
+        </div>
+        <div class="adda-inline-02323736a8">
+          <span class="adda-inline-c1f87606f2">100% Free Admission</span>
+          <span class="adda-inline-9041c33686">No tickets or fees required</span>
+        </div>
+      </div>
+
+      <!-- A. Registration Form View -->
+      <div id="modal-reg-form-view">
+        <p class="adda-inline-6a91970679">
+          Reserve your spot by providing your WhatsApp number. Admission is free for all attendees.
+        </p>
+
+        <div id="modal-reg-error-box" class="adda-alert-error adda-inline-79579efec0" role="alert">
+          <span id="modal-reg-error-text"></span>
+        </div>
+
+        <form id="modal-event-reg-form" novalidate>
+          <div class="adda-inline-433cddfa97">
+            <label for="modal-reg-name" class="adda-form-label adda-inline-c97cc467c5">
+              Full Name <span class="adda-inline-6e2c21a226">(Optional)</span>
+            </label>
+            <input type="text" id="modal-reg-name" name="full_name" class="adda-input adda-inline-029d0a2b52" placeholder="e.g. Priya Sharma" autocomplete="name" />
+          </div>
+
+          <div class="adda-inline-1bd4b9f576">
+            <label for="modal-reg-mobile" class="adda-form-label adda-inline-c97cc467c5">
+              WhatsApp Number <span class="adda-inline-d3c6b7ecdf">*</span>
+            </label>
+            <div class="adda-inline-85056bada5">
+              <span class="adda-input-prefix adda-inline-019a7bac73">+91</span>
+              <input type="tel" id="modal-reg-mobile" name="mobile" class="adda-input adda-inline-a24244e5db" placeholder="9876543210" maxlength="10" inputmode="numeric" required autocomplete="tel" />
+            </div>
+            <div id="modal-reg-mobile-error" class="adda-field-error adda-inline-0d1b49a02e" role="alert"></div>
+          </div>
+
+          <button type="submit" id="modal-reg-submit-btn" class="adda-btn adda-btn-primary adda-inline-a5a77fb386">
+            Confirm Free RSVP
+          </button>
+        </form>
+      </div>
+
+      <!-- B. Success View -->
+      <div id="modal-reg-success-view" class="adda-reg-result adda-reg-success adda-inline-fec2a96792">
+        <div class="adda-inline-ca4d9b9fc0">&check;</div>
+        <div class="adda-reg-badge adda-inline-b8a3b70581">
+          Spot Confirmed
+        </div>
+        <h4 class="adda-inline-b99d21523f">
+          You're registered!
+        </h4>
+        <p class="adda-inline-555a5eb092">
+          Admission is completely free. We look forward to seeing you at the gathering!
+        </p>
+        <div class="adda-inline-c8b9477176">
+          <span class="adda-inline-bd68755b94">Registration Reference</span>
+          <code id="modal-reg-success-id" class="adda-inline-98bd42ebb4"></code>
+        </div>
+        <button type="button" class="adda-btn adda-btn-secondary adda-inline-458b9f025e" id="modal-reg-success-close-btn">
+          Done
+        </button>
+      </div>
+
+      <!-- C. Duplicate View -->
+      <div id="modal-reg-duplicate-view" class="adda-reg-result adda-reg-duplicate adda-inline-fec2a96792">
+        <div class="adda-reg-badge adda-inline-5ae7f5f1f3">
+          &bull; Already Registered
+        </div>
+        <h4 class="adda-inline-b99d21523f">
+          Spot already reserved
+        </h4>
+        <p class="adda-inline-555a5eb092">
+          You have already registered for this gathering with this mobile number. Your spot remains confirmed.
+        </p>
+        <div class="adda-inline-18b27db22c">
+          <span class="adda-inline-bd68755b94">Registration Reference</span>
+          <code id="modal-reg-duplicate-id" class="adda-inline-98bd42ebb4"></code>
+        </div>
+        <button type="button" class="adda-btn adda-btn-secondary adda-inline-458b9f025e" id="modal-reg-duplicate-close-btn">
+          Done
+        </button>
+      </div>
+
+      <!-- D. Past Event View -->
+      <div id="modal-reg-past-view" class="adda-inline-9936279ad3">
+        <span class="adda-tag adda-inline-b57afc0a59">Gathering Concluded</span>
+        <p class="adda-inline-84d0677ac3">
+          This gathering has already taken place. Registrations are closed.
+        </p>
+        <button type="button" class="adda-btn adda-btn-secondary adda-inline-ec525a5233" id="modal-reg-past-close-btn">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

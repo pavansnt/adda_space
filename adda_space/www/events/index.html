@@ -7,7 +7,7 @@
 
 {% block adda_content %}
 <section class="adda-page-header" id="adda-events-header">
-  <div class="adda-container" style="max-width: 58rem; margin: 0 auto; width: 100%; box-sizing: border-box;">
+  <div class="adda-container adda-inline-a422aee243">
     <!-- Top Header Row -->
     <div class="adda-events-header-row">
       <div class="adda-events-title-col">
@@ -24,10 +24,10 @@
 </section>
 
 <!-- Filter & Controls Section -->
-<section class="adda-section adda-section-listing" style="padding-top: 1rem; padding-bottom: 3.5rem;">
-  <div class="adda-container" style="max-width: 58rem; margin: 0 auto; width: 100%; box-sizing: border-box;">
+<section class="adda-section adda-section-listing adda-inline-48c6ff39d3">
+  <div class="adda-container adda-inline-a422aee243">
     <!-- City Filter Row (Single compact dropdown matching Solve Ninja) -->
-    <div class="adda-filter-bar" id="adda-filter-bar" style="margin-bottom: 1rem; border: none; background: transparent; padding: 0; box-shadow: none;">
+    <div class="adda-filter-bar adda-inline-f31c09288c" id="adda-filter-bar">
       <div class="adda-city-dropdown-row" id="adda-city-filter-group" role="group" aria-label="Filter by City">
         <label for="adda-city-filter-select" class="adda-city-dropdown-label">City</label>
         <select id="adda-city-filter-select" class="adda-city-dropdown-select" aria-label="Filter by City" data-city="">
@@ -57,8 +57,8 @@
          ==================================================================== -->
     <div id="events-calendar-section">
       <!-- Calendar Loading Shimmer -->
-      <div id="cal-loading-indicator" style="display: none; padding: 2rem; text-align: center; color: var(--adda-text-muted); font-size: 0.9375rem;">
-        <span class="adda-hero-badge-dot" style="display: inline-block; animation: pulse 1s infinite;"></span>
+      <div id="cal-loading-indicator" class="adda-inline-ed11e4a686">
+        <span class="adda-hero-badge-dot adda-inline-b9f184a55e"></span>
         Updating monthly calendar...
       </div>
 
@@ -77,25 +77,25 @@
       </div>
 
       <!-- Selected Day Drawer (Details for clicked date) -->
-      <div class="adda-cal-drawer" id="cal-day-drawer" style="display: none;" aria-live="polite" aria-label="Gatherings for selected date">
+      <div class="adda-cal-drawer adda-inline-f2892a2e8a" id="cal-day-drawer" aria-live="polite" aria-label="Gatherings for selected date">
         <div class="adda-cal-drawer-header">
           <div>
             <h3 class="adda-cal-drawer-title" id="cal-drawer-title">Gatherings for Selected Date</h3>
-            <div id="cal-drawer-subtitle" style="font-size: 0.875rem; color: var(--adda-text-muted); margin-top: 0.25rem;"></div>
+            <div id="cal-drawer-subtitle" class="adda-inline-27447fa367"></div>
           </div>
           <span id="cal-drawer-count" class="adda-tag adda-tag-city"></span>
         </div>
         <div class="adda-cal-drawer-grid" id="cal-drawer-cards"></div>
-        <div id="cal-drawer-empty" style="display: none; text-align: center; padding: 1.5rem 1rem; color: var(--adda-text-muted);">
-          <p style="margin-bottom: 0.75rem;">No gatherings scheduled on this date.</p>
-          <button type="button" class="adda-btn adda-btn-secondary" id="cal-drawer-host-btn" style="font-size: 0.8125rem;">
+        <div id="cal-drawer-empty" class="adda-inline-1add23ed10">
+          <p class="adda-inline-b57afc0a59">No gatherings scheduled on this date.</p>
+          <button type="button" class="adda-btn adda-btn-secondary adda-inline-b9174c0407" id="cal-drawer-host-btn">
             Host a Gathering on this Date
           </button>
         </div>
         <!-- Persistent host action for the selected date -->
-        <div class="adda-cal-drawer-footer" id="cal-drawer-footer" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--adda-border-light); display: none; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-          <span style="font-size: 0.8125rem; color: var(--adda-text-muted);">Want to organize a session on this date?</span>
-          <button type="button" class="adda-btn adda-btn-secondary" id="cal-drawer-host-active-btn" style="font-size: 0.8125rem;">
+        <div class="adda-cal-drawer-footer adda-inline-e1d953b173" id="cal-drawer-footer">
+          <span class="adda-inline-a8aa6e573c">Want to organize a session on this date?</span>
+          <button type="button" class="adda-btn adda-btn-secondary adda-inline-b9174c0407" id="cal-drawer-host-active-btn">
             Host a Gathering on this Date
           </button>
         </div>
@@ -105,41 +105,41 @@
     <!-- ====================================================================
          2. LIST VIEW CONTAINER
          ==================================================================== -->
-    <div id="events-list-section" style="display: none;">
+    <div id="events-list-section" class="adda-inline-f2892a2e8a">
       <!-- Shimmer Skeleton Loading State -->
       <div class="adda-events-grid" id="events-loading-state" aria-busy="true" aria-label="Loading gatherings">
         {% for i in range(3) %}
         <article class="adda-card">
           <div class="adda-card-media adda-skeleton adda-skeleton-media"></div>
           <div class="adda-card-body">
-            <div class="adda-skeleton adda-skeleton-text" style="width: 35%; margin-bottom: 1rem;"></div>
-            <div class="adda-skeleton adda-skeleton-title" style="margin-bottom: 1rem;"></div>
-            <div class="adda-skeleton adda-skeleton-text" style="width: 95%;"></div>
-            <div class="adda-skeleton adda-skeleton-text" style="width: 80%; margin-bottom: 1.5rem;"></div>
-            <div class="adda-skeleton adda-skeleton-text" style="width: 50%;"></div>
+            <div class="adda-skeleton adda-skeleton-text adda-inline-087d0ed382"></div>
+            <div class="adda-skeleton adda-skeleton-title adda-inline-f267e3ca68"></div>
+            <div class="adda-skeleton adda-skeleton-text adda-inline-a77731456d"></div>
+            <div class="adda-skeleton adda-skeleton-text adda-inline-4d3c7afa48"></div>
+            <div class="adda-skeleton adda-skeleton-text adda-inline-1151799950"></div>
           </div>
         </article>
         {% endfor %}
       </div>
 
       <!-- Dynamic List Results Grid -->
-      <div class="adda-list-view" id="events-grid-container" style="display: none;"></div>
+      <div class="adda-list-view adda-inline-f2892a2e8a" id="events-grid-container"></div>
 
       <!-- Empty State -->
-      <div id="events-empty-state" class="adda-state-box" style="display: none;">
+      <div id="events-empty-state" class="adda-state-box adda-inline-f2892a2e8a">
         <div class="adda-state-icon" aria-hidden="true">&bull;</div>
         <h3 class="adda-state-title" id="empty-state-title">No gatherings found</h3>
         <p class="adda-state-desc" id="empty-state-desc">
           There are currently no scheduled gatherings matching your selected city.
         </p>
-        <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+        <div class="adda-inline-b3fe1895d3">
           <button type="button" class="adda-btn adda-btn-secondary" id="reset-filters-btn">Reset Filters</button>
           <button type="button" class="adda-btn adda-btn-primary" id="empty-host-btn">Propose a Gathering</button>
         </div>
       </div>
 
       <!-- Error State -->
-      <div id="events-error-state" class="adda-state-box adda-state-error" style="display: none;">
+      <div id="events-error-state" class="adda-state-box adda-state-error adda-inline-f2892a2e8a">
         <div class="adda-state-icon" aria-hidden="true">!</div>
         <h3 class="adda-state-title">Unable to Load Gatherings</h3>
         <p class="adda-state-desc" id="error-state-message">
@@ -150,7 +150,7 @@
     </div>
 
     <!-- Active Filter Status Indicator -->
-    <div id="events-status-bar" style="margin-bottom: 1rem; font-size: 0.875rem; color: var(--adda-text-subtle); display: none;">
+    <div id="events-status-bar" class="adda-inline-ae397a5d29">
       <span id="events-count-label"></span>
     </div>
 
@@ -162,7 +162,7 @@
       </div>
       <p class="adda-coord-subtitle" id="adda-coord-subtitle">Use Adda space &mdash; talk to a coordinator</p>
       <div class="adda-coord-grid" id="adda-coord-grid">
-        <div class="adda-coord-loading" id="adda-coord-grid-loading" style="padding: 1rem; color: #6B7280; font-size: 0.875rem;">
+        <div class="adda-coord-loading adda-inline-16750c7393" id="adda-coord-grid-loading">
           Loading coordinators...
         </div>
       </div>
@@ -172,204 +172,16 @@
 </section>
 
 {% include "templates/includes/day-events-modal.html" %}
+{% include "templates/includes/event-detail-modal.html" %}
 
-<!-- ========================================================================
-     3. EVENT DETAIL POPUP MODAL
-     ======================================================================== -->
-<div class="adda-modal-backdrop" id="event-detail-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-event-title" style="display: none;">
-  <div class="adda-modal-container" style="max-width: 560px;">
-    <!-- Modal Header with Title and Close Button -->
-    <div class="adda-modal-header" style="border-bottom: none; padding: 1.5rem 1.75rem 0.5rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;">
-      <h2 class="adda-modal-title" id="modal-event-title" style="font-size: 1.45rem; font-weight: 800; color: #111827; margin: 0; line-height: 1.3; flex: 1;"></h2>
-      <button type="button" class="adda-modal-close-btn" id="modal-detail-close-btn" aria-label="Close details" style="color: #6B7280; font-size: 1.75rem; padding: 0.2rem 0.5rem; line-height: 1; border: none; background: none; cursor: pointer;">&times;</button>
-      <!-- Hidden compatibility badges for test assertions -->
-      <span class="adda-cat-badge cat-default" id="modal-event-badge" style="display: none;">Adda</span>
-      <span class="adda-tag adda-tag-city" id="modal-event-city" style="display: none;">Bengaluru</span>
-    </div>
-
-    <div class="adda-modal-body" style="padding: 0.5rem 1.75rem 1rem;">
-      <!-- Poster Image with Tap Hint -->
-      <div class="adda-detail-poster-wrap" id="modal-poster-wrap" style="display: none; border-radius: 12px; overflow: hidden; margin-bottom: 1.25rem; background: #131B26;">
-        <img src="" alt="Event Poster" id="modal-poster-img" class="adda-detail-poster-img" style="width: 100%; max-height: 340px; object-fit: contain; display: block; cursor: pointer; margin: 0 auto; background: #131B26;" onerror="this.closest('#modal-poster-wrap').style.display='none';" />
-        <div class="adda-poster-tap-hint" id="modal-poster-hint" style="text-align: center; padding: 0.55rem; font-size: 0.8125rem; font-weight: 600; color: #0F766E; background: #F0FDF4; border-top: 1px solid #DCFCE7; cursor: pointer;">
-          <span aria-hidden="true">&#x1F50D;</span> Tap to view full size
-        </div>
-      </div>
-
-      <!-- Date, Time and Location Rows -->
-      <div class="adda-detail-meta-list" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
-        <div class="adda-detail-meta-row" id="modal-event-time-row" style="display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.95rem;">
-          <span class="adda-detail-icon" aria-hidden="true" style="font-size: 1.15rem; line-height: 1.2;">&#x1F5D3;&#xFE0F;</span>
-          <span class="adda-detail-meta-text" id="modal-event-time" style="font-weight: 600; color: #111827;"></span>
-        </div>
-        <div class="adda-detail-meta-row" id="modal-event-venue-row" style="display: flex; align-items: flex-start; gap: 0.65rem; font-size: 0.95rem;">
-          <span class="adda-detail-icon" aria-hidden="true" style="font-size: 1.15rem; line-height: 1.2;">&#x1F4CD;</span>
-          <span class="adda-detail-meta-text" id="modal-event-venue" style="color: #4B5563;"></span>
-        </div>
-        <div class="adda-detail-meta-row" id="modal-event-mode-row" style="display: none;">
-          <span class="adda-detail-icon" aria-hidden="true">&#x1F465;</span>
-          <span class="adda-detail-meta-text" id="modal-event-mode"></span>
-        </div>
-      </div>
-
-      <!-- Description -->
-      <div class="adda-detail-desc" id="modal-event-desc" style="font-size: 0.9375rem; line-height: 1.6; color: #4B5563; margin-bottom: 1.25rem; white-space: pre-wrap;"></div>
-
-      <section class="adda-event-recap adda-event-recap--compact" id="modal-event-recap" style="display: none;">
-        <div class="adda-event-recap__eyebrow">What Happened</div>
-        <h3 class="adda-event-recap__title" id="modal-recap-title"></h3>
-        <div class="adda-event-recap__summary" id="modal-recap-summary"></div>
-        <div class="adda-event-recap__outcomes" id="modal-recap-outcomes" style="display: none;"></div>
-        <div class="adda-event-recap__meta" id="modal-recap-meta"></div>
-        <div class="adda-event-recap__gallery" id="modal-recap-gallery"></div>
-      </section>
-
-      <!-- Completely removed organized by section - hidden for compatibility -->
-      <div id="modal-event-org" style="display: none;"></div>
-    </div>
-
-    <!-- Modal Footer: Green Share event button & Centered text Close button -->
-    <div class="adda-modal-footer adda-detail-modal-footer" style="flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; border-top: none; padding: 0.5rem 1.75rem 1.5rem; gap: 0.5rem;">
-      <button type="button" id="modal-register-btn" style="display: none !important;" aria-hidden="true"></button>
-      <button type="button" class="adda-btn-share-full" id="modal-share-btn">
-        <span aria-hidden="true">&#x1F517;</span> Share event
-      </button>
-      <button type="button" class="adda-btn-text-close" id="modal-detail-action-close">
-        Close
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- ========================================================================
-     3B. EVENT REGISTRATION POPUP MODAL
-     ======================================================================== -->
-<div class="adda-modal-backdrop" id="event-reg-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-reg-event-title" style="display: none;">
-  <div class="adda-modal-container adda-detail-modal-container" id="adda-reg-modal-container" style="max-width: 520px;">
-    <!-- Top row with Circular Close Button -->
-    <div class="adda-modal-top-bar adda-detail-modal-top">
-      <button type="button" class="adda-modal-close-btn" id="modal-reg-close-btn" aria-label="Close registration">&times;</button>
-    </div>
-
-    <!-- Scrollable Modal Body -->
-    <div class="adda-modal-body" style="padding: 1.5rem 1.75rem;">
-      <h2 style="font-size: 1.35rem; font-weight: 800; color: #111827; margin: 0 0 0.5rem;">Register for Gathering</h2>
-      
-      <!-- Event Summary Mini-Card -->
-      <div style="background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.25rem;">
-        <h3 id="modal-reg-event-title" style="font-size: 1.1rem; font-weight: 700; color: #111827; margin: 0 0 0.5rem;"></h3>
-        <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.875rem; color: #4B5563;">
-          <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <span aria-hidden="true">&#x1F5D3;&#xFE0F;</span>
-            <span id="modal-reg-event-time"></span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <span aria-hidden="true">&#x1F4CD;</span>
-            <span id="modal-reg-event-venue"></span>
-          </div>
-        </div>
-        <div style="margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px solid #E5E7EB; display: flex; align-items: center; justify-content: space-between;">
-          <span style="font-size: 0.8125rem; font-weight: 700; color: #047857;">100% Free Admission</span>
-          <span style="font-size: 0.75rem; color: #6B7280;">No tickets or fees required</span>
-        </div>
-      </div>
-
-      <!-- A. Registration Form View -->
-      <div id="modal-reg-form-view">
-        <p style="font-size: 0.875rem; color: #4B5563; margin-bottom: 1rem;">
-          Reserve your spot by providing your WhatsApp number. Admission is free for all attendees.
-        </p>
-
-        <div id="modal-reg-error-box" class="adda-alert-error" style="display: none; margin-bottom: 1rem;" role="alert">
-          <span id="modal-reg-error-text"></span>
-        </div>
-
-        <form id="modal-event-reg-form" novalidate>
-          <div style="margin-bottom: 0.875rem;">
-            <label for="modal-reg-name" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">
-              Full Name <span style="font-weight: 400; color: #6B7280; font-size: 0.75rem;">(Optional)</span>
-            </label>
-            <input type="text" id="modal-reg-name" name="full_name" class="adda-input" placeholder="e.g. Priya Sharma" autocomplete="name" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" />
-          </div>
-
-          <div style="margin-bottom: 1.25rem;">
-            <label for="modal-reg-mobile" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">
-              WhatsApp Number <span style="color: #EF4444; font-weight: 700;">*</span>
-            </label>
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span class="adda-input-prefix" style="padding: 0.65rem 0.85rem; background: #F3F4F6; border: 1px solid #D1D5DB; border-radius: 8px; font-weight: 600; color: #374151;">+91</span>
-              <input type="tel" id="modal-reg-mobile" name="mobile" class="adda-input" placeholder="9876543210" maxlength="10" inputmode="numeric" required autocomplete="tel" style="flex: 1; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" />
-            </div>
-            <div id="modal-reg-mobile-error" class="adda-field-error" style="display: none; color: #DC2626; font-size: 0.75rem; margin-top: 0.25rem;" role="alert"></div>
-          </div>
-
-          <button type="submit" id="modal-reg-submit-btn" class="adda-btn adda-btn-primary" style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 700; font-size: 0.9375rem;">
-            Confirm Free RSVP
-          </button>
-        </form>
-      </div>
-
-      <!-- B. Success View -->
-      <div id="modal-reg-success-view" class="adda-reg-result adda-reg-success" style="display: none; text-align: center; padding: 1.5rem 0.5rem;">
-        <div style="font-size: 2.5rem; color: #10B981; margin-bottom: 0.5rem;">&check;</div>
-        <div class="adda-reg-badge" style="display: inline-block; background-color: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; padding: 0.25rem 0.75rem; border-radius: 999px; font-weight: 700; font-size: 0.8125rem; margin-bottom: 0.75rem;">
-          Spot Confirmed
-        </div>
-        <h4 style="font-size: 1.35rem; font-weight: 800; color: #111827; margin: 0 0 0.5rem;">
-          You're registered!
-        </h4>
-        <p style="font-size: 0.875rem; color: #4B5563; line-height: 1.5; margin-bottom: 1rem;">
-          Admission is completely free. We look forward to seeing you at the gathering!
-        </p>
-        <div style="font-size: 0.8125rem; background-color: #F9FAFB; padding: 0.65rem 1rem; border-radius: 8px; border: 1px solid #E5E7EB; margin-bottom: 1.25rem; text-align: left;">
-          <span style="color: #6B7280; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 0.15rem;">Registration Reference</span>
-          <code id="modal-reg-success-id" style="font-family: monospace; font-size: 1rem; font-weight: 700; color: #111827;"></code>
-        </div>
-        <button type="button" class="adda-btn adda-btn-secondary" id="modal-reg-success-close-btn" style="width: 100%; padding: 0.65rem; border-radius: 8px;">
-          Done
-        </button>
-      </div>
-
-      <!-- C. Duplicate View -->
-      <div id="modal-reg-duplicate-view" class="adda-reg-result adda-reg-duplicate" style="display: none; text-align: center; padding: 1.5rem 0.5rem;">
-        <div class="adda-reg-badge" style="display: inline-block; background-color: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; padding: 0.25rem 0.75rem; border-radius: 999px; font-weight: 700; font-size: 0.8125rem; margin-bottom: 0.75rem;">
-          &bull; Already Registered
-        </div>
-        <h4 style="font-size: 1.35rem; font-weight: 800; color: #111827; margin: 0 0 0.5rem;">
-          Spot already reserved
-        </h4>
-        <p style="font-size: 0.875rem; color: #4B5563; line-height: 1.5; margin-bottom: 1rem;">
-          You have already registered for this gathering with this mobile number. Your spot remains confirmed.
-        </p>
-        <div style="font-size: 0.8125rem; background-color: #F9FAFB; padding: 0.65rem 1rem; border-radius: 8px; border: 1px solid #BFDBFE; margin-bottom: 1.25rem; text-align: left;">
-          <span style="color: #6B7280; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 0.15rem;">Registration Reference</span>
-          <code id="modal-reg-duplicate-id" style="font-family: monospace; font-size: 1rem; font-weight: 700; color: #111827;"></code>
-        </div>
-        <button type="button" class="adda-btn adda-btn-secondary" id="modal-reg-duplicate-close-btn" style="width: 100%; padding: 0.65rem; border-radius: 8px;">
-          Done
-        </button>
-      </div>
-
-      <!-- D. Past Event View -->
-      <div id="modal-reg-past-view" style="display: none; text-align: center; padding: 2rem 1rem;">
-        <span class="adda-tag" style="margin-bottom: 0.75rem;">Gathering Concluded</span>
-        <p style="font-size: 0.9375rem; color: #4B5563; margin-bottom: 1.25rem;">
-          This gathering has already taken place. Registrations are closed.
-        </p>
-        <button type="button" class="adda-btn adda-btn-secondary" id="modal-reg-past-close-btn" style="padding: 0.65rem 1.5rem; border-radius: 8px;">
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+{% include "templates/includes/event-registration-modal.html" %}
 
 <!-- Lightbox Zoom Overlay for Poster -->
-<div class="adda-lightbox-overlay" id="poster-lightbox-overlay" style="display: none;" role="dialog" aria-label="Poster Full Preview">
+<div class="adda-lightbox-overlay adda-inline-f2892a2e8a" id="poster-lightbox-overlay" role="dialog" aria-label="Poster Full Preview">
   <img src="" alt="Full Event Poster" class="adda-lightbox-img" id="lightbox-enlarged-img" />
 </div>
 
-<div class="adda-gallery-lightbox" id="recap-gallery-lightbox" style="display: none;" role="dialog" aria-modal="true" aria-label="Event recap photo gallery">
+<div class="adda-gallery-lightbox adda-inline-f2892a2e8a" id="recap-gallery-lightbox" role="dialog" aria-modal="true" aria-label="Event recap photo gallery">
   <button type="button" class="adda-gallery-lightbox__close" id="recap-gallery-close" aria-label="Close photo gallery">&times;</button>
   <button type="button" class="adda-gallery-lightbox__nav adda-gallery-lightbox__prev" id="recap-gallery-prev" aria-label="Previous photo">&#10094;</button>
   <figure class="adda-gallery-lightbox__figure">
@@ -385,289 +197,9 @@
   Event link copied to clipboard!
 </div>
 
-<!-- ========================================================================
-     4. HOST AT ADDA MULTI-STEP MODAL
-     ======================================================================== -->
-<div class="adda-modal-backdrop" id="host-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="host-modal-main-title" style="display: none;" data-logged-in="{{ 'true' if user_is_logged_in else 'false' }}" data-user="{{ user_email }}">
-  <div class="adda-modal-container" style="max-width: 580px;">
-
-    <!-- Compatibility hidden wizard nav for test suites -->
-    <nav class="adda-wizard-nav" style="display: none;" aria-hidden="true">
-      <div class="adda-wizard-step" id="modal-nav-step-1"></div>
-      <div class="adda-wizard-step" id="modal-nav-step-2"></div>
-      <div class="adda-wizard-step" id="modal-nav-step-3"></div>
-      <div class="adda-wizard-step" id="modal-nav-step-4"></div>
-    </nav>
-
-    <!-- SCREEN 1: CITY & COORDINATION -->
-    <div class="adda-step-panel active" id="modal-panel-step-1">
-      <div class="adda-modal-header" style="border-bottom: 1px solid var(--adda-border-light); padding: 1.25rem 1.75rem;">
-        <h2 class="adda-modal-title" id="host-modal-main-title" style="font-size: 1.35rem; font-weight: 800; color: #111827; margin: 0;">Host at Adda</h2>
-        <button type="button" class="adda-modal-close-btn" id="host-modal-close-btn" aria-label="Close form" style="color: #6B7280; font-size: 1.75rem; border: none; background: none; cursor: pointer;">&times;</button>
-      </div>
-      <div class="adda-modal-body" style="padding: 1.5rem 1.75rem 1rem;">
-        <p style="font-size: 0.9375rem; color: #4B5563; line-height: 1.5; margin-bottom: 1.25rem;">
-          Choose the city where you want to host. The available spaces and room operating hours will update for that city.
-        </p>
-
-        <div class="adda-form-group" style="margin-bottom: 1.25rem;">
-          <label for="modal-city-select" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">City <span class="req" style="color: #EF4444;">*</span></label>
-          <select id="modal-city-select" class="adda-select" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" required>
-            <option value="" selected disabled>Select a city</option>
-          </select>
-        </div>
-
-        <!-- Prefer a human? Card -->
-        <div id="modal-coordinator-card" class="adda-coordinator-lead-card" style="display: none;">
-          <div class="adda-coord-lead-header">
-            <h4 class="adda-coord-lead-title">Prefer a human?</h4>
-            <p class="adda-coord-lead-desc"><span id="modal-coord-city-tag">Adda Space</span> &mdash; talk to a coordinator</p>
-          </div>
-
-          <!-- Loading state -->
-          <div id="modal-coord-loading" class="adda-coord-loading" style="display: none;">
-            <span>Loading coordinator details...</span>
-          </div>
-
-          <!-- Empty / Error state -->
-          <div id="modal-coord-empty" class="adda-coord-empty" style="display: none;">
-            <span id="modal-coord-empty-msg">No active coordinator is assigned to this city yet.</span>
-            <button type="button" id="modal-coord-retry-btn" class="adda-coord-retry-btn" style="display: none;">Retry</button>
-          </div>
-
-          <!-- Coordinator details -->
-          <div id="modal-coord-content" style="display: none;">
-            <!-- Coordinator Contact Body -->
-            <div class="adda-coord-lead-body">
-              <div class="adda-coord-lead-info">
-                <strong id="modal-coord-name" class="adda-coord-lead-name"></strong>
-                <span id="modal-coord-role" class="adda-coord-lead-role" style="display: none;"></span>
-                <span id="modal-coord-contact" class="adda-coord-lead-phone"></span>
-              </div>
-              <a href="#" id="modal-coord-wa-link" target="_blank" rel="noopener noreferrer" class="adda-coord-lead-wa-btn" style="display: none;">
-                <svg class="adda-whatsapp-mark" width="18" height="18" style="width:18px!important;height:18px!important" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.2a9.6 9.6 0 0 0-8.2 14.6L2.4 22l5.4-1.4A9.7 9.7 0 1 0 12 2.2Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.1 6.8c-.3 0-.6.1-.8.4-.3.3-1 1-1 2.3s1 2.7 1.1 2.9c.1.2 2 3 4.7 4.1 2.3.9 2.8.7 3.3.6.5-.1 1.6-.7 1.8-1.3.2-.6.2-1.2.1-1.3-.1-.1-.3-.2-.7-.4l-1.9-.9c-.3-.1-.5-.2-.7.2-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1a7.4 7.4 0 0 1-2.2-1.4 8.2 8.2 0 0 1-1.5-1.9c-.2-.3 0-.5.1-.6l.5-.6c.2-.2.2-.3.3-.5s0-.4 0-.6L9 7.2c-.2-.4-.4-.4-.6-.4Z" fill="currentColor"/></svg>
-                <span id="modal-coord-wa-text">WhatsApp</span>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div id="modal-step-1-error" class="adda-avail-box adda-avail-alert" style="display: none; margin-top: 1rem;">
-          <span>Please select a city to continue.</span>
-        </div>
-      </div>
-      <div class="adda-modal-footer" style="flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; border-top: none; padding: 0.5rem 1.75rem 1.5rem; gap: 0.5rem;">
-        <button type="button" class="adda-btn-modal-continue" id="host-step-1-continue-btn">Continue</button>
-        <button type="button" class="adda-btn-text-close" id="host-step-1-close-btn">Close</button>
-      </div>
-    </div>
-
-    <!-- SCREEN 2: DATE, TIME & ROOM AVAILABILITY -->
-    <div class="adda-step-panel" id="modal-panel-step-2" style="display: none;">
-      <div class="adda-modal-header" style="border-bottom: 1px solid var(--adda-border-light); padding: 1.25rem 1.75rem; display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <button type="button" class="adda-modal-back-btn" id="host-step-2-back-btn">&larr; Back</button>
-          <h2 class="adda-modal-title" style="font-size: 1.35rem; font-weight: 800; color: #111827; margin: 0;">Host at Adda</h2>
-        </div>
-        <button type="button" class="adda-modal-close-btn" id="host-step-2-close-btn" aria-label="Close form" style="color: #6B7280; font-size: 1.75rem; border: none; background: none; cursor: pointer;">&times;</button>
-      </div>
-      <div class="adda-modal-body" style="padding: 1.5rem 1.75rem 1rem;">
-        <div class="adda-form-group" style="margin-bottom: 1rem;">
-          <label for="modal-event-date" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">Date <span class="req" style="color: #EF4444;">*</span></label>
-          <input type="date" id="modal-event-date" class="adda-input" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" required />
-        </div>
-
-        <div class="adda-form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.35rem;">
-          <div class="adda-form-group">
-            <label for="modal-start-time" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">Start Time <span class="req" style="color: #EF4444;">*</span></label>
-            <select id="modal-start-time" class="adda-input" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" required><option value="" selected disabled>Select a start time</option></select>
-          </div>
-          <div class="adda-form-group">
-            <label for="modal-end-time" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">End Time <span class="req" style="color: #EF4444;">*</span></label>
-            <select id="modal-end-time" class="adda-input" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" required disabled><option value="" selected disabled>Select a start time first</option></select>
-          </div>
-        </div>
-
-        <div id="modal-duration-display" class="adda-duration-summary">
-          Select a start and end time during the room’s operating hours.
-        </div>
-
-        <div id="modal-hours-warning" class="adda-avail-box adda-avail-warning" style="display: none; background: #FFFBEB; border: 1px solid #FCD34D; color: #92400E; margin-bottom: 1rem; font-size: 0.8125rem; padding: 0.65rem 0.85rem; border-radius: 6px;">
-          <span id="modal-hours-warning-text"></span>
-        </div>
-
-        <!-- Room Operating Hours Box -->
-        <div id="modal-room-hours-box" class="adda-coord-hours-box" style="margin-bottom: 1rem; display: none;">
-          <div class="adda-coord-hours-header">
-            <span class="adda-coord-hours-title" id="modal-room-hours-title">Room Operating Hours</span>
-            <span class="adda-coord-hours-tz" id="modal-room-timezone">Asia/Kolkata</span>
-          </div>
-          <div class="adda-coord-hours-grid" id="modal-room-hours-grid">
-            <div class="adda-coord-hours-item">
-              <span class="adda-coord-hours-label">Opens</span>
-              <span class="adda-coord-hours-val" id="modal-room-open-time">--:--</span>
-            </div>
-            <div class="adda-coord-hours-item">
-              <span class="adda-coord-hours-label">Closes</span>
-              <span class="adda-coord-hours-val" id="modal-room-close-time">--:--</span>
-            </div>
-          </div>
-          <div id="modal-room-hours-missing" class="adda-coord-hours-missing" style="display: none; color: #DC2626; font-size: 0.8125rem; margin-top: 0.5rem;">
-            Operating hours are not configured for this space. Please contact a coordinator or select another space.
-          </div>
-        </div>
-
-        <div class="adda-form-group" style="margin-top: 1rem;">
-          <label class="adda-rooms-heading">ROOMS FOR THIS TIME</label>
-          <div id="modal-rooms-loading" style="font-size: 0.875rem; color: #6B7280; padding: 0.5rem 0;">
-            Loading spaces for selected city...
-          </div>
-          <div class="adda-room-grid" id="modal-rooms-grid" style="display: none;"></div>
-          <input type="hidden" id="modal-selected-room" />
-        </div>
-
-        <div id="modal-avail-banner" class="adda-avail-box adda-avail-info" style="display: none; margin-top: 1rem;">
-          <div id="modal-avail-message"></div>
-        </div>
-
-        <div id="modal-step-2-error" class="adda-avail-box adda-avail-alert" style="display: none; margin-top: 1rem;">
-          <span id="modal-step-2-error-text">Please select a valid date, time, and room.</span>
-        </div>
-      </div>
-      <div class="adda-modal-footer" style="flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; border-top: none; padding: 0.5rem 1.75rem 1.5rem; gap: 0.5rem;">
-        <button type="button" class="adda-btn-modal-continue" id="host-step-2-continue-btn">Continue</button>
-        <button type="button" class="adda-btn-text-close" id="host-step-2-close-btn-bottom">Close</button>
-      </div>
-    </div>
-
-    <!-- SCREEN 3: EVENT DETAILS & PROPOSAL SUBMISSION -->
-    <div class="adda-step-panel" id="modal-panel-step-3" style="display: none;">
-      <div class="adda-modal-header" style="border-bottom: 1px solid var(--adda-border-light); padding: 1.25rem 1.75rem; display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <button type="button" class="adda-modal-back-btn" id="host-step-3-back-btn">&larr; Back</button>
-          <h2 class="adda-modal-title" style="font-size: 1.35rem; font-weight: 800; color: #111827; margin: 0;">Event details</h2>
-        </div>
-        <button type="button" class="adda-modal-close-btn" id="host-step-3-close-btn" aria-label="Close form" style="color: #6B7280; font-size: 1.75rem; border: none; background: none; cursor: pointer;">&times;</button>
-      </div>
-      <div class="adda-modal-body" style="padding: 1.5rem 1.75rem 1rem;">
-        <!-- Summary card at top of Screen 3 -->
-        <div class="adda-summary-card" id="modal-step-3-summary">
-          <div style="font-weight: 700; color: #111827; margin-bottom: 0.25rem;" id="modal-step-3-summary-room">Selected Room</div>
-          <div style="font-size: 0.8125rem; color: #4B5563;" id="modal-step-3-summary-datetime">Date &amp; Time</div>
-        </div>
-
-        <div class="adda-form-group" style="margin-bottom: 1rem;">
-          <label for="modal-title-input" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">Title <span class="req" style="color: #EF4444;">*</span></label>
-          <input type="text" id="modal-title-input" class="adda-input" placeholder="e.g. Neighbourhood Composting Circle" maxlength="140" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" required />
-        </div>
-
-        <div class="adda-form-group" style="margin-bottom: 1rem;">
-          <label for="modal-desc-input" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">Description <span class="req" style="color: #EF4444;">*</span></label>
-          <textarea id="modal-desc-input" class="adda-textarea" placeholder="Explain what participants will do and materials needed..." rows="3" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" required></textarea>
-        </div>
-
-        <div class="adda-form-group" style="margin-bottom: 1rem;">
-          <label class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
-            <span>Event poster <span style="font-size: 0.85rem; font-weight: 500; color: #6B7280;">(optional)</span></span>
-          </label>
-
-          <!-- Poster source tab toggle -->
-          <div id="modal-poster-tab-row" style="display: flex; gap: 0; margin-bottom: 0.75rem; border: 1px solid #D1D5DB; border-radius: 8px; overflow: hidden;">
-            <button type="button" id="modal-poster-tab-upload" class="adda-poster-tab active" style="flex: 1; padding: 0.45rem 0.65rem; font-size: 0.8125rem; font-weight: 600; background: #111827; color: #FFFFFF; border: none; cursor: pointer; transition: background 0.15s;">
-              &#8679; Upload File
-            </button>
-            <button type="button" id="modal-poster-tab-url" class="adda-poster-tab" style="flex: 1; padding: 0.45rem 0.65rem; font-size: 0.8125rem; font-weight: 600; background: #F9FAFB; color: #374151; border: none; border-left: 1px solid #D1D5DB; cursor: pointer; transition: background 0.15s;">
-              &#128279; Image URL
-            </button>
-          </div>
-
-          <!-- Tab A: Upload File -->
-          <div id="modal-poster-upload-panel">
-            <input type="file" id="modal-poster-file" class="adda-input" accept="image/png, image/jpeg, image/webp" style="width: 100%; border-radius: 8px; padding: 0.5rem; border: 1px solid #D1D5DB; font-size: 0.875rem;" />
-            <p class="adda-form-hint" style="font-size: 0.75rem; color: #6B7280; margin-top: 0.25rem;">Supported formats: PNG, JPG, WebP (Max 5MB). If not uploaded, a default poster will be used.</p>
-          </div>
-
-          <!-- Tab B: Image URL -->
-          <div id="modal-poster-url-panel" style="display: none;">
-            <input type="url" id="modal-poster-url-input" class="adda-input" placeholder="https://example.com/event-poster.jpg" autocomplete="off" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;" />
-            <p class="adda-form-hint" style="font-size: 0.75rem; color: #6B7280; margin-top: 0.25rem;">Paste a direct link to a PNG, JPG, or WebP image.</p>
-          </div>
-
-          <!-- Shared Preview Box -->
-          <div id="modal-poster-preview-box" class="adda-poster-preview" style="display: none; margin-top: 0.65rem; padding: 0.75rem; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px;">
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
-              <img id="modal-host-poster-img" src="" alt="Poster preview" style="width: 56px; height: 56px; border-radius: 6px; object-fit: cover; border: 1px solid #D1D5DB; background: #FFFFFF;" />
-              <div style="flex: 1; min-width: 0;">
-                <div id="modal-poster-filename" style="font-size: 0.8125rem; font-weight: 600; color: #111827; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
-                <div id="modal-poster-filesize" style="font-size: 0.75rem; color: #6B7280;"></div>
-              </div>
-              <button type="button" id="modal-poster-replace-btn" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; font-weight: 600; color: #DC2626; background: #FEE2E2; border: 1px solid #FCA5A5; border-radius: 6px; cursor: pointer;">
-                Replace
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Hidden / default attendees field; mode exposed as a visible select -->
-        <input type="hidden" id="modal-people-input" value="20" />
-        <div class="adda-form-group" style="margin-bottom: 1rem;">
-          <label for="modal-mode-select" class="adda-form-label" style="font-weight: 700; color: #111827; margin-bottom: 0.35rem; display: block;">Format / Mode</label>
-          <select id="modal-mode-select" class="adda-select" style="width: 100%; border-radius: 8px; padding: 0.65rem 0.85rem; border: 1px solid #D1D5DB; font-size: 0.9375rem;">
-            <option value="Offline" selected>Offline</option>
-            <option value="Online">Online</option>
-          </select>
-        </div>
-        <span id="modal-capacity-hint" style="display: none;"></span>
-
-        <div id="modal-step-3-error" class="adda-avail-box adda-avail-alert" style="display: none; margin-top: 0.75rem;">
-          <span id="modal-step-3-error-text">Please fill in title and description.</span>
-        </div>
-
-        <div id="modal-submit-error-box" class="adda-avail-box adda-avail-alert" style="display: none; margin-top: 0.75rem;">
-          <span id="modal-submit-error-text"></span>
-        </div>
-      </div>
-      <div class="adda-modal-footer" style="flex-direction: column; align-items: center; justify-content: center; background: #FFFFFF; border-top: none; padding: 0.5rem 1.75rem 1.5rem; gap: 0.5rem;">
-        <!-- Sticky Action Button: Submit Gathering Proposal (auth removed — all users can submit) -->
-        <button type="button" class="adda-btn-modal-continue" id="modal-step-submit-btn">Submit Gathering Proposal</button>
-        <button type="button" class="adda-btn-text-close" id="host-step-3-close-btn-bottom">Close</button>
-      </div>
-    </div>
-
-    <!-- HIDDEN STEP 4 CONTAINER (For compatibility with existing test assertions) -->
-    <div class="adda-step-panel" id="modal-panel-step-4" style="display: none;" aria-hidden="true">
-      <div id="mrev-title"></div>
-      <div id="mrev-city"></div>
-      <div id="mrev-room"></div>
-      <div id="mrev-datetime"></div>
-      <div id="mrev-people"></div>
-      <div id="modal-auth-guest-callout" style="display: none;"></div>
-      <div id="modal-auth-logged-in-callout" style="display: none;"></div>
-      <span id="modal-logged-in-user-display" style="display: none;"></span>
-      <button type="button" id="modal-step-back-btn" style="display: none;"></button>
-      <button type="button" id="modal-step-next-btn" style="display: none;"></button>
-    </div>
-
-    <!-- SCREEN 4 / PANEL 5: CONFIRMATION -->
-    <div class="adda-step-panel" id="modal-panel-step-5" style="display: none;">
-      <div class="adda-confirmation-card" style="text-align: center; padding: 2.5rem 1.75rem;">
-        <div class="adda-confirmation-icon" style="font-size: 3rem; color: #10B981; margin-bottom: 0.75rem;">&check;</div>
-        <h3 style="font-size: 1.5rem; color: #111827; margin-bottom: 0.5rem; font-weight: 800;">Proposal Submitted!</h3>
-        <p style="font-size: 0.9375rem; color: #4B5563; margin-bottom: 1.25rem;">
-          Thank you for proposing a gathering at Adda Space. Your proposal is currently in review.
-        </p>
-        <div style="background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; text-align: left;">
-          <div style="font-size: 0.75rem; color: #6B7280; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Reference Document ID</div>
-          <code id="modal-conf-ref-name" style="font-family: monospace; font-size: 1.1rem; font-weight: 700; color: #111827;"></code>
-        </div>
-        <button type="button" class="adda-btn-modal-continue" id="modal-conf-close-btn" style="margin-top: 0;">Done</button>
-      </div>
-    </div>
-
-  </div>
-</div>
+{% include "templates/includes/host-event-modal.html" %}
 {% endblock %}
 
 {% block script %}
-<script src="/assets/adda_space/js/events.js?v={{ build_version or '2.0.1' }}"></script>
+<script type="module" src="/assets/adda_space/js/events.js?v={{ build_version or '2.0.1' }}"></script>
 {% endblock %}
