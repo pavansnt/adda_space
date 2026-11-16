@@ -1,14 +1,16 @@
 import {
   escapeHtml,
+  stripHtml,
   isPendingEvent,
   isPastEvent,
   recapStateHtml,
   padZero,
   getCategoryClass,
   getCategoryLabel,
+  formatEventTime,
   formatEventTimeRange,
   formatLongDate
-} from './events-utils.js';
+} from './events-utils.js?v=2.0.3';
 
 export function createCalendarListController(ctx) {
   var state = ctx.state;
@@ -514,6 +516,7 @@ export function createCalendarListController(ctx) {
     var monthEnd = state.calYear + '-' + padZero(state.calMonth + 1) + '-' + padZero(getDaysInMonth(state.calYear, state.calMonth));
     apiUrl.searchParams.set('start_date', monthStart);
     apiUrl.searchParams.set('end_date', monthEnd);
+    apiUrl.searchParams.set('time_scope', 'all');
     apiUrl.searchParams.set('event_type', 'all');
     apiUrl.searchParams.set('include_pending', '1');
     if (state.currentCity) {
@@ -534,8 +537,21 @@ export function createCalendarListController(ctx) {
       return res.json();
     })
     .then(function(data) {
-      var payload = data.message || data;
-      var events = payload.events || [];
+      var payload = data && data.message ? data.message : data;
+      if (typeof payload === 'string') {
+        try {
+          payload = JSON.parse(payload);
+        } catch (parseError) {
+          throw new Error('The events service returned an invalid response.');
+        }
+      }
+      if (!payload || typeof payload !== 'object') {
+        throw new Error('The events service returned an invalid response.');
+      }
+      if (payload.success === false) {
+        throw new Error(payload.error || 'Unable to load gatherings.');
+      }
+      var events = Array.isArray(payload.events) ? payload.events : [];
       var pastEvents = [];
       var visibleEvents = events;
       if (isCurrentListMonth()) {

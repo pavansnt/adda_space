@@ -2,7 +2,7 @@ import {
   getCsrfToken, escapeHtml, stripHtml, isPendingEvent, isPastEvent, recapStateHtml,
   getCategoryClass, getCategoryLabel, formatEventTime, formatEventTimeRange,
   formatLongDate, formatDayPopupDate
-} from './events-utils.js';
+} from './events-utils.js?v=2.0.3';
 
 export function createHostController(ctx) {
   var isHostLoggedIn = ctx.dom.hostModalBackdrop && ctx.dom.hostModalBackdrop.getAttribute('data-logged-in') === 'true';
@@ -24,19 +24,6 @@ export function createHostController(ctx) {
   var modalAvailabilitySeq = 0;
   var modalAvailabilityStatus = 'unknown';
   var isSubmittingHostProposal = false;
-
-  // ========================================================================
-  // HOST AT ADDA MULTI-STEP MODAL LOGIC
-  // ========================================================================
-
-  var currentCoordinatorData = null;
-  var currentRoomData = null;
-  var pendingModalStartTime = '';
-  var pendingModalEndTime = '';
-  var currentCoordinatorCity = '';
-  var currentCoordinatorTimezone = 'Asia/Kolkata';
-  var selectedHostDate = null;
-  var coordFetchSeq = 0;
 
   function normalizePhoneNumber(phone, defaultCode) {
     defaultCode = defaultCode || '91';

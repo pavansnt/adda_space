@@ -14,10 +14,10 @@ import {
   formatEventTimeRange,
   formatLongDate,
   formatDayPopupDate
-} from './events-utils.js';
-import { createModalController } from './events-modal.js';
-import { createHostController } from './events-host.js';
-import { createCalendarListController } from './events-calendar-list.js';
+} from './events-utils.js?v=2.0.3';
+import { createModalController } from './events-modal.js?v=2.0.3';
+import { createHostController } from './events-host.js?v=2.0.3';
+import { createCalendarListController } from './events-calendar-list.js?v=2.0.3';
 
 (function() {
   'use strict';
@@ -456,9 +456,16 @@ import { createCalendarListController } from './events-calendar-list.js';
     },
     openEventDetailModal: eventModalController.openEventDetailModal,
     openHostModal: hostController.openHostModal,
-    openDayEventsPopup: openDayEventsPopup,
-    showToast: showToast
+    openDayEventsPopup: eventModalController.openDayEventsPopup,
+    showToast: eventModalController.showToast
   });
+
+  calendarListController.updateFilterUI();
+  if (calendarState.currentView === 'calendar') {
+    calendarListController.fetchCalendarEvents();
+  } else {
+    calendarListController.fetchListEvents();
+  }
 
   // Keyboard accessibility: ESC key closes modals
   document.addEventListener('keydown', function(e) {
@@ -524,6 +531,9 @@ import { createCalendarListController } from './events-calendar-list.js';
       }
     })
     .catch(function() {
+      var fallbackCities = ['Bengaluru', 'Mysuru'];
+      calendarListController.renderCityFilterButtons(fallbackCities);
+      hostController.loadCoordinatorSection(fallbackCities);
       if (modalCitySelect && !modalCitySelect.options.length) {
         modalCitySelect.innerHTML = '<option value="" selected disabled>Select a city</option><option value="Bengaluru">Bengaluru</option><option value="Mysuru">Mysuru</option>';
         modalCitySelect.value = '';

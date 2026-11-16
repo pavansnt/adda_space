@@ -2,7 +2,7 @@ import {
   getCsrfToken, escapeHtml, stripHtml, isPendingEvent, isPastEvent, recapStateHtml,
   getCategoryClass, getCategoryLabel, formatEventTime, formatEventTimeRange, formatShortDateTimeRange,
   formatLongDate, formatDayPopupDate
-} from './events-utils.js';
+} from './events-utils.js?v=2.0.3';
 
 export function createModalController(ctx) {
   var recapGalleryImages = [];
